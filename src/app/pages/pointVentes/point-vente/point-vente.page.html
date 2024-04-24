@@ -1,0 +1,32 @@
+<ion-header [translucent]="true">
+  <ion-toolbar>
+    <ion-menu-toggle slot="start">
+      <ion-button icon-only="true">
+        <ion-icon name="menu"></ion-icon>
+      </ion-button>
+    </ion-menu-toggle>
+    <ion-title>Point de vente</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true">
+  <ion-header collapse="condense">
+    <ion-toolbar>
+      <ion-title size="large">Point de vente</ion-title>
+    </ion-toolbar>
+  </ion-header>
+  <ion-list>
+    <ion-item-sliding *ngFor="let pointVente of pointVentes" #slidingItem>
+      <ion-item (click)="gotoFamilleDetail(pointVente)">{{pointVente.nom}}</ion-item>
+      <ion-item-options>
+        <ion-item-option color="danger" (click)="delete(pointVente, slidingItem)">Delete</ion-item-option>
+      </ion-item-options>
+    </ion-item-sliding>
+    
+  </ion-list>
+  <ion-fab slot="fixed" vertical="bottom" horizontal="end">
+    <ion-fab-button routerLink="/add-update-point-vente/add">
+      <ion-icon name="add"></ion-icon>
+    </ion-fab-button>
+  </ion-fab>
+</ion-content>

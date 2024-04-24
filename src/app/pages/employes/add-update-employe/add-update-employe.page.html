@@ -1,0 +1,31 @@
+<ion-header [translucent]="true">
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-back-button></ion-back-button>
+    </ion-buttons>
+    <ion-title>Employe</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true" class="ion-padding">
+  <form [formGroup]="employeForm" (ngSubmit)="submit()">
+    <div>
+      <ion-input label="Nom*"  inputmode="text" mode="md" errorText="Nom invalide" label-placement="floating" fill="outline" placeholder="Tapez le nom du employe" id="nom" formControlName="nom" required></ion-input>
+      <ion-input label="Adresse" inputmode="text" mode="md" errorText="Nom invalide" label-placement="floating" fill="outline" placeholder="Tapez l'adresse" id="adresse" formControlName="adresse" ></ion-input>
+      <ion-input label="Télephone" inputmode="numeric"  mode="md" errorText="Nom invalide" label-placement="floating" fill="outline" placeholder="Tapez le numero de téléphone" id="phone1" formControlName="phone1" ></ion-input>
+      <ion-input label="N° CNI*" inputmode="text"  mode="md" errorText="Nom invalide" label-placement="floating" fill="outline" placeholder="Tapez le numero de cni" id="cni" formControlName="cni" ></ion-input>
+    </div>
+    <ion-button type="submit" class="btn btn-primary">Ajouter Employe</ion-button>
+    <ion-button type="button" (click)="addAttachments()" class="btn btn-primary">Pieces Jointes</ion-button>
+  </form>
+  <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px;">
+    <!-- <div style="position: relative;" *ngFor="let url of photos">
+      <img style="width: 100%" [src]="url.webPath || 'data:image/jpeg;base64,' + url?.data" alt="">
+      <div (click)="removeImagetoDisplayingImages(url.webPath ||  url?.data)" style="position: absolute;top:0px; right: 0px; color: red; background-color: #fff;width: 30px;height: 30px; display: flex;justify-content: center; align-items: center; border-bottom-left-radius: 50%; border: 1px solid #ccc">
+        <ion-icon name="close">close</ion-icon>
+      </div>
+    </div> -->
+    <app-images *ngFor="let url of photos" [url]="url" (emitDeleteEvent)="removeImagetoDisplayingImages(url.webPath ||  url?.data)"></app-images>
+  </div>
+</ion-content>
+

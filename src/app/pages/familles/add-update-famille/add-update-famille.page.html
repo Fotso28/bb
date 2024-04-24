@@ -1,0 +1,22 @@
+<ion-header [translucent]="true">
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-back-button></ion-back-button>
+    </ion-buttons>
+    <ion-title>add-update-famille</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true" class="ion-padding">
+  <form [formGroup]="familleForm" (ngSubmit)="submit()">
+    <div>
+      <ion-input label="Outline input*"
+        errorText="Invalid email" label-placement="floating" fill="outline" placeholder="Enter text" id="nom" formControlName="nom" required></ion-input>
+  
+      <ion-input label="Outline input" label-placement="floating" fill="outline" placeholder="Enter text" formControlName="description"></ion-input>
+    </div>
+    <ion-button type="submit" class="btn btn-primary">Ajouter Famille</ion-button>
+    <ion-button type="button" (click)="modifierFamille()" class="btn btn-primary">Modifier Famille</ion-button>
+  </form>
+  
+</ion-content>

@@ -1,0 +1,36 @@
+ion-row{
+    margin-top: 10px
+}
+
+.item-native{
+    padding: 0 !important;
+}
+ion-col.right{
+    padding: 0 !important;
+}
+ion-col.left{
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+    position: relative;
+}
+ion-select{
+    height: 56px;
+    --margin-top: 8px;
+    --margin-bottom: 8px;
+    padding-left: 8px;
+    background-color:  var(--ion-color-primary);
+    position: absolute;
+    top: 6px;
+    left: -5px;
+    border-radius: 0 3px 3px 0;
+    overflow-x: hidden;
+    color: #fff
+}
+ion-card{
+    margin: 0;
+    margin-bottom: 4px;
+    width: 100%;
+}
+ion-card-content{
+    padding-left: 0px;
+}

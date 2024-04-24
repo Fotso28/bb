@@ -1,0 +1,19 @@
+<ion-header [translucent]="true">
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-back-button></ion-back-button>
+    </ion-buttons>
+    <ion-title>Avaris</ion-title>
+  </ion-toolbar>
+</ion-header>
+<ion-content [fullscreen]="true" class="ion-padding">
+  <form [formGroup]="produitForm" >
+    <div>
+      <ion-input id="nom_produit"   formControlName="nom_produit"   label="Nom du produit *"                          readonly inputmode="text"     placeholder="Nom du produit"    mode="md" label-placement="floating" fill="outline"  required></ion-input>
+      <ion-input id="qte_casier"    formControlName="qte_casier"    label="Nombre de Casier *"  inputmode="numeric"   placeholder="Nom du produit"  mode="md"                                 label-placement="floating" fill="outline"  required></ion-input>
+      <ion-input id="qte_btle_sup"  formControlName="qte_btle_sup"  label="Quantité de bouteilles Supplementaires *"  inputmode="numeric"           placeholder="Tapez le nombre de bouteilles supplementaires" value="0" mode="md" errorText="Nom invalide" label-placement="floating" fill="outline"></ion-input>
+    </div>
+    <ion-button type="submit" (click)="addUpdateProduitToRavitaillement()" class="btn btn-primary">Ajouter Produit</ion-button>
+  </form>
+</ion-content>
+

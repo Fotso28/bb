@@ -1,0 +1,24 @@
+<ion-header [translucent]="true">
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-back-button></ion-back-button>
+    </ion-buttons>
+    <ion-title>Depense</ion-title>
+  </ion-toolbar>
+</ion-header>
+<ion-content [fullscreen]="true" class="ion-padding">
+  <form [formGroup]="depenseForm" (ngSubmit)="submit()">
+    <div>
+      <ion-select mode="ios" id="type" fill="outline" formControlName="type" label="Categorie Depense *" placeholder="Type" aria-label="Categorie">
+        <ion-select-option *ngFor="let type of type" [value]="type.id">{{type.nom}}</ion-select-option>
+      </ion-select>
+      <ion-input id="date" formControlName="date" label="Date *"  inputmode="numeric" placeholder="Date" mode="md" label-placement="floating" fill="outline"  required></ion-input>
+      <ion-input id="motif" formControlName="motif" label="Motif *"  placeholder="Tapez le Motif" mode="md" errorText="Nom invalide" label-placement="floating" fill="outline"></ion-input>
+      <ion-input id="montant" formControlName="montant" label="Montant *"  placeholder="Tapez le Montant" mode="md" errorText="Nom invalide" label-placement="floating" fill="outline"></ion-input>
+      <ion-input id="motif" formControlName="motif" label="Motif *"  placeholder="Tapez le Motif" mode="md" errorText="Nom invalide" label-placement="floating" fill="outline"></ion-input>
+    </div>
+    <ion-button type="submit" class="btn btn-primary">Ajouter Produit</ion-button>
+  </form>
+  
+</ion-content>
+

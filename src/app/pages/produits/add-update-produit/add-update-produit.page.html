@@ -1,0 +1,45 @@
+<ion-header [translucent]="true">
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-back-button></ion-back-button>
+    </ion-buttons>
+    <ion-title>Produit</ion-title>
+  </ion-toolbar>
+</ion-header>
+<ion-content [fullscreen]="true" class="ion-padding">
+  <form [formGroup]="produitForm">
+    <div>
+      <ion-input id="nom" formControlName="nom" label="Intitulé *"  inputmode="text" placeholder="Tapez la quantité initiale" mode="md" errorText="Nom invalide" label-placement="floating" fill="outline"  required></ion-input>
+      <ion-input id="prixA" formControlName="prixA" label="Prix d'achat *"  inputmode="numeric" placeholder="Tapez le prix d'achat" mode="md" errorText="Nom invalide" label-placement="floating" fill="outline"  required></ion-input>
+      <ion-input id="prixV" formControlName="prixV" label="Prix de vente *"  inputmode="numeric" placeholder="Tapez le prix de vente" mode="md" errorText="Nom invalide" label-placement="floating" fill="outline"  required></ion-input>
+      <ion-input id="nbreBtleParCasier" formControlName="nbreBtleParCasier" label="Nombre de bouteilles par casier *"  inputmode="numeric" placeholder="Tapez le nom du fournisseur" mode="md" errorText="Nom invalide" label-placement="floating" fill="outline"  required></ion-input>
+      <ion-input id="ristourne" formControlName="ristourne" label="Montant de la ristourne *"  inputmode="numeric" placeholder="Tapez le montant de la ristourne" mode="md" errorText="Nom invalide" label-placement="floating" fill="outline"  required></ion-input>
+       <!-- <ion-input id="categorie" formControlName="categorie" label="Categorie*" placeholder="Tapez le nom du fournisseur" mode="md" errorText="Nom invalide" label-placement="floating" fill="outline"  required></ion-input> -->
+       <ion-select mode="ios" id="id_categorie" fill="outline" formControlName="id_categorie" label="Categorie *" placeholder="Tapez le nom du fournisseur" aria-label="Fruit">
+        <ion-select-option *ngFor="let categorie of categories" [value]="categorie.id">{{categorie.nom}}</ion-select-option>
+      </ion-select>
+      <!-- <ion-input id="famille" formControlName="famille" label="Famille*" placeholder="Tapez le nom du famille" mode="md" errorText="Nom invalide" label-placement="floating" fill="outline"  required></ion-input> -->
+      <ion-select mode="ios" id="id_famille" fill="outline" formControlName="id_famille" label="Famille *" placeholder="Tapez le nom du famille"  aria-label="Fruit">
+        <ion-select-option *ngFor="let famille of familles" [value]="famille.id">{{famille.nom}}</ion-select-option>
+      </ion-select>
+      <!-- <ion-input id="casier" formControlName="casier" label="Type de casier*"  placeholder="Type de casier" mode="md" errorText="Nom invalide" label-placement="floating" fill="outline"  required></ion-input> -->
+      <ion-select mode="ios" id="id_casier"  fill="outline"  formControlName="id_casier" label="Type de casier *"  placeholder="Type de casier"  aria-label="Fruit">
+        <ion-select-option *ngFor="let casier of casiers" [value]="casier.id">{{casier.nom}}</ion-select-option>
+      </ion-select>
+      <ion-select mode="ios" id="_fournisseurs_ids" fill="outline" formControlName="_fournisseurs_ids" label="Les fournisseurs *" placeholder="Tapez le nom du fournisseur" aria-label="Fruit" [multiple]="true">
+        <ion-select-option *ngFor="let fournisseur of fournisseurs" [value]="fournisseur.id">{{fournisseur.nom}}</ion-select-option>
+      </ion-select>
+      <ion-input id="upload" formControlName="upload" label="image"  placeholder="Les images" mode="md" errorText="Nom invalide" label-placement="floating" fill="outline"  ></ion-input>
+      <ion-input id="imgLink" formControlName="imgLink" label="image Link"  placeholder="Les images" mode="md" errorText="Nom invalide" label-placement="floating" fill="outline"  ></ion-input>
+      <!-- <ion-input id="upload"  label="image"  placeholder="Les images" mode="md" errorText="Nom invalide" label-placement="floating" fill="outline"  ></ion-input> -->
+      <ion-item>
+        <ion-toggle justify="space-between" formControlName="hasCasier" required>Le casier est compté</ion-toggle>
+      </ion-item>
+    </div>
+  </form>
+  <ion-button (click)="takeImage()">Ajouter une image</ion-button><br><br>
+  <div class="image" >
+    <img [src]="image?.photo?.webPath || produit_img_data" alt="">
+  </div>
+  <ion-button type="submit" (click)="submit()" class="btn btn-primary">Ajouter Produit</ion-button>
+</ion-content>

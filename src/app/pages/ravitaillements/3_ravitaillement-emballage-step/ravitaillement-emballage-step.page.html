@@ -1,0 +1,90 @@
+<ion-header [translucent]="true">
+  <ion-toolbar>
+    <ion-title>ravitaillement-emballage-step</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true" class="ion-padding">
+  <ion-row>
+    <h3>Casiers entrés</h3>
+    <ion-card>
+    
+      <ion-card-content>
+        <ion-list>
+          <ion-item-sliding>
+            <ion-item>
+              <ion-label>Sliding Item with End Options</ion-label>
+            </ion-item>
+        
+            <ion-item-options>
+              <ion-item-option color="danger">Delete</ion-item-option>
+            </ion-item-options>
+          </ion-item-sliding>
+        
+          <ion-item-sliding>
+            <ion-item-options side="end">
+              <ion-item-option color="success">Archive</ion-item-option>
+            </ion-item-options>
+        
+            <ion-item>
+              <ion-label>Sliding Item with Start Options</ion-label>
+            </ion-item>
+          </ion-item-sliding>
+        </ion-list>
+      </ion-card-content>
+    </ion-card>
+    <ion-col size="9" class="right">
+      <ion-input  inputmode="text" placeholder="Type d'emballage" label="Selectionnez le type de casier et la quantité" mode="md" label-placement="floating" fill="outline"  ></ion-input>
+    </ion-col>
+    <ion-col size="3" class="left">
+      <ion-ripple-effect></ion-ripple-effect>
+      <ion-select mode="ios" id="categorie" fill="outline" value="toto">
+        <ion-select-option value="toto">Toto</ion-select-option>
+        <ion-select-option value="toto1">Jaune</ion-select-option>
+        <ion-select-option value="toto2">Blue</ion-select-option>
+      </ion-select>
+    </ion-col>
+  </ion-row>
+  <ion-row>
+    <h3>emballage sortis</h3>
+    <ion-card>
+    
+      <ion-card-content>
+        <ion-list>
+          <ion-item-sliding>
+            <ion-item-options side="end">
+              <ion-item-option color="success">Archive</ion-item-option>
+            </ion-item-options>
+        
+            <ion-item>
+              <ion-label>Sliding Item with Start Options</ion-label>
+            </ion-item>
+          </ion-item-sliding>
+        </ion-list>
+      </ion-card-content>
+    </ion-card>
+    <ion-col size="9" class="right">
+      <ion-input  inputmode="text" placeholder="Type d'emballage" label="Selectionnez le type de casier et la quantité" mode="md" label-placement="floating" fill="outline"  ></ion-input>
+    </ion-col>
+    <ion-col size="3" class="left">
+      <ion-ripple-effect></ion-ripple-effect>
+      <ion-select mode="ios" id="categorie" fill="outline" value="toto">
+        <ion-select-option value="toto">Toto</ion-select-option>
+        <ion-select-option value="toto1">Jaune</ion-select-option>
+        <ion-select-option value="toto2">Blue</ion-select-option>
+      </ion-select>
+    </ion-col>
+  </ion-row>
+  <div>
+    <ion-fab slot="fixed" vertical="bottom" horizontal="start">
+      <ion-fab-button (click)="prev()">
+        <ion-icon name="add"></ion-icon>
+      </ion-fab-button>
+    </ion-fab>
+    <ion-fab slot="fixed" vertical="bottom" horizontal="end">
+      <ion-fab-button (click)="next()">
+        <ion-icon name="add"></ion-icon>
+      </ion-fab-button>
+    </ion-fab>
+  </div>
+</ion-content>

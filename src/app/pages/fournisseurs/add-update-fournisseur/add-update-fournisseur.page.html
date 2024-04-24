@@ -1,0 +1,25 @@
+<ion-header [translucent]="true">
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-back-button></ion-back-button>
+    </ion-buttons>
+    <ion-title>Fournisseur - {{fournisseur.nom}}</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true" class="ion-padding">
+  <form [formGroup]="fournisseurForm" (ngSubmit)="submit()">
+    <div>
+      <ion-input label="Nom*"  inputmode="text" mode="md" errorText="Nom invalide" label-placement="floating" fill="outline" placeholder="Tapez le nom du fournisseur" id="nom" formControlName="nom" required></ion-input>
+      <ion-input label="Adresse" inputmode="text" mode="md" errorText="Adresse invalide" label-placement="floating" fill="outline" placeholder="Tapez l'adresse" id="adresse" formControlName="adresse" ></ion-input>
+      <ion-input label="Télephone" inputmode="numeric"  mode="md" errorText="Nom invalide" label-placement="floating" fill="outline" placeholder="Tapez le numero de téléphone" id="phone1" formControlName="phone1" ></ion-input>
+      <ion-item>
+        <ion-toggle justify="space-between" formControlName="collecte_ristourne">Collecter la ristourne</ion-toggle>
+      </ion-item>
+    </div>
+    <ion-button  class="btn btn-primary" (click)="addImage()">Ajouter une image</ion-button>
+    <ion-button type="submit" class="btn btn-primary">Ajouter Fournisseur</ion-button>
+    <ion-button (click)="modifierFournisseur()" class="btn btn-primary">Modifier Fournisseur</ion-button>
+  </form>
+  
+</ion-content>

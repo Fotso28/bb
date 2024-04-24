@@ -1,0 +1,21 @@
+<ion-header [translucent]="true">
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-back-button></ion-back-button>
+    </ion-buttons>
+    <ion-title>Casier</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true" class="ion-padding">
+  <form [formGroup]="casierForm" (ngSubmit)="submit()">
+    <div>
+      <ion-input label="Nom*" mode="md" errorText="Nom invalide" label-placement="floating" fill="outline" placeholder="Tapez le nom du casier" id="nom" formControlName="nom" required></ion-input>
+  
+      <ion-input type="text" mode="md" label="element/casier" min="0" label-placement="floating" fill="outline" inputmode="numeric" (ionInput) ="filteredNumber($event)" placeholder="Tapez le nombre d'element par casier" formControlName="nbre_btle_par_casier" required></ion-input>
+      <ion-textarea type="text" mode="md" label="Description" label-placement="floating" fill="outline" inputmode="text"  placeholder="Tapez une description" formControlName="description"></ion-textarea>
+    </div>
+    <ion-button type="submit" class="btn btn-primary">Ajouter Casier</ion-button>
+  </form>
+  
+</ion-content>

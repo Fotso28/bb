@@ -1,0 +1,32 @@
+<ion-header [translucent]="true">
+  <ion-toolbar>
+    <ion-menu-toggle slot="start">
+      <ion-button icon-only="true">
+        <ion-icon name="menu"></ion-icon>
+      </ion-button>
+    </ion-menu-toggle>
+    <ion-title>Famille</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true">
+  <ion-header collapse="condense">
+    <ion-toolbar>
+      <ion-title size="large">Famille</ion-title>
+    </ion-toolbar>
+  </ion-header>
+  <ion-list>
+    <ion-item-sliding *ngFor="let famille of familles" #slidingItem>
+      <ion-item (click)="gotoFamilleDetail(famille)">{{famille.nom}}</ion-item>
+      <ion-item-options>
+        <ion-item-option color="danger" (click)="delete(famille, slidingItem)">Delete</ion-item-option>
+      </ion-item-options>
+    </ion-item-sliding>
+    
+  </ion-list>
+  <ion-fab slot="fixed" vertical="bottom" horizontal="end">
+    <ion-fab-button routerLink="/add-update-famille/add">
+      <ion-icon name="add"></ion-icon>
+    </ion-fab-button>
+  </ion-fab>
+</ion-content>

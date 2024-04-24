@@ -1,0 +1,23 @@
+<ion-header [translucent]="true">
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-back-button></ion-back-button>
+    </ion-buttons>
+    <ion-title>Avaris</ion-title>
+  </ion-toolbar>
+</ion-header>
+<ion-content [fullscreen]="true" class="ion-padding">
+  <form [formGroup]="avarisForm" (ngSubmit)="submit()">
+    <div>
+      <ion-select mode="ios" id="produit_id" fill="outline" formControlName="produit_id" label="Produit *" placeholder="Tapez le nom du produit" aria-label="Produit">
+        <ion-select-option *ngFor="let produit of produits" [value]="produit.id">{{produit.nom}}</ion-select-option>
+      </ion-select>
+      <ion-input id="qte" formControlName="qte" label="Quantité *"  inputmode="numeric" placeholder="Tapez la quantité initiale" mode="md" errorText="Nom invalide" label-placement="floating" fill="outline"  required></ion-input>
+      <ion-textarea id="description" formControlName="description" label="Description *"  inputmode="text" placeholder="Tapez le prix d'achat" mode="md" errorText="Nom invalide" label-placement="floating" fill="outline"  required></ion-textarea>
+      <ion-input id="date" formControlName="date" label="Date *"  placeholder="Tapez le prix de vente" mode="md" errorText="Nom invalide" label-placement="floating" fill="outline" required></ion-input>
+    </div>
+    <ion-button type="submit" class="btn btn-primary">Ajouter Produit</ion-button>
+  </form>
+  
+</ion-content>
+

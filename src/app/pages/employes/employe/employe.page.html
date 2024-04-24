@@ -1,0 +1,32 @@
+<ion-header [translucent]="true">
+  <ion-toolbar>
+    <ion-menu-toggle slot="start">
+      <ion-button icon-only="true">
+        <ion-icon name="menu"></ion-icon>
+      </ion-button>
+    </ion-menu-toggle>
+    <ion-title>Employes</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true">
+  <ion-header collapse="condense">
+    <ion-toolbar>
+      <ion-title size="large">Employe</ion-title>
+    </ion-toolbar>
+  </ion-header>
+  <ion-list>
+    <ion-item-sliding *ngFor="let employe of employes" #slidingItem>
+      <ion-item (click)="gotoFamilleDetail(employe)">{{employe.nom}}</ion-item>
+      <ion-item-options>
+        <ion-item-option color="danger" (click)="delete(employe, slidingItem)">Delete</ion-item-option>
+      </ion-item-options>
+    </ion-item-sliding>
+    
+  </ion-list>
+  <ion-fab slot="fixed" vertical="bottom" horizontal="end">
+    <ion-fab-button routerLink="/add-update-employe/add">
+      <ion-icon name="add"></ion-icon>
+    </ion-fab-button>
+  </ion-fab>
+</ion-content>

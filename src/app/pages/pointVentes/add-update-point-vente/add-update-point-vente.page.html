@@ -1,0 +1,23 @@
+<ion-header [translucent]="true">
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-back-button></ion-back-button>
+    </ion-buttons>
+    <ion-title>PointVente</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true" class="ion-padding">
+  <form [formGroup]="pointVenteForm" (ngSubmit)="submit()">
+    <div>
+      <ion-input label="Nom*" mode="md" errorText="Nom invalide" label-placement="floating" fill="outline" placeholder="Tapez le nom du pointVente" id="nom" formControlName="nom" required></ion-input>
+      
+      <ion-input label="adresse" mode="md" errorText="Nom invalide" label-placement="floating" fill="outline" placeholder="Tapez l'adresse" id="adresse" formControlName="adresse"></ion-input>
+  
+      <ion-textarea type="text" mode="md" label="Description"  label-placement="floating" fill="outline" inputmode="text"  placeholder="Tapez une description" formControlName="description"></ion-textarea>
+    </div>
+    <ion-button type="submit" class="btn btn-primary">Ajouter point Vente</ion-button>
+    <ion-button type="button" (click)="modifierPointVente()" class="btn btn-primary">Modifier Point de Vente</ion-button>
+  </form>
+  
+</ion-content>

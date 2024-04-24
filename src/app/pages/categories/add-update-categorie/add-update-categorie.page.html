@@ -1,0 +1,21 @@
+<ion-header [translucent]="true">
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-back-button></ion-back-button>
+    </ion-buttons>
+    <ion-title>Categorie</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true" class="ion-padding">
+  <form [formGroup]="categorieForm" (ngSubmit)="submit()">
+    <div>
+      <ion-input label="Nom*" mode="md" errorText="Nom invalide" label-placement="floating" fill="outline" placeholder="Tapez le nom du categorie" id="nom" formControlName="nom" required></ion-input>
+      <ion-textarea type="text" mode="md" label="Description" min="0" max="9999999" label-placement="floating" fill="outline" inputmode="text"  placeholder="Tapez une description" formControlName="description"></ion-textarea>
+    </div>
+    <ion-button type="submit" class="btn btn-primary">Ajouter Categorie</ion-button>
+    <ion-button type="button" (click)="modifierCategorie()" class="btn btn-primary">Modifier Categorie</ion-button>
+  </form>
+  
+</ion-content>
+

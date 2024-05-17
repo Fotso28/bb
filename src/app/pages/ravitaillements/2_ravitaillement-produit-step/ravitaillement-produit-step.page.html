@@ -3,7 +3,7 @@
     <ion-buttons slot="start">
       <ion-back-button></ion-back-button>
     </ion-buttons>
-    <ion-title>Casier</ion-title>
+    <ion-title>Casier {{sommePrix()}}</ion-title>
     <ion-buttons slot="end" id="produit">
       <ion-icon  slot="icon-only" name="add"></ion-icon>
     </ion-buttons>
@@ -33,13 +33,13 @@
     </ion-fab>
   </div>
   <ng-container class="modal">
-    <ion-modal  #modal trigger="produit"  [initialBreakpoint]="0.6" [breakpoints]="[0, 0.6, 0.9]" [presentingElement]="presentingElement">
+    <ion-modal  #modal trigger="produit"  [initialBreakpoint]="0.6" [breakpoints]="[0, 0.6, 0.95]" [presentingElement]="presentingElement">
       <ng-template>
         
         <ion-content>
-          <ion-searchbar placeholder="Search" (click)="modal.setCurrentBreakpoint(0.9)"></ion-searchbar>
+          <ion-searchbar [(ngModel)]="search_key" placeholder="Search" (click)="modal.setCurrentBreakpoint(0.95)" (ngModelChange)="filtreProduit()"></ion-searchbar>
           <ion-list>
-            <ion-item *ngFor="let prod of produits" (click)="addProduitToRavitaillement(prod)">
+            <ion-item *ngFor="let prod of filtered_produits_ravitailles" (click)="addProduitToRavitaillement(prod)">
               <ion-avatar slot="start">
                 <ion-img src="https://i.pravatar.cc/300?u=b"></ion-img>
               </ion-avatar>

@@ -93,7 +93,8 @@ export class AddProduitPage implements OnInit {
 
       produitRavitaille.ristourne = this.produit.ristourne;
       produitRavitaille.qte_btle = parseInt(this.produitForm.value.qte_casier, 10) * (+this.produit.nbreBtleParCasier) + parseInt(this.produitForm.value.qte_btle_sup, 10);
-      
+      produitRavitaille.famille = this.produit.famille;
+      produitRavitaille.categorie = this.produit.categorie;
       // console.log(produitRavitaille);
       
       this.ravitaillementSvc.setlisteProduitsRavitailles(produitRavitaille);
@@ -105,7 +106,6 @@ export class AddProduitPage implements OnInit {
   @ViewChild('ionInputEl', { static: true }) ionInputEl!: IonInput;
   filteredNumber(ev:any){
     const value = ev.target!.value;
-
     // Removes non alphanumeric characters
     const filteredValue = value.replace(/[^0-9]+/g, '');
 
@@ -115,5 +115,9 @@ export class AddProduitPage implements OnInit {
      */
     this.produitForm.get('nbre_btle_par_produit')?.setValue(filteredValue);
   }
+
+ 
+
+  
 
 }

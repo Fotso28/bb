@@ -82,23 +82,28 @@ export class ProduitService {
     }
   }
 
-  async getAll(): Promise<Array<Produit>> {
+  async getAll(): Promise<boolean> {
     try {
-      return await this.bdSvc.readAll('Produit') as Array<Produit>;
+      let produits =  await this.bdSvc.readAll('Produit') as Array<Produit>;
+      if(produits.length){
+        this.produitSubject.next(produits);
+      }
+      return true;
     } catch (error) {
       console.log(error);
-      return [];
+      return false;
     }
   }
 
   async getProduitRavitaillesList(): Promise<ProduitsRavitailles[]>{
-    let produitRavitailles:  DBSQLiteValues = await this.bdSvc.query("select Produit.id, Produit.qte as qte_btle,Produit.ristourne,Produit.nbreBtleParCasier, Produit.prixV, Produit.prixA, Produit.nom as nom, Categorie.nom as categorie, Famille.nom as famille from Produit inner join Categorie, Famille on Produit.id_categorie = Categorie.id AND Produit.id_categorie = Famille.id");
+    let produitRavitailles:  DBSQLiteValues = await this.bdSvc.query("select Produit.id, Produit.qte as qte_btle,Produit.ristourne,Produit.nbreBtleParCasier, Produit.prixV, Produit.prixA, Produit.nom as nom, Categorie.nom as categorie, Famille.nom as famille from Produit inner join Categorie, Famille on Produit.id_categorie = Categorie.id AND Produit.id_famille = Famille.id");
+    
     return produitRavitailles?.values as ProduitsRavitailles[];
   }
 
 
   initProduitValues(memo:any): Produit{
-    console.log(memo)
+    // console.log(memo); return {} as Produit;
     let produit = new Produit(memo.nom);
     produit.id = memo.id;
     produit.prixA = memo.prixA;
@@ -113,7 +118,7 @@ export class ProduitService {
     produit.user_id = memo.user_id;
     produit.hasCasier = memo.hasCasier;
     produit.upload = memo.upload;
-    produit._fournisseurs = memo._fournisseurs_ids;
+    produit._fournisseurs = Object.keys(memo).includes('fournisseurs') ? JSON.parse(memo.fournisseurs) : ( Object.keys(memo).includes('_fournisseurs_ids') ? memo._fournisseurs_ids : [] );
     produit.user_id = this.userSvc.getActiveUser()?.id;
     console.log(produit)
     return produit;

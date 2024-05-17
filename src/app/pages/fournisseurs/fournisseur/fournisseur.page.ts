@@ -29,7 +29,8 @@ export class FournisseurPage implements OnInit {
       next: (items: Fournisseur[]) => {
         this.fournisseurs = items;
         console.log(items);
-      }
+      },
+      error: err => console.log(err)
     })
   }
 

@@ -68,6 +68,15 @@ export class PointVenteService {
       }
     }
 
+    async all(): Promise<Array<PointVente>> {
+      try {
+        return await this.bdSvc.readAll('PointVente') as Array<PointVente>;
+      } catch (error) {
+        console.log(error);
+        return [];
+      }
+    }
+
     hydratePointVente(item:any): PointVente{
       let pointVente: PointVente = new PointVente(item.nom);
       
@@ -97,4 +106,6 @@ export class PointVenteService {
         return JSON.parse(pointVente);
       }
     }
+
+    
 }

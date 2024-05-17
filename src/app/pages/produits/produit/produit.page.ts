@@ -1,4 +1,4 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { ActionSheetController } from '@ionic/angular';
 import { showToast } from 'src/app/_lib/lib';
@@ -18,21 +18,25 @@ export class ProduitPage implements OnInit {
   constructor(
     private produitSvc: ProduitService,
     private actionSheetCtrl: ActionSheetController,
-     private router: Router) {}
+    private router: Router) {}
 
-  async ngOnInit() {
-    
-  }
+  async ngOnInit() {}
 
   ionViewWillEnter(){
     this.initializeProduitData();
   }
 
   async initializeProduitData(): Promise<void>{
-    let produits = await this.produitSvc.getAll();
-    if(Object.keys(produits).length){
-      this.produits = produits
-    }
+    
+    await this.produitSvc.getAll();
+    
+    this.produitSvc.produitSubject.subscribe({
+      next: (val: Produit[]) =>{
+        this.produits = val
+        console.log(val)
+      },
+      error: (err) => console.log(err)
+    })
   }
 
   async confirm(){
@@ -72,15 +76,10 @@ export class ProduitPage implements OnInit {
           showToast('Bien supprimé!')
         }
       }).catch((e)=> console.log(e))
-    }
-    
+    }  
   }
 
   gotoFamilleDetail(produit:Produit){
     this.router.navigateByUrl("/add-update-produit/update", {state: produit});
   }
-
- 
-
-
 }

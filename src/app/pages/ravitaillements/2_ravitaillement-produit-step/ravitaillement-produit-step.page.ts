@@ -17,18 +17,17 @@ export class RavitaillementProduitStepPage implements OnInit {
 
   produits: ProduitsRavitailles[] = []; // Tous les produits de la base de donnée
   produits_ravitailles: ProduitsRavitailles[] = []; // Tous les produits dans la liste des ravitaillements
+  filtered_produits_ravitailles: ProduitsRavitailles[] = [];
   presentingElement: any = null;
   
   constructor( private modal: ModalController, private ravitaillementSvc: RavitaillementService,
     private navCtrl: NavController, private router: Router, private produitSvc: ProduitService) { }
 
   async ngOnInit() {
-
-    await this.initProduits();
-
     this.ravitaillementSvc.behaviourSubject.subscribe({
       next: (value: ProduitsRavitailles[] ) =>{
         this.produits_ravitailles = value;
+        
         console.log(value)
       },
       error: (err) =>{
@@ -38,19 +37,33 @@ export class RavitaillementProduitStepPage implements OnInit {
     this.presentingElement = document.querySelector('.modal'); // modal initiation
   }
 
+  async ionViewWillEnter(){
+    await this.initProduits();
+    // this.filtreProduit();
+    console.log(this.search_key)
+
+    this.ravitaillementSvc.getRavitaillementInstance().total = this.sommePrix();
+
+    console.log(this.ravitaillementSvc.getRavitaillementInstance().total)
+  }
+
   
 
   async initProduits(): Promise<void>{
     let produits: ProduitsRavitailles[] = await this.produitSvc.getProduitRavitaillesList();
     console.log(produits)
     if(produits && produits.length){
-      this.produits = produits
+      this.produits = produits;
+      this.filtered_produits_ravitailles = this.produits;
     }
   }
 
   closebtn = false;
   next(){
     this.closebtn = true;
+    this.ravitaillementSvc.getRavitaillementInstance()._produit_rav_liste = this.produits_ravitailles;
+    this.ravitaillementSvc.getRavitaillementInstance().total =  this.sommePrix();
+    console.log(this.ravitaillementSvc.getRavitaillementInstance());
     this.router.navigateByUrl("/ravitaillement-emballage-step");
     setTimeout(()=>{
       this.closebtn = false
@@ -66,7 +79,15 @@ export class RavitaillementProduitStepPage implements OnInit {
   
 
   async addProduitToRavitaillement(prod: ProduitsRavitailles){
-    console.log(prod)
+    
+    let prod_exit_index = this.produits_ravitailles.findIndex((p: ProduitsRavitailles) => +p.id == +prod.id)
+    // console.log(this.ravitaillementSvc.getRavitaillementInstance())
+    console.log(prod_exit_index);
+    if(this.produits_ravitailles.length && prod_exit_index != -1){
+      console.log('Le produit est',prod);
+      prod = this.produits_ravitailles[prod_exit_index];
+    }
+
     if(Object.keys(prod).includes('id') && Object.keys(prod).includes('qte_btle') && Object.keys(prod).includes('prixV') &&  Object.keys(prod).includes('nbreBtleParCasier') && Object.keys(prod).includes('prixA')){
       let product: ProduitsRavitailles = {
         id: prod.id!,
@@ -75,8 +96,10 @@ export class RavitaillementProduitStepPage implements OnInit {
         prixA: prod.prixA!,
         prixV: prod.prixV!,
         ristourne: prod.ristourne,
-        qte_btle: 0
-      }
+        qte_btle: prod.qte_btle || 0,
+        famille: prod.famille,
+        categorie: prod.categorie,
+      };
       this.router.navigateByUrl("/add-produit/add", {state: product});
       await this.modal.dismiss();
       console.log(product)
@@ -117,6 +140,8 @@ export class RavitaillementProduitStepPage implements OnInit {
 
     produitRavitaille.ristourne = produit.ristourne;
     produitRavitaille.qte_btle = produit.qte_btle;
+    produitRavitaille.famille = produit.famille;
+    produitRavitaille.categorie = produit.categorie;
     
     console.log(produitRavitaille);
 
@@ -142,9 +167,33 @@ export class RavitaillementProduitStepPage implements OnInit {
   }
 
   deleteProd(prod: ProduitsRavitailles){
-    let prods = this.produits_ravitailles.filter((p: ProduitsRavitailles) => p.id != prod.id );
-    console.log(prod)
-    console.log(this.produits_ravitailles)
-    this.ravitaillementSvc.getRavitaillementInstance()._produit_rav_liste = this.produits_ravitailles.filter((p: ProduitsRavitailles) => p.id != prod.id );
+    this.ravitaillementSvc.deleteProduitsRavitailles(prod);
+    this.ravitaillementSvc.getRavitaillementInstance().total = this.sommePrix();
+    console.log(this.ravitaillementSvc.getRavitaillementInstance().total)
+  }
+
+  search_key: string = "";
+  filtreProduit(){
+    if(!this.search_key){
+      this.filtered_produits_ravitailles = this.produits
+    }else{
+      this.filtered_produits_ravitailles = this.produits.filter((prod: ProduitsRavitailles) =>{
+        return prod.nom.toLowerCase().includes(this.search_key.toLowerCase()) || prod?.famille?.toLowerCase().includes(this.search_key.toLowerCase()) || prod?.categorie?.toLowerCase().includes(this.search_key.toLowerCase())
+      })
+    }
+  }
+
+  sommePrix(): number {
+
+    
+    return this.produits_ravitailles.reduce((somme, produit) =>{
+      console.log("reste",(produit?.qte_btle! % produit.nbreBtleParCasier) * produit?.prixA! / produit.nbreBtleParCasier)
+      console.log("Total div", Math.floor(produit?.qte_btle! / produit.nbreBtleParCasier) * produit.prixA)
+      if(produit?.prixA && produit?.qte_btle){
+        return somme + Math.floor( produit?.qte_btle / produit.nbreBtleParCasier) * produit?.prixA + produit?.qte_btle % produit.nbreBtleParCasier * produit?.prixA / produit.nbreBtleParCasier
+      }else{
+        return somme
+      }
+    }, 0);
   }
 }

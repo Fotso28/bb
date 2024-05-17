@@ -6,7 +6,7 @@ export class Ravitaillement {
     constructor(
       public id?: number,
       public date?: number,
-      public produit_rav_liste?: ProduitsRavitailles[], // Liste des produits ravitailles
+    //   public produit_rav_liste?: ProduitsRavitailles[], // Liste des produits ravitailles
       public num_facture?: string,
       public id_fournisseur?: number,
       public nom_fournisseur?: string,
@@ -17,8 +17,7 @@ export class Ravitaillement {
       public user_id?: number,
       public can_update?: boolean,
       public photo_facture_url?: string,
-      public all_ready_inventoried?: boolean,
-      public point_vente_id?: number,
+      public all_ready_inventoried?: boolean
     ) {
       this.all_ready_inventoried = false;
       this.can_update = true;
@@ -39,10 +38,18 @@ export class Ravitaillement {
      * Just for store list of  product
      */
     set _produit_rav_liste(liste_produit: ProduitsRavitailles[]) {
-        this.produits = JSON.stringify(liste_produit);
+        if(liste_produit){
+            this.produits = JSON.stringify(liste_produit);
+        }else{
+            this.produits = ''
+        }
     }
     get _produit_rav_liste(): ProduitsRavitailles[] {
-        return JSON.parse(this.produits) ;
+        if(this.produits){
+            return JSON.parse(this.produits) ;
+        }else{
+            return [] as ProduitsRavitailles[] 
+        }
     }
 
 attributsDansObjet(source: any, cible: any): boolean {
@@ -60,13 +67,13 @@ attributsDansObjet(source: any, cible: any): boolean {
 /**
  * Utiliser pour manipuler les casiers ENTRES et SORTIES
  */
-interface Custom_Casier_Model {
+export interface Custom_Casier_Model {
     id: number,
     nom: string,
     qte: number,
-    trans: TransactionType
+    transaction: TransactionType
 }
-enum TransactionType {
+export enum TransactionType {
     IN = 'IN',
     OUT = 'OUT',
     // Ajoutez d'autres valeurs au besoin

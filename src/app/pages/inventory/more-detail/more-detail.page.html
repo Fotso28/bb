@@ -1,0 +1,36 @@
+<ion-header [translucent]="true">
+  <ion-toolbar>
+    <ion-title>more-detail</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true" class="ion-padding">
+  <form *ngIf="employes.length" [formGroup]="formGroup">
+    <ion-datetime-button datetime="datetime"></ion-datetime-button>
+    <ion-modal [keepContentsMounted]="true">
+      <ng-template>
+        <ion-datetime (confirm)="toto()" formControlName="date" mode="ios" id="datetime" presentation="date-time" 
+          [showDefaultButtons]="true" doneText="Ok" cancelText="Annuler">
+        </ion-datetime>
+      </ng-template>
+    </ion-modal>
+    <div class="input">
+      <ion-label>Versement</ion-label>
+      <input type="number" formControlName="versement" placeholder="Montant Perçu" />
+    </div>
+    <div class="input">
+      <ion-label>Total Vendu</ion-label>
+      <input type="number" formControlName="total" placeholder="Montant total vendu" />
+    </div>
+    <!-- <ion-item> -->
+    <ion-select formControlName="ids_employe" multiple="true" placeholder="Nom Caissiers">
+      <ion-select-option *ngFor="let empl of employes" [value]="empl.id">{{empl.nom}}</ion-select-option>
+    </ion-select>
+    <!-- </ion-item> -->
+  </form>
+  <ion-fab slot="fixed" (click)="onSubmit()" vertical="bottom" horizontal="end">
+    <ion-fab-button>
+      <ion-icon name="add"></ion-icon>
+    </ion-fab-button>
+  </ion-fab>
+</ion-content>

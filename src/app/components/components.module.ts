@@ -4,6 +4,7 @@ import { IonicModule } from '@ionic/angular';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { ImagesComponent } from './images/images.component';
 import { TestComponent } from './test/test.component';
+import { CustomInputComponent } from './custom-input/custom-input.component';
 
 
 @NgModule({
@@ -12,7 +13,7 @@ import { TestComponent } from './test/test.component';
     FormsModule, ReactiveFormsModule,
     IonicModule,
   ],
-  declarations: [ImagesComponent, TestComponent],
-  exports: [ImagesComponent, TestComponent],
+  declarations: [ImagesComponent, TestComponent, CustomInputComponent],
+  exports: [ImagesComponent, TestComponent, CustomInputComponent],
 })
 export class ComponentsModule {}

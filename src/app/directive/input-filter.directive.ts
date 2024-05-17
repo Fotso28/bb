@@ -1,23 +1,19 @@
 import { Directive, ElementRef, HostListener } from '@angular/core';
 
 @Directive({
-  selector: '[appInputFilter]'
+  selector: '[appNumberInput]'
 })
-export class InputFilterDirective {
+export class NumberInputDirective {
 
-  constructor(private el: ElementRef) {}
+  constructor(private el: ElementRef) { }
 
-  @HostListener('input', ['$event']) onInput(event: any): void {
-    const inputElement = this.el.nativeElement as HTMLInputElement;
-    const inputValue = inputElement.value;
+  @HostListener('input', ['$event']) onInput(event: Event) {
+    const input = event.target as HTMLInputElement;
+    const value = input.value;
 
-    // Utilise une expression régulière pour valider que l'entrée est un entier naturel
-    const naturalNumberPattern = /^\d+$/;
-    const isValid = naturalNumberPattern.test(inputValue);
-
-    if (!isValid) {
-      // Si l'entrée n'est pas valide, retire les caractères non conformes
-      inputElement.value = inputValue.replace(/[^\d]/g, '');
-    }
+    console.log(value)
+    // Remplacer les caractères non numériques par une chaîne vide
+    input.value = value.replace(/[^0-9]/g, '');
   }
+
 }

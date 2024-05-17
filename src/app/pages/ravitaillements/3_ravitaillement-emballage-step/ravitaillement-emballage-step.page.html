@@ -5,76 +5,77 @@
 </ion-header>
 
 <ion-content [fullscreen]="true" class="ion-padding">
-  <ion-row>
-    <h3>Casiers entrés</h3>
     <ion-card>
-    
-      <ion-card-content>
-        <ion-list>
-          <ion-item-sliding>
-            <ion-item>
-              <ion-label>Sliding Item with End Options</ion-label>
-            </ion-item>
-        
-            <ion-item-options>
-              <ion-item-option color="danger">Delete</ion-item-option>
-            </ion-item-options>
-          </ion-item-sliding>
-        
-          <ion-item-sliding>
-            <ion-item-options side="end">
-              <ion-item-option color="success">Archive</ion-item-option>
-            </ion-item-options>
-        
-            <ion-item>
-              <ion-label>Sliding Item with Start Options</ion-label>
-            </ion-item>
-          </ion-item-sliding>
-        </ion-list>
-      </ion-card-content>
-    </ion-card>
-    <ion-col size="9" class="right">
-      <ion-input  inputmode="text" placeholder="Type d'emballage" label="Selectionnez le type de casier et la quantité" mode="md" label-placement="floating" fill="outline"  ></ion-input>
-    </ion-col>
-    <ion-col size="3" class="left">
-      <ion-ripple-effect></ion-ripple-effect>
-      <ion-select mode="ios" id="categorie" fill="outline" value="toto">
-        <ion-select-option value="toto">Toto</ion-select-option>
-        <ion-select-option value="toto1">Jaune</ion-select-option>
-        <ion-select-option value="toto2">Blue</ion-select-option>
-      </ion-select>
-    </ion-col>
-  </ion-row>
-  <ion-row>
-    <h3>emballage sortis</h3>
-    <ion-card>
-    
+      <h3>emballage Entrés</h3>
       <ion-card-content>
         <ion-list>
           <ion-item-sliding>
             <ion-item-options side="end">
-              <ion-item-option color="success">Archive</ion-item-option>
+              <ion-item-option color="danger">Supprimer</ion-item-option>
             </ion-item-options>
-        
-            <ion-item>
-              <ion-label>Sliding Item with Start Options</ion-label>
-            </ion-item>
+            <div *ngFor="let cs of casiers">
+              <ion-item *ngIf="cs.transaction == transactionTypeIn">
+                <ion-label slot="start">{{cs.nom}}</ion-label>
+                <ion-label slot="end">{{cs.qte}}</ion-label>
+              </ion-item>
+            </div>
           </ion-item-sliding>
         </ion-list>
       </ion-card-content>
     </ion-card>
-    <ion-col size="9" class="right">
-      <ion-input  inputmode="text" placeholder="Type d'emballage" label="Selectionnez le type de casier et la quantité" mode="md" label-placement="floating" fill="outline"  ></ion-input>
-    </ion-col>
-    <ion-col size="3" class="left">
-      <ion-ripple-effect></ion-ripple-effect>
-      <ion-select mode="ios" id="categorie" fill="outline" value="toto">
-        <ion-select-option value="toto">Toto</ion-select-option>
-        <ion-select-option value="toto1">Jaune</ion-select-option>
-        <ion-select-option value="toto2">Blue</ion-select-option>
-      </ion-select>
-    </ion-col>
-  </ion-row>
+    <ion-grid>
+      <ion-row style="height: 43px; margin-bottom: 20px;">
+        <ion-col size="5" class="right">
+          <input type="number" #qte_casier class="input" inputmode="text" placeholder="quantité" mode="md"/>
+        </ion-col>
+        <ion-col size="3" class="left">
+          <ion-select style="height: 43px;" #casier mode="ios" id="categorie" placeholder="Casiers" fill="outline">
+            <ion-select-option *ngFor="let cs of typeCasiers" [value]="cs">{{cs.nom}}</ion-select-option>
+          </ion-select>
+        </ion-col>
+        <ion-col size="4">
+          <div class="btn ion-activatable" (click)="addCasier(transactionTypeIn, casier.value, qte_casier)">
+            <ion-ripple-effect></ion-ripple-effect>
+            <span>Ajouter</span>
+          </div>
+        </ion-col>
+      </ion-row>
+    </ion-grid>
+    <ion-grid>
+      <ion-card>
+        <h3>emballage sortis</h3>
+        <ion-card-content>
+          <ion-list>
+            <div *ngFor="let cs of casiers">
+              <ion-item-sliding *ngIf="cs.transaction == transactionTypeOut">
+                <ion-item-options side="end">
+                  <ion-item-option color="danger">Supprimer</ion-item-option>
+                </ion-item-options>
+                  <ion-item>
+                    <ion-label>{{cs.nom}}</ion-label>
+                  </ion-item>
+                </ion-item-sliding>
+            </div>
+          </ion-list>
+        </ion-card-content>
+      </ion-card>
+      <ion-row style="height: 43px; margin-bottom: 20px;">
+        <ion-col size="5" class="right">
+          <input type="number" #qte_casier_out class="input" inputmode="text" placeholder="quantité"  mode="md"/>
+        </ion-col>
+        <ion-col size="3" class="left">
+          <ion-select style="height: 43px;" #casier_out mode="ios" id="categorie" placeholder="Casiers" fill="outline">
+            <ion-select-option *ngFor="let cs of typeCasiers" [value]="cs">{{cs.nom}}</ion-select-option>
+          </ion-select>
+        </ion-col>
+        <ion-col size="4">
+          <div class="btn ion-activatable" (click)="addCasier(transactionTypeOut, casier_out.value, qte_casier_out)">
+            <ion-ripple-effect></ion-ripple-effect>
+            <span>Ajouter</span>
+          </div>
+        </ion-col>
+      </ion-row>
+    </ion-grid>
   <div>
     <ion-fab slot="fixed" vertical="bottom" horizontal="start">
       <ion-fab-button (click)="prev()">

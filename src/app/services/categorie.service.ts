@@ -58,7 +58,7 @@ export class CategorieService {
   
     async getAll(): Promise<boolean> {
       try {
-        let all = await this.bdSvc.readAll('categorie') as Array<Categorie>;
+        let all = await this.bdSvc.readAll('Categorie') as Array<Categorie>;
         this.categorieSubject.next(all);
         return true
       } catch (error) {

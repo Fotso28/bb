@@ -34,3 +34,12 @@ export function resetForm(formGroup: FormGroup) {
     }
     return arr;
   }
+
+  export function showError(error:any){
+    showToast(JSON.stringify(error));
+    console.log(error)
+  }
+
+  export function toTimestamp(time: string){
+    return (new Date(time)).getTime();
+  }

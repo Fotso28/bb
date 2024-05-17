@@ -4,6 +4,9 @@ import { BdService } from './-bd.service';
 import { ProduitsRavitailles } from '../models/ProduitsRavitailles';
 import { addToArray } from '../_lib/lib';
 import { BehaviorSubject } from 'rxjs';
+import { PointVenteService } from './point-vente.service';
+import { Reste } from '../models/RestesModel';
+import { Vente } from '../models/ProduitVendus';
 
 @Injectable({
   providedIn: 'root'
@@ -14,7 +17,7 @@ export class RavitaillementService {
   listeProduitsRavitailles: ProduitsRavitailles[] = []
   behaviourSubject: BehaviorSubject<ProduitsRavitailles[]> = new BehaviorSubject<ProduitsRavitailles[]>([]);
 
-  constructor(public bdSvc: BdService) {
+  constructor(public bdSvc: BdService, private pvScv: PointVenteService) {
     if(!this.ravitaillement){
       this.ravitaillement = new Ravitaillement();
     }
@@ -51,13 +54,21 @@ export class RavitaillementService {
     this.behaviourSubject.next(this.listeProduitsRavitailles);
   }
   deleteProduitsRavitailles(produitRavitailles: ProduitsRavitailles){
-    // let arr = this.listeProduitsRavitailles.filter((item:any) => item.id_produit != produitRavitailles.id_produit);
-    // this.listeProduitsRavitailles = arr;
-    // this.behaviourSubject.next(this.listeProduitsRavitailles);
+    let arr = this.listeProduitsRavitailles.filter((item:any) => item.id != produitRavitailles.id);
+    this.listeProduitsRavitailles = arr;
+    this.behaviourSubject.next(this.listeProduitsRavitailles);
   }
 
   async getFournisseurs() {
     return this.bdSvc.readAll('Fournisseur');
   }
+
+  save(){
+    this.getRavitaillementInstance().id_point_vente = this.pvScv.getActivePointeVente()?.id;
+    this.bdSvc.create(this.getRavitaillementInstance());
+  }
   
 }
+
+
+

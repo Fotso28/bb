@@ -75,7 +75,9 @@ export class AddUpdatePointVentePage implements OnInit {
         if(val){
           this.showToast("Nouveau element créer")
           resetForm(this.pointVenteForm);
-          this.router.navigateByUrl("/point-vente")
+          this.router.navigateByUrl("/point-vente");
+          // let activePoint = this.pointVenteSvc.getActivePointeVente();
+          
         }
       }).catch((error:any)=> this.showToast("Veuillez réessayer"));
 

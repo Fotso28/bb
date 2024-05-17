@@ -44,6 +44,14 @@ const routes: Routes = [
     loadChildren: () => import('./pages/employes/employe/employe.module').then( m => m.EmployePageModule)
   },
   {
+    path: 'list-inventory',
+    loadChildren: () => import('./pages/inventory/list-inventory/list-inventory.module').then( m => m.ListInventoryPageModule)
+  },
+  {
+    path: 'add-inventory',
+    loadChildren: () => import('./pages/inventory/add-inventory/add-inventory.module').then( m => m.AddInventoryPageModule)
+  },
+  {
     path: 'point-vente',
     loadChildren: () => import('./pages/pointVentes/point-vente/point-vente.module').then( m => m.PointVentePageModule)
   },
@@ -102,6 +110,10 @@ const routes: Routes = [
   {
     path: 'add-produit/:action',
     loadChildren: () => import('./pages/ravitaillements/2_ravitaillement-produit-step/add-produit/add-produit.module').then( m => m.AddProduitPageModule)
+  },
+  {
+    path: 'more-detail',
+    loadChildren: () => import('./pages/inventory/more-detail/more-detail.module').then( m => m.MoreDetailPageModule)
   }
 ];
 

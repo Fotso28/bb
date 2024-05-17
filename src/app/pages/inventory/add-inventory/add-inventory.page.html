@@ -1,0 +1,20 @@
+<ion-header [translucent]="true">
+  <ion-toolbar>
+    <ion-title>add-inventory</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true">
+  <form *ngIf="produits.length" [formGroup]="productForm">
+  <ion-grid>
+      <div *ngFor="let product of produits; let i = index" class="product-item">
+        <app-input [control]="getQuantityControl(i)" [product]="product"></app-input>
+      </div>
+    </ion-grid>
+    <ion-fab slot="fixed" (click)="onSubmit()" vertical="bottom" horizontal="end">
+      <ion-fab-button>
+        <ion-icon name="add"></ion-icon>
+      </ion-fab-button>
+    </ion-fab>
+  </form>
+</ion-content>

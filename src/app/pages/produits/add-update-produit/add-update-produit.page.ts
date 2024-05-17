@@ -59,7 +59,7 @@ export class AddUpdateProduitPage implements OnInit {
     const memo = history.state as Produit;
     console.log(memo);
 
-    this.produit = this.initProduitValues(memo);
+    this.produit = this.produitSvc.initProduitValues(memo);
 
     
     console.log(this.image?.photo.webPath);
@@ -126,25 +126,25 @@ export class AddUpdateProduitPage implements OnInit {
 
   }
 
-  initProduitValues(memo:any): Produit{
-    let produit = new Produit(memo.nom);
-    produit.id = memo.id;
-    produit.prixA = memo.prixA;
-    produit.prixV = memo.prixV;
-    produit.nbreBtleParCasier = memo.nbreBtleParCasier;
-    produit.ristourne = memo.ristourne;
-    produit.id_categorie = memo.id_categorie;
-    produit.id_famille = memo.id_famille;
-    produit.id_casier = memo.id_casier;
-    produit.upload = memo.upload;
-    produit.imgLink = memo.imgLink;
-    produit.user_id = memo.user_id;
-    produit.hasCasier = memo.hasCasier;
-    produit.upload = memo.upload;
-    produit.fournisseurs = memo.fournisseurs;
-    produit.user_id = this.userSvc.getActiveUser()?.id;
-    return produit;
-  }
+  // initProduitValues(memo:any): Produit{
+  //   let produit = new Produit(memo.nom);
+  //   produit.id = memo.id;
+  //   produit.prixA = memo.prixA;
+  //   produit.prixV = memo.prixV;
+  //   produit.nbreBtleParCasier = memo.nbreBtleParCasier;
+  //   produit.ristourne = memo.ristourne;
+  //   produit.id_categorie = memo.id_categorie;
+  //   produit.id_famille = memo.id_famille;
+  //   produit.id_casier = memo.id_casier;
+  //   produit.upload = memo.upload;
+  //   produit.imgLink = memo.imgLink;
+  //   produit.user_id = memo.user_id;
+  //   produit.hasCasier = memo.hasCasier;
+  //   produit.upload = memo.upload;
+  //   produit.fournisseurs = memo.fournisseurs;
+  //   produit.user_id = this.userSvc.getActiveUser()?.id;
+  //   return produit;
+  // }
 
   async submit() {
     // console.log(this.produitForm.value); return;

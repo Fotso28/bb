@@ -338,7 +338,7 @@ const CASIER_TABLE = `CREATE TABLE IF NOT EXISTS Casier (
     date DATE NOT NULL,
     total DECIMAL(10, 2) NOT NULL,
     versement DECIMAL(10, 2),
-    id_employe INTEGER NOT NULL,
+    ids_employe INTEGER NOT NULL,
     user_id INTEGER NOT NULL,
     id_point_vente INTEGER NOT NULL,
     deletedAt TIMESTAMP DEFAULT 0,

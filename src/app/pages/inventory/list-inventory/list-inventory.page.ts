@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { Vente } from 'src/app/models/ProduitVendus';
 import { InventoryService } from 'src/app/services/inventory.service';
 
 @Component({
@@ -8,10 +9,11 @@ import { InventoryService } from 'src/app/services/inventory.service';
 })
 export class ListInventoryPage implements OnInit {
 
+  inventaires!: Vente[];
   constructor(private inventorySvc: InventoryService) { }
 
   async ngOnInit() {
-    console.log(await this.getInventory())
+    this.inventaires = (await this.getInventory()).values as Vente[]
   }
 
   async getInventory(){

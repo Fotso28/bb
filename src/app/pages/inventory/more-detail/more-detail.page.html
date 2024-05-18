@@ -9,18 +9,18 @@
     <ion-datetime-button datetime="datetime"></ion-datetime-button>
     <ion-modal [keepContentsMounted]="true">
       <ng-template>
-        <ion-datetime (confirm)="toto()" formControlName="date" mode="ios" id="datetime" presentation="date-time" 
+        <ion-datetime formControlName="date" mode="ios" id="datetime" presentation="date-time" 
           [showDefaultButtons]="true" doneText="Ok" cancelText="Annuler">
         </ion-datetime>
       </ng-template>
     </ion-modal>
     <div class="input">
-      <ion-label>Versement</ion-label>
-      <input type="number" formControlName="versement" placeholder="Montant Perçu" />
+      <ion-label>Total Vendu</ion-label>
+      <input type="number" readonly formControlName="total" placeholder="Montant total vendu" />
     </div>
     <div class="input">
-      <ion-label>Total Vendu</ion-label>
-      <input type="number" formControlName="total" placeholder="Montant total vendu" />
+      <ion-label>Versement</ion-label>
+      <input type="number" formControlName="versement" placeholder="Montant Perçu" />
     </div>
     <!-- <ion-item> -->
     <ion-select formControlName="ids_employe" multiple="true" placeholder="Nom Caissiers">

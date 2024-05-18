@@ -48,6 +48,7 @@ export class RavitaillementService {
     return new Ravitaillement();
   }
 
+
   setlisteProduitsRavitailles(produitRavitailles: ProduitsRavitailles){
     this.listeProduitsRavitailles = addToArray(this.listeProduitsRavitailles, produitRavitailles);
     
@@ -63,9 +64,10 @@ export class RavitaillementService {
     return this.bdSvc.readAll('Fournisseur');
   }
 
-  save(){
+  async save(){
     this.getRavitaillementInstance().id_point_vente = this.pvScv.getActivePointeVente()?.id;
-    this.bdSvc.create(this.getRavitaillementInstance());
+    let totot = await this.bdSvc.create(this.getRavitaillementInstance());
+    // console.log(this.get)
   }
   
 }

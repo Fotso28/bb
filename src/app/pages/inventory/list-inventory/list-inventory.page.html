@@ -5,6 +5,11 @@
 </ion-header>
 
 <ion-content [fullscreen]="true">
+  <ion-list *ngIf="inventaires">
+    <ion-item *ngFor="let inv of inventaires">
+      <ion-label>{{inv.date}}</ion-label>
+    </ion-item>
+  </ion-list>
   <ion-fab slot="fixed" vertical="bottom" horizontal="end">
     <ion-fab-button routerLink="/add-inventory">
       <ion-icon name="add"></ion-icon>

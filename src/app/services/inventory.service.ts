@@ -4,7 +4,7 @@ import { BdService } from './-bd.service';
 import { Ravitaillement } from '../models/Ravitaillements';
 import { Reste } from '../models/RestesModel';
 import { Vente } from '../models/ProduitVendus';
-import { showError } from '../_lib/lib';
+import { showError, showToast } from '../_lib/lib';
 import { User, UserService } from './user.service';
 import { PointVenteService } from './point-vente.service';
 import { PointVente } from '../models/PointVentes';
@@ -14,26 +14,37 @@ import { PointVente } from '../models/PointVentes';
 })
 export class InventoryService {
 
-  private vente!: Vente;
+  private ventes!: Vente;
+
   public restes!: ProduitsRavitailles[];
+
+  public lastStockProduct!: ProduitsRavitailles[];
+  public somProduitVendu!: ProduitsRavitailles[];
+  public montantTotalVendu!: number;
+
+  public produits: ProduitsRavitailles[] = [];
+
+  ids_ravitaillement!:  Array<number | undefined>
   constructor(private bdSvc: BdService, private userSvc: UserService, private pointVenteSvc: PointVenteService) {
       
   }
 
-  
-  // setReste(restes: ProduitsRavitailles[]){
-  //   this._restes = JSON.stringify(restes);
-  // }
-  // getRestes(): string{
-  //   return this._restes;
-  // }
    /**
    * 
    * @returns Promise<Ravitaillement[]>
    */
-   async getUninventoryRavitaillements(): Promise<Ravitaillement[]>{
-    let sql = 'SELECT * FROM Ravitaillement WHERE all_ready_inventoried = 0';
-    return (await this.bdSvc.query(sql)).values as Ravitaillement[];
+   async getUninventoryRavitaillements(): Promise<Ravitaillement[] |false>{
+    try {
+      let sql = 'SELECT * FROM Ravitaillement WHERE all_ready_inventoried = 0';
+      let _rav = await this.bdSvc.query(sql)
+      if(!_rav){
+        return false
+      }
+      return _rav.values as Ravitaillement[];
+    } catch (error) {
+      console.log(error);
+      return false
+    }
   }
 
   /**
@@ -42,25 +53,31 @@ export class InventoryService {
    * 
    */
   getInventoryInstance(): Vente{
-    if(!this.vente){
-      this.vente = new Vente();
+    if(!this.ventes){
+      this.ventes = new Vente();
     }
-    return this.vente;
+    return this.ventes;
   }
 
   /**
    * 
    * @returns Promise<Reste[]>
    */
-  async getLastStock(): Promise<Reste[]>{
-    let sql = 'SELECT * FROM Reste WHERE id = (SELECT MAX(id) FROM Reste)';
-    return (await this.bdSvc.query(sql)).values as Reste[];
+  async getLastStock(): Promise<Reste[] | false>{
+    try {
+      let sql = 'SELECT * FROM Reste WHERE id = (SELECT MAX(id) FROM Reste)';
+      let _reste = await this.bdSvc.query(sql)
+      return _reste.values as Reste[];
+    } catch (error) {
+      console.log(error);
+      return false;
+    }
   }
 
   async saveStock(reste: Reste){
     return  await this.bdSvc.create(reste);
   }
-  async saveVente(vente: Vente){
+  async saveVente(vente: Vente): Promise<boolean>{
     return  await this.bdSvc.create(vente);
   }
 
@@ -68,7 +85,7 @@ export class InventoryService {
     return await this.bdSvc.query('UPDATE Ravitaillement SET all_ready_inventoried = 1 WHERE all_ready_inventoried = 0')
   }
 
-  sommeArrayProduits(arr: ProduitsRavitailles[][]): ProduitsRavitailles[] | false {
+  sommeArrayProduits(arr: ProduitsRavitailles[][]): ProduitsRavitailles[] {
       try {
         const productMap: { [id: number]: ProduitsRavitailles } = {};
         arr.forEach(subArray => {
@@ -84,7 +101,7 @@ export class InventoryService {
         return Object.values(productMap);
       } catch (error) {
         showError(error)
-        return false;
+        return [];
       }
     }
   
@@ -97,7 +114,7 @@ export class InventoryService {
       }
     }
   
-    extractProductFromRavitaillement(arr: Array<Ravitaillement>): Array<ProduitsRavitailles[]> | false{ 
+    extractProductFromRavitaillement(arr: Array<Ravitaillement>): Array<ProduitsRavitailles[]>| false{ 
       try {
         let arr1: Array<ProduitsRavitailles[]> = [];
         arr.forEach((elt: Ravitaillement) => {
@@ -106,7 +123,7 @@ export class InventoryService {
         return arr1;
       } catch (error) {
         showError(error)
-        return [];
+        return false;
       }
     }
   
@@ -151,114 +168,112 @@ export class InventoryService {
         }
       
     }
+    /**
+     * return list of product sold
+     * @param sommeProduitRavitailles 
+     * @param lastStockProduct 
+     * @param restes 
+     * @returns 
+     */
+    sommeProduitVendu(sommeProduitRavitailles: ProduitsRavitailles[], lastStockProduct: ProduitsRavitailles[], restes: ProduitsRavitailles[]){
+      
+      try {
 
-    
+        if(!Array.isArray(sommeProduitRavitailles) || !Array.isArray(lastStockProduct) || !Array.isArray(lastStockProduct)){
+          console.log("Erreur");
+          showToast("Aucun produit ravitaille", "danger");
+          return
+        }
 
-    // async saveProduitVendu(sommeProduitRavitailles: ProduitsRavitailles[], lastStockProduct: ProduitsRavitailles[], restes: ProduitsRavitailles[], ids_ravitaillement:  Array<number | undefined>): Promise<boolean>{
-    //   try {
-  
-    //     if(ids_ravitaillement.every(val => val == undefined)){
-    //       console.log("ravitaillement mal definie");
-    //       showToast("ravitaillement mal definie", "danger");
-    //       return false
-    //     }
-  
-    //     console.log("Sommes ",sommeProduitRavitailles)
-  
-    //     if(!sommeProduitRavitailles.length){
-    //       console.log("Aucun produit ravitaille");
-    //       showToast("Aucun produit ravitaille", "danger");
-    //       return false
-    //     }
+        if(!sommeProduitRavitailles.length && !lastStockProduct.length && !lastStockProduct.length){
+          console.log("Erreur");
+          showToast("Aucun produit ravitaille", "danger");
+          return
+        }
     
-    //     let produitVendu: ProduitsRavitailles[] = []; 
-    //     for(let i=0; i < this.produits.length; i++){
-    //         let prod_ravitaille: ProduitsRavitailles = sommeProduitRavitailles.find(prod_r => this.produits[i].id == prod_r.id) || <ProduitsRavitailles>{};
-    //         let lastSto: ProduitsRavitailles = lastStockProduct.length ? lastStockProduct.find(last_sto => this.produits[i].id == last_sto?.id) || <ProduitsRavitailles>{} : <ProduitsRavitailles>{};
-    //         let reste: ProduitsRavitailles = restes.length ? restes.find(res => this.produits[i].id == res.id) || <ProduitsRavitailles>{} : <ProduitsRavitailles>{};
-    //         let qte_vendu: number = 0;
-  
-    //         if(lastSto.qte_btle && isNaN(lastSto.qte_btle!)){
-    //           console.log("produit mal defini  dans la table Reste", lastSto);
-    //           showToast("produit mal defini", "danger");
-    //           return false
-    //         }
-  
-    //         if(lastSto.qte_btle){
-    //           qte_vendu += lastSto.qte_btle
-    //         }
-  
-    //         if(prod_ravitaille.qte_btle && isNaN(prod_ravitaille.qte_btle)){
-    //           console.log("produit mal defini dans la table ravitaillement", prod_ravitaille);
-    //           showToast("produit mal defini  dans la table ravitaillement", "danger");
-    //           return false
-    //         }
-  
-    //         if(prod_ravitaille.qte_btle){
-    //           qte_vendu += prod_ravitaille.qte_btle
-    //         }
-  
-    //         if(reste.qte_btle && isNaN(reste.qte_btle)){
-    //           console.log("produit mal defini (reste)", reste);
-    //           showToast("produit mal defini  (reste)", "danger");
-    //           return false
-    //         }
-  
-    //         if(reste.qte_btle){
-    //           qte_vendu -= reste.qte_btle
-    //         }
-    
-    //         let prod_v : ProduitsRavitailles = this.produits[i];
-    //         prod_v.qte_btle = qte_vendu; 
-    //         produitVendu.push(prod_v);
+        let produitVendu: ProduitsRavitailles[] = [];
+        let produits = [...this.produits];
+
+        for(let i=0; i < produits.length; i++){
+          let prod_ravitaille: ProduitsRavitailles = Array.isArray(sommeProduitRavitailles) && sommeProduitRavitailles.find(prod_r => produits[i].id == prod_r.id) || <ProduitsRavitailles>{};
+          let lastSto: ProduitsRavitailles = Array.isArray(lastStockProduct) && lastStockProduct.length ? lastStockProduct.find(last_sto => produits[i].id == last_sto?.id) || <ProduitsRavitailles>{} : <ProduitsRavitailles>{};
+          let reste: ProduitsRavitailles = Array.isArray(restes) && restes.length ? restes.find(res => produits[i].id == res.id) || <ProduitsRavitailles>{} : <ProduitsRavitailles>{};
+          let qte_btle : number = 0;
+
+          if(lastSto.qte_btle && isNaN(lastSto.qte_btle!)){
+            console.log("produit mal defini  dans la table Reste", lastSto);
+            showToast("produit mal defini", "danger");
+            return false
+          }
+
+          if(lastSto.qte_btle){
+            qte_btle += lastSto.qte_btle
+          }
+
+          if(prod_ravitaille.qte_btle && isNaN(prod_ravitaille.qte_btle)){
+            console.log("produit mal defini dans la table ravitaillement", prod_ravitaille);
+            showToast("produit mal defini  dans la table ravitaillement", "danger");
+            return false
+          }
+
+          if(prod_ravitaille.qte_btle){
+            qte_btle += prod_ravitaille.qte_btle
+          }
+
+          if(reste.qte_btle && isNaN(reste.qte_btle)){
+            console.log("produit mal defini (reste)", reste);
+            showToast("produit mal defini  (reste)", "danger");
+            return false
+          }
+          
+
+          if(reste.qte_btle){
+            qte_btle -= reste.qte_btle
+          }
+          // Creating a new instance of ProduitsRavitailles to avoid modifying the original objects
+          let prod_v = new ProduitsRavitailles(
+            produits[i].id,
+            produits[i].prixA,
+            produits[i].prixV,
+            produits[i].nbreBtleParCasier,
+            produits[i].nom,
+            qte_btle, // setting the calculated quantity sold
+            produits[i].ristourne,
+            produits[i].famille,
+            produits[i].categorie,
+            produits[i].fournisseurs
+          );
+          // Ceci ressemble à une ligne redondante mais il n'est est pas.
+          // à cause du Hoisting
+          prod_v.qte_btle = qte_btle;
+          produitVendu.push(prod_v);
             
-    //     };
+        };
   
-    //     console.log("Les produits vendu sont : ",produitVendu)
-    
-        
-    //     if(!this.pointVenteSvc.getActivePointeVente()?.id){
-    //       console.log("Point de vente non defini");
-    //       showToast("Point de vente non defini", "danger");
-    //       return false
-    //     }
-        
-    //     if(!this.userSvc.getActiveUser()?.id && this.userSvc.getActiveUser()?.id == undefined){
-    //       console.log("User non defini");
-    //       showToast("User non defini", "danger");
-    //       return false
-    //     }
-    
-    //     let vente: Vente = new Vente(
-    //       (new Date()).getTime(),
-    //       JSON.stringify(produitVendu)
-    //     );
-    //     vente.id_employe = 25;
-    //     vente.id_point_vente = this.pointVenteSvc.getActivePointeVente()?.id!
-    //     vente.ids_ravitaillement = JSON.stringify(ids_ravitaillement);
-    //     let somme = this.sommePrix(produitVendu);
-    //     if(somme == "Error"){
-    //       showToast("Erreur avec la somme", "danger");
-    //       return false;
-    //     }
-    //     vente.total = somme;
-    //     vente.versement = 55;
-        
-    //     let isSaved: boolean = await this.ravSvc.saveVente(vente);
-    //     return isSaved;
-    //   } catch (error) {
-    //     console.log(error);
-    //     return false;
-    //   }
-    // }
+        console.log("Les produits vendu sont : ",produitVendu)
+        return produitVendu;
+      } catch (error) {
+        console.log(error);
+        return false;
+      }
+    }
+
+    async saveProduitVendu( vente: Vente): Promise<boolean>{
+      try {
+        let isSaved: boolean = await this.saveVente(vente);
+        return isSaved;
+      } catch (error) {
+        console.log(error);
+        return false;
+      }
+    }
     
    sommePrix(produits_ravitailles: ProduitsRavitailles[]): number | "Error" {
       try {
         return produits_ravitailles.reduce((somme, produit) =>{
-          console.log("reste",(produit?.qte_btle! % produit.nbreBtleParCasier) * produit?.prixA! / produit.nbreBtleParCasier)
-          console.log("Total div", Math.floor(produit?.qte_btle! / produit.nbreBtleParCasier) * produit.prixA)
+          
           if(produit?.prixA && produit?.qte_btle){
-            return somme + Math.floor( produit?.qte_btle / produit.nbreBtleParCasier) * produit?.prixA + produit?.qte_btle % produit.nbreBtleParCasier * produit?.prixA / produit.nbreBtleParCasier
+            return somme + Math.floor( produit?.qte_btle / produit.nbreBtleParCasier) * produit?.prixV + produit?.qte_btle % produit.nbreBtleParCasier * produit?.prixV / produit.nbreBtleParCasier
           }else{
             return somme
           }
@@ -272,11 +287,20 @@ export class InventoryService {
     return (await this.bdSvc.query('Select * FROM Vente')) ;
   }
 
-  getVenteInstance(){
-    if(!this.vente){
-      this.vente = new Vente();
+  /**
+   * Take an array of ProduitsRavitailles return true if it is not empty or false if empty
+   * @param prod: ProduitsRavitailles[]
+   * @returns boolean
+   */
+  isNotEmpty(prod: ProduitsRavitailles[]):boolean{
+    if(!Array.isArray(prod) || !prod.length){
+      return false;
     }
-    return this.vente;
+    
+    if(prod.every((p: ProduitsRavitailles) => !p.qte_btle)){
+      return false
+    }
+    return true;
   }
 }
 

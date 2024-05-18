@@ -1,10 +1,12 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { Router } from '@angular/router';
 import { showToast, toTimestamp } from 'src/app/_lib/lib';
 import { Employe } from 'src/app/models/Employes';
-import { Ravitaillement } from 'src/app/models/Ravitaillements';
 import { BdService } from 'src/app/services/-bd.service';
 import { InventoryService } from 'src/app/services/inventory.service';
+import { PointVenteService } from 'src/app/services/point-vente.service';
+import { RavitaillementService } from 'src/app/services/ravitaillement.service';
 
 @Component({
   selector: 'app-more-detail',
@@ -17,49 +19,56 @@ export class MoreDetailPage implements OnInit {
 
   formGroup!: FormGroup;
   employes: Employe[] = [];
-  constructor(public formBuilder: FormBuilder, public bdSvc: BdService, public inventorySvc: InventoryService) { }
+  constructor(public router: Router, public pointVenteSvc: PointVenteService, public ravSvc: RavitaillementService, public formBuilder: FormBuilder, public bdSvc: BdService, public inventorySvc: InventoryService) { }
 
   async ngOnInit() {
+   
     this.employes = await this.allEmploye() as Employe[];
-    console.log("les employes sont : ", this.employes);
+
     this.formGroup = this.formBuilder.group({
-      total: [0, [Validators.required, Validators.min(0)]],
+      total: [this.inventorySvc.montantTotalVendu, [Validators.required, Validators.min(0)]],
       versement: [0, [Validators.required, Validators.min(0)]],
       ids_employe: [[this.employes[this.employes.length - 1].id || 0], [Validators.required]],
       date: [(new Date()).toJSON(), [Validators.required]]
     });
-    console.log(this.employes)
+    console.log("lastStockProduct", this.inventorySvc.lastStockProduct);
+    console.log("restes", this.inventorySvc.restes);
+    console.log("somProduitVendu", this.inventorySvc.somProduitVendu);
+    console.log("ids_ravitaillement", this.inventorySvc.ids_ravitaillement);
+    console.log("montantTotalVendu", this.inventorySvc.montantTotalVendu);
   }
+
+
   async onSubmit(){
+
     if(this.formGroup.valid){
+      // 1. Retrieve the additional information from the form
       let formValues: {date:string, total: number, versement: number, ids_employe: Array<number>} = this.formGroup.value;
       this.inventorySvc.getInventoryInstance().date = toTimestamp(formValues.date);
-      this.inventorySvc.getInventoryInstance().total = formValues.total;
+      this.inventorySvc.getInventoryInstance().produits = JSON.stringify(this.inventorySvc.somProduitVendu);
+      this.inventorySvc.getInventoryInstance().total = this.inventorySvc.montantTotalVendu;
       this.inventorySvc.getInventoryInstance().versement = formValues.versement;
       this.inventorySvc.getInventoryInstance().ids_employe = JSON.stringify(formValues.ids_employe);
+      this.inventorySvc.getInventoryInstance().id_point_vente = this.pointVenteSvc.getActivePointeVente()?.id!;
+      this.inventorySvc.getInventoryInstance().ids_ravitaillement = JSON.stringify(this.inventorySvc.ids_ravitaillement);
 
-      console.log(this.inventorySvc.restes);
+      console.log(this.inventorySvc.getInventoryInstance())
+     
 
-      let all_ravitaillements: Array<Ravitaillement> |false= await this.inventorySvc.getUninventoryRavitaillements(); 
-      if(!all_ravitaillements || !all_ravitaillements.length){
-        showToast('pas de ravitaillement en cours', 'danger');
-        console.log("pas de ravitaillement")
-        return;
-      }
+      // Save the current rest
+      await this.inventorySvc.saveCurrentStock(this.inventorySvc.restes);
+      
+                        // calcul and sum and save product sell in the database
+      let isSaved = await this.inventorySvc.saveProduitVendu(this.inventorySvc.getInventoryInstance());
+      let isUpdate = await this.inventorySvc.markAllAsRavitaille();
+      console.log("isUpdate est ", isUpdate);
+      this.router.navigateByUrl('/list-inventory')
     }else{
       showToast("Formulaire mal rempli", "danger")
     }
   }
 
-  dateChange($event: CustomEvent){
-    console.log($event.detail.value)
-  }
-
   async allEmploye(){
     return await this.bdSvc.readAll("Employe")
-  }
-
-  toto(){
-    console.log("toto")
   }
 }

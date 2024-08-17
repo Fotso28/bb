@@ -2,14 +2,14 @@
   <ion-col size="9">
     <div class="flex">
       <ion-avatar style="width: 40px;height: 40px; margin-right: 10px;">
-        <img width="20" src="https://ionicframework.com/docs/img/demos/avatar.svg"/>
+        <img width="20" [src]="product.imgLink || 'assets/icon/person.png'"/>
       </ion-avatar>
       <ion-label>{{product.nom}}</ion-label>
     </div>
   </ion-col>
-  <ion-col class="center" size="3">
-    <div class="inline-input">
-      <input type="number" [id]="product.id" [formControl]="control"  [class.ng-invalid]="control.invalid && control.touched" />
+  <ion-col class="center " size="3">
+    <div class="inline-input input">
+      <input appInputMomeyFormat style="text-align: right;" type="tel" [id]="product.id" [formControl]="control"  [class.ng-invalid]="control.invalid && control.touched" />
     </div>
   </ion-col>
 </ion-row>

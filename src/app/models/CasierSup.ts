@@ -1,3 +1,6 @@
+import { ClassName } from "../_decorators/class-name.decorator";
+
+@ClassName('CasierSup')
 export class CasierSup{
     constructor(
       public type?: "E" | "S",

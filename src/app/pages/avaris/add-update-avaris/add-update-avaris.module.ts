@@ -7,12 +7,13 @@ import { IonicModule } from '@ionic/angular';
 import { AddUpdateAvarisPageRoutingModule } from './add-update-avaris-routing.module';
 
 import { AddUpdateAvarisPage } from './add-update-avaris.page';
+import { DirectivesModule } from 'src/app/directive/directives.module';
 
 @NgModule({
   imports: [
     CommonModule,
     FormsModule, ReactiveFormsModule,
-    IonicModule,
+    IonicModule, DirectivesModule,
     AddUpdateAvarisPageRoutingModule
   ],
   declarations: [AddUpdateAvarisPage]

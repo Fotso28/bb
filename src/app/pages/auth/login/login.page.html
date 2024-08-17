@@ -1,0 +1,53 @@
+
+<ion-content [fullscreen]="true" class="ion-padding">
+  <div class="ion-text-center" style="margin-top: 30px;">
+    <img src="assets/icon-background.png" style="max-width: 100px; width: 100px;border-radius: 8px;" alt="">
+  </div>
+  <div style="display: flex;justify-content: center;margin-bottom: 30px">
+    <small corlor="primary">Bienvenue sur l'application Kordo</small>
+  </div>
+
+
+  <form [formGroup]="registerForm" (ngSubmit)="onSubmit()">
+    <!-- Step 1: Affiche Nom d'utilisateur et Téléphone -->
+  
+    
+      <!-- Step 2: Affiche le reste du formulaire -->
+    <div class="bloc">
+      <div class="input">
+        <ion-label for="telephone">Téléphone</ion-label>
+        <div class="flex-container">
+          <ion-select style="width: 100px; padding-right: 10px;" #pays value="+237">
+            <ion-select-option value="+237">Cameroun</ion-select-option>
+            <ion-select-option value="+241">Gabon</ion-select-option>
+            <ion-select-option value="+225">Cote d'ivoire</ion-select-option>
+          </ion-select>
+          <div class="c_input">
+            <div class="code_pays">{{pays.value}}</div>
+            <input type="tel" id="telephone" formControlName="telephone" class="flex-input">
+          </div>
+        </div>
+        <div class="error-message" *ngIf="registerForm.get('telephone')?.invalid && (registerForm.get('telephone')?.dirty || registerForm.get('telephone')?.touched)">
+          <small *ngIf="registerForm.get('telephone')?.errors?.['required']">Le numéro de téléphone est requis.</small>
+          <small *ngIf="registerForm.get('telephone')?.errors?.['pattern']">Le numéro de téléphone n'est pas valide.</small>
+        </div>
+      </div>
+  
+      <div class="input">
+        <ion-label for="password">Mot de passe</ion-label>
+        <input type="password" id="password" formControlName="password">
+        <div class="error-message" *ngIf="registerForm.get('password')?.invalid && (registerForm.get('password')?.dirty || registerForm.get('password')?.touched)">
+          <small *ngIf="registerForm.get('password')?.errors?.['required']">Le mot de passe est requis.</small>
+          <small *ngIf="registerForm.get('password')?.errors?.['minlength']">Le mot de passe doit contenir au moins 6 caractères.</small>
+        </div>
+      </div>
+      <app-goto-register></app-goto-register>
+      <ion-grid>
+        <ion-row>
+          <ion-col size="4"></ion-col>
+          <ion-col size="8"><ion-button type="submit" mode="ios" expand="block mt20" class="btn">Créer Un Compte</ion-button></ion-col>
+        </ion-row>
+      </ion-grid>
+    </div>
+  </form>
+</ion-content> 

@@ -3,6 +3,7 @@ import { Famille } from '../models/Familles';
 import { ICrud } from '../Interfaces/Crud';
 import { BdService } from './-bd.service';
 import { BehaviorSubject } from 'rxjs';
+import { DBSQLiteValues } from '@capacitor-community/sqlite';
 
 @Injectable({
   providedIn: 'root'
@@ -14,7 +15,7 @@ export class FamilleService implements ICrud<Famille>{
 
     constructor(private bdSvc: BdService){}
     
-    async create(item: Famille): Promise<boolean> {
+    async create(item: Famille): Promise<boolean | DBSQLiteValues> {
       try {
           let itemsIsReaded = await this.bdSvc.create(item);
           if(itemsIsReaded) this.getAll();

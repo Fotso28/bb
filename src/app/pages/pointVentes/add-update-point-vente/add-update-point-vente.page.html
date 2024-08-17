@@ -1,23 +1,53 @@
-<ion-header [translucent]="true">
+<ion-header [translucent]="true" mode="md" class="no-shadow">
   <ion-toolbar>
     <ion-buttons slot="start">
       <ion-back-button></ion-back-button>
     </ion-buttons>
-    <ion-title>PointVente</ion-title>
+    <ion-title class="ion-text-center">{{action == "update" ? 'Modifier ' : 'Ajouter un '}} point de vente</ion-title>
   </ion-toolbar>
 </ion-header>
 
 <ion-content [fullscreen]="true" class="ion-padding">
   <form [formGroup]="pointVenteForm" (ngSubmit)="submit()">
     <div>
-      <ion-input label="Nom*" mode="md" errorText="Nom invalide" label-placement="floating" fill="outline" placeholder="Tapez le nom du pointVente" id="nom" formControlName="nom" required></ion-input>
+
+      <div class="input">
+        <ion-label>Nom *</ion-label>
+        <input type="text" formControlName="nom" placeholder="Entrez le nom du Point de vente" />
+        <div *ngIf="pointVenteForm.get('nom')?.touched && pointVenteForm.get('nom')?.invalid">
+          <div *ngIf="pointVenteForm.controls['nom'].errors && pointVenteForm.controls['nom'].errors['required']" class="error-message">
+            <small>Valeur Requise.</small>
+          </div>
+        </div>
+      </div>
+
+      <div class="input">
+        <ion-label>Adresse *</ion-label>
+        <input type="text" formControlName="adresse" placeholder="Entrez l'adresse du Point de vente" />
+        <div *ngIf="pointVenteForm.get('adresse')?.touched && pointVenteForm.get('adresse')?.invalid">
+          <div *ngIf="pointVenteForm.controls['adresse'].errors && pointVenteForm.controls['adresse'].errors['required']" class="error-message">
+            <small>Valeur Requise.</small>
+          </div>
+        </div>
+      </div>
+
+      <div class="input">
+        <ion-label>Description</ion-label>
+        <textarea type="text" rows="5" formControlName="description" placeholder="Tapez une description" ></textarea>
+        <div *ngIf="pointVenteForm.get('description')?.touched && pointVenteForm.get('description')?.invalid">
+          <div *ngIf="pointVenteForm.controls['description'].errors && pointVenteForm.controls['description'].errors['required']" class="error-message">
+            <small>Valeur Requise.</small>
+          </div>
+        </div>
+      </div>
+
       
-      <ion-input label="adresse" mode="md" errorText="Nom invalide" label-placement="floating" fill="outline" placeholder="Tapez l'adresse" id="adresse" formControlName="adresse"></ion-input>
+      <!-- <ion-input label="adresse" mode="md" errorText="Nom invalide" label-placement="floating" fill="outline" placeholder="Tapez l'adresse" id="adresse" formControlName="adresse"></ion-input> -->
+      <!-- <ion-input label="Nom*" mode="md" errorText="Nom invalide" label-placement="floating" fill="outline" placeholder="Tapez le nom du pointVente" id="nom" formControlName="nom" required></ion-input> -->
   
-      <ion-textarea type="text" mode="md" label="Description"  label-placement="floating" fill="outline" inputmode="text"  placeholder="Tapez une description" formControlName="description"></ion-textarea>
+      <!-- <ion-textarea type="text" mode="md" label="Description"  label-placement="floating" fill="outline" inputmode="text"  placeholder="Tapez une description" formControlName="description"></ion-textarea> -->
     </div>
-    <ion-button type="submit" class="btn btn-primary">Ajouter point Vente</ion-button>
-    <ion-button type="button" (click)="modifierPointVente()" class="btn btn-primary">Modifier Point de Vente</ion-button>
+    <ion-button mode="ios" expand="block" type="submit" class="btn mt20">{{action == "update" ? 'Modifier' : 'Ajouter'}}</ion-button>
   </form>
   
 </ion-content>

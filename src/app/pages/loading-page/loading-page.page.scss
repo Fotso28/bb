@@ -1,0 +1,38 @@
+.shapes {
+    width: 44.8px;
+    height: 44.8px;
+    color: #f0f0f0;
+    position: relative;
+    background: conic-gradient(from 134deg at top   ,currentColor 92deg,#0000 0) top,
+           conic-gradient(from -46deg at bottom,currentColor 92deg,#0000 0) bottom;
+    background-size: 100% 50%;
+    background-repeat: no-repeat;
+ }
+ 
+ .shapes:before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: conic-gradient(from  -135deg at top 0    left   24.4px ,#0000 ,currentColor 1deg 90deg,#0000 0),
+           conic-gradient(from  -45deg  at right 0  top    24.4px ,#0000 ,currentColor 1deg 90deg,#0000 0),
+           conic-gradient(from   45deg  at bottom 0 right  24.4px ,#0000 ,currentColor 1deg 90deg,#0000 0),
+           conic-gradient(from  135deg  at left  0  bottom 24.4px ,#0000 ,currentColor 1deg 90deg,#0000 0);
+    animation: shapes-et721zmd 2s infinite cubic-bezier(0.3,1,0,1);
+ }
+ 
+ @keyframes shapes-et721zmd {
+    33% {
+       inset: -11.2px;
+       transform: rotate(0deg);
+    }
+ 
+    66% {
+       inset: -11.2px;
+       transform: rotate(90deg);
+    }
+ 
+    100% {
+       inset: 0;
+       transform: rotate(90deg);
+    }
+ }

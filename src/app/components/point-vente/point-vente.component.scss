@@ -1,0 +1,19 @@
+.pointvente ion-select{
+    background-color: #1cffa0c0;
+    padding: 0 15px;
+    border-radius: 10px;
+    color: #000;
+    margin-bottom: 10px;
+    display: none;
+  }
+  .ripple-parent{
+    position: relative;
+    overflow: hidden;
+  }
+  ion-label{
+    display: inline-block;
+    white-space: nowrap;        /* Empêche le texte de s'étendre sur plusieurs lignes */
+    overflow: hidden;           /* Cache tout débordement de contenu */
+    text-overflow: ellipsis;
+    max-width: 250px;
+  }

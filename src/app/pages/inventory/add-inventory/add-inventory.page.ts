@@ -1,18 +1,18 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, FormControl, FormArray } from '@angular/forms';
 import { Router } from '@angular/router';
-import { showError, showToast } from 'src/app/_lib/lib';
-import { PointVente } from 'src/app/models/PointVentes';
-import { Vente } from 'src/app/models/ProduitVendus';
+import { showError, showToast, sommeArrayProduits, trimAndParseInt } from 'src/app/_lib/lib';
+import { Avaris } from 'src/app/models/Avaris';
 import { Produit } from 'src/app/models/Produits';
 import { ProduitsRavitailles } from 'src/app/models/ProduitsRavitailles';
 import { Ravitaillement } from 'src/app/models/Ravitaillements';
 import { Reste } from 'src/app/models/RestesModel';
+import { AvarisService } from 'src/app/services/avaris.service';
+import { CameraService } from 'src/app/services/camera.service';
 import { InventoryService } from 'src/app/services/inventory.service';
+import { LoggerService } from 'src/app/services/logger.service';
 import { PointVenteService } from 'src/app/services/point-vente.service';
 import { ProduitService } from 'src/app/services/produit.service';
-import { RavitaillementService } from 'src/app/services/ravitaillement.service';
-import { User, UserService } from 'src/app/services/user.service';
 
 @Component({
   selector: 'app-add-inventory',
@@ -23,24 +23,180 @@ export class AddInventoryPage implements OnInit {
 
   productForm!: FormGroup;
   produits: ProduitsRavitailles[] = [];
-
   prodRav: ProduitsRavitailles[][] = [];
-  constructor(private formBuilder: FormBuilder, private router: Router, private productSvc: ProduitService, private inventorySvc: InventoryService ) {
+  constructor(private formBuilder: FormBuilder, private cameraSvc: CameraService, 
+    private logger: LoggerService, private produitSvc: ProduitService,
+    private router: Router, private productSvc: ProduitService, private pointVenteSvc: PointVenteService,
+    private inventorySvc: InventoryService, private avarisSvc: AvarisService ) {
     
   }
 
   async ngOnInit() {
   
-    this.produits = await this.productSvc.getProduitRavitaillesList();
+    let _produits = await this.productSvc.getProduitRavitaillesList();
+    
+    if(_produits.length){
+      _produits.map(async (prod: ProduitsRavitailles) =>{
+        if(prod.imgLink && /^preconfig-/.test(prod.imgLink) && /\.jpeg$/.test(prod.imgLink)){
+          console.log("je suis encore entrer")
+          prod.imgLink = "assets/product-img/"+prod.imgLink
+        }else{
+          if(prod.imgLink){
+            prod.imgLink = await this.readImage(prod.imgLink!)
+          }
+        }
+      })
+    }
 
+    this.produits = _produits;
     this.inventorySvc.produits = this.produits;
+
     this.buildForm();
+
+     
   }
+
+  async  readImage(imageName: string){
+    if(imageName){
+      let image = await this.cameraSvc.readPhoto(imageName);
+      return 'data:image/jpeg;base64,'+image.data as string || '';
+    }
+    return '';
+  }
+
+  /***
+   * Return the last stock from database
+   * @return Promise<Reste[]>
+   */
+  async getLastStock():Promise<Reste[] | false>{
+    return await this.inventorySvc.getLastStock();
+  } 
+
+  private async getUninventoryAvaris(): Promise<Avaris[] | false> {
+    return await this.avarisSvc.getAllUninventoryAvaris();
+  }
+
+  private async getProductsRavitailles(): Promise<ProduitsRavitailles[]>{
+    return await this.produitSvc.getProduitRavitaillesList();
+  }
+
+  async updateLastStoWithAvaris(): Promise<boolean>{
+    try {
+      let lastStock: false | Reste[] = await this.getLastStock();
+      console.log(lastStock);
+
+      let uninventoryAvaris: false | Avaris[] = await this.getUninventoryAvaris();
+      console.log(uninventoryAvaris);
+
+      if (!uninventoryAvaris || !uninventoryAvaris.length) {
+        this.logger.log("Aucun avari non traité trouvé.");
+        return false;
+      }
+      
+      let newStock: ProduitsRavitailles[] | false;
+
+      if (!lastStock || !lastStock.length) {
+        let _produitsRavitailles = await this.getProductsRavitailles();
+        if(_produitsRavitailles.length){
+          _produitsRavitailles.map((prod: ProduitsRavitailles)=> {
+            delete prod.imgLink;
+            return prod;
+          })
+          newStock = this.createNewStock(_produitsRavitailles, uninventoryAvaris);
+        }else{
+          this.logger.log("Aucun stock précédent trouvé.");
+          return false;
+        }
+      }else{
+        newStock = this.createNewStock(JSON.parse(lastStock[0].produits), uninventoryAvaris);
+      }
+
+      if(!newStock){
+        showError("Erreur avec le nouveau stock");
+        return false;
+      }
+
+      let pv = this.pointVenteSvc.getActivePointeVente();
+
+      if(!pv || !pv.id){
+        return false;
+      }
+
+      let reste: Reste = new Reste(new Date().getTime(), JSON.stringify(newStock));
+      reste.type = 'sto_update';
+      reste.id_point_vente = pv.id;
+      reste.ids_ravitaillement = "";
+
+      // console.log(JSON.parse(reste.produits));
+      
+      let saved: boolean = await this.saveNewStock(reste);
+      saved = this.avarisSvc.setAvarisIntoried();
+      return saved;
+    } catch (error) {
+      showError(error);
+      return false;
+    }
+  }
+
+  private async saveNewStock(newStock: Reste): Promise<boolean> {
+    try {
+      // let reste: Reste = new Reste(new Date().getTime(), JSON.stringify(newStock),0,0,"");
+      await this.inventorySvc.saveStock(newStock);
+      return true;
+    } catch (error) {
+      this.logger.log("Erreur lors de l'enregistrement du nouveau stock", error);
+      return false;
+    }
+  }
+
+  /**
+   * Crée un nouveau stock en ajustant les quantités des produits du dernier stock en 
+   * fonction des avaris non traités.
+   * 
+   * @param lastStock - Un tableau des derniers stocks, où chaque élément contient 
+   * les informations des produits stockés.
+   * @param uninventoryAvaris - Un tableau des avaris non traités, chaque élément 
+   * représentant une quantité d'avari à soustraire du stock.
+   * 
+   * @returns Un tableau de `ProduitsRavitailles` représentant le nouveau stock 
+   * après ajustement des quantités.
+   */
+  private createNewStock(lastStock: ProduitsRavitailles[], uninventoryAvaris: Avaris[]): ProduitsRavitailles[] | false {
+
+    try {
+      const stockMap = new Map<number, ProduitsRavitailles>();
+
+      // Étape 2: Convertir le dernier stock en une map pour un accès rapide
+      lastStock.forEach(item => {
+        stockMap.set(item.id, item);
+      });
+
+      // Étape 3: Soustraire les quantités d'avaris du stock
+      uninventoryAvaris.forEach((avari: Avaris) => {
+        if (!avari.produit_id || !avari.qte) {
+          console.error('Avaris contains null or undefined values:', avari);
+          throw new Error('Avaris contains null or undefined values:')
+        }
+        // Récupérer l'élément de stock correspondant à l'id de l'avari
+        const stockItem = stockMap.get(avari.produit_id!);
+        if (stockItem) {
+          stockItem.qte_btle = (stockItem.qte_btle || 0) - (avari.qte! || 0);
+          stockMap.set(avari.produit_id!, stockItem);
+        }
+      });
+
+      // Étape 4: Convertir la map en tableau et retourner le résultat
+    return Array.from(stockMap.values()) as ProduitsRavitailles[];
+    } catch (error) {
+      return false;
+    }
+  }
+
 
 
   buildForm() {
     if(this.produits && this.produits.length > 0){
-      const formControls = this.produits.map(product =>  new FormControl(0, [Validators.required, Validators.min(0), Validators.max(99999)]));
+      const formControls = this.produits.map(product =>  new FormControl('0', [Validators.required, Validators.min(0), Validators.max(99999)]));
       this.productForm = this.formBuilder.group({ quantities: new FormArray(formControls) });
     }
   }
@@ -50,7 +206,7 @@ export class AddInventoryPage implements OnInit {
   }
 
   async onSubmit() {
-    
+    // return;
     try {
       if(this.productForm.invalid){
         showToast("Formulaire incorrect", "danger");
@@ -58,25 +214,39 @@ export class AddInventoryPage implements OnInit {
         return;
       }
   
-      const quantities = this.productForm.value.quantities;
+      const quantities = this.productForm.value.quantities.map((value: string) =>{
+        return !value ? 0 : Number(value);
+      });
+
+      if(quantities.some((elt: any) => elt = NaN)){
+        this.logger.log("Remplissez tous les champs");
+        showToast("Certaines valeur sont erronées")
+        return;
+      }
+
       let produits = this.produits.slice()
+      // affecter les quantites au objets de type ProduitRavitailles
       let restes: ProduitsRavitailles[] | false = this.combineProductsAndValues(produits, quantities);
-      
+      this.logger.log(restes)
       if(!restes){
         showToast("Erreur avec function restes()", "danger");
-        console.log("Erreur avec function restes()")
+        this.logger.log("Erreur avec function restes()")
         return;
       }
         
       this.inventorySvc.restes = restes;
-      
+
+      // update table reste if there are avaris
+      this.updateLastStoWithAvaris();
+
+      // initialise inventory variable  
       let isInit: boolean = await this.initSomeInventoriesValues();
       if(!isInit){
         return 
       }
       this.router.navigateByUrl("/more-detail");
     } catch (error) {
-      console.log(error);
+      this.logger.log(error);
     }
   }
    /***
@@ -88,11 +258,12 @@ export class AddInventoryPage implements OnInit {
       if (products.length !== values.length) {
         throw new Error('Les tableaux products et values doivent avoir la même longueur.');
       }
+      this.logger.warn(values)
       if(!values.every(val => typeof val === 'number')){
         throw new Error("values error");
       }
       return Array.from(products, (product, i) => {
-        product.qte_btle = values[i];
+        product.qte_btle = trimAndParseInt(values[i].toString());
         return  product;
       });
     } catch (error) {
@@ -111,70 +282,66 @@ export class AddInventoryPage implements OnInit {
     try {
 
       let all_ravitaillements:  false | Ravitaillement[] = await this.getAllInventoriesRavitaillement();
-      console.log("rav",all_ravitaillements)
+      this.logger.log("rav", all_ravitaillements)
       if(!all_ravitaillements){
         showToast("Aucun Ravitaillement encours", "danger");
         return false;
       }
       
-      console.log("all_ravitaillements", all_ravitaillements)
+      this.logger.log("all_ravitaillements", all_ravitaillements)
       let sommeProduitRavitailles = await this.sommeProduitRavitailles(all_ravitaillements);
-      console.warn(sommeProduitRavitailles)
+      this.logger.warn(sommeProduitRavitailles)
       if(!sommeProduitRavitailles){
-        console.log("Erreur somme ProduitRavitailles", "danger");
+        this.logger.log("Erreur somme ProduitRavitailles", "danger");
         return false 
       }
       // // Set Somme of restocks
       
-      console.log("sommeProduitRavitailles", sommeProduitRavitailles)
+      this.logger.log("sommeProduitRavitailles", sommeProduitRavitailles)
       let ids_ravitaillement = this.getAllInventoriesRavitaillementIDS(all_ravitaillements);
       if(!ids_ravitaillement){
-        console.log("ids_ravitaillement est false", ids_ravitaillement);
+        this.logger.log("ids_ravitaillement est false", ids_ravitaillement);
         return false
       }
       // Set Ids of restock
       this.inventorySvc.ids_ravitaillement = ids_ravitaillement;
-      console.log("ids_ravitaillement", ids_ravitaillement)
+      this.logger.log("ids_ravitaillement", ids_ravitaillement)
       let lastStock: Reste[] | false = await this.getLastStock();
   
       if(!lastStock){
-        console.log("lastStock defini",lastStock);
+        this.logger.log("lastStock defini",lastStock);
         return false
       }
       
-      if(!lastStock[0].produits){
-        console.log("lastStock[0].produits", lastStock[0].produits);
-        return false
-      }
-      console.log("lastStock",lastStock);
       // Set last stock of product
-      this.inventorySvc.lastStockProduct = JSON.parse(lastStock[0].produits);
+      this.inventorySvc.lastStockProduct = lastStock.length ? JSON.parse(lastStock[0].produits) : [];
+      this.inventorySvc.lastStockProduct_id = lastStock.length ? (lastStock[0].id ? lastStock[0].id : 0) : 0
       
       let produitVendu = this.inventorySvc.sommeProduitVendu(sommeProduitRavitailles, this.inventorySvc.lastStockProduct, this.inventorySvc.restes);
-      // console.log("produit vendu ", produitVendu)
+      // this.logger.log("produit vendu ", produitVendu)
       if(!produitVendu){
-        console.log("produitVendu", produitVendu)
+        this.logger.log("produitVendu", produitVendu)
         return false
       }
 
 
-      if(!this.inventorySvc.isNotEmpty(JSON.parse(lastStock[0].produits)) && !this.inventorySvc.isNotEmpty(sommeProduitRavitailles)){
-        console.log("Pas de stock disponible",lastStock);
+      if(!this.inventorySvc.isNotEmpty(lastStock.length ? JSON.parse(lastStock[0].produits) : []) && !this.inventorySvc.isNotEmpty(sommeProduitRavitailles)){
+        this.logger.log("Pas de stock disponible",lastStock);
         showToast("Pas de stock disponible. Ravitaillez votre stock", "danger");
         return false
       }
 
       this.inventorySvc.somProduitVendu = produitVendu;
-      // console.log("produit vendu ", produitVendu)
+      // this.logger.log("produit vendu ", produitVendu)
       let total: number | "Error" = this.inventorySvc.sommePrix(this.inventorySvc.somProduitVendu);
       if(total == "Error"){
-        console.log("total", total)
+        this.logger.log("total", total)
         return false
       }
       this.inventorySvc.montantTotalVendu = total;
       return true;
     } catch (error) {
-      console.log(error);
+      this.logger.log(error);
       return false;
     }
 
@@ -210,7 +377,7 @@ export class AddInventoryPage implements OnInit {
     if(!productRavitailles.length){
       return false;
     }
-    return this.inventorySvc.sommeArrayProduits(productRavitailles)
+    return sommeArrayProduits(productRavitailles)
   }
 
   async sommeProduitRavitailles(all_ravitaillements: Ravitaillement[]) : Promise<ProduitsRavitailles[] | false> {
@@ -232,21 +399,15 @@ export class AddInventoryPage implements OnInit {
    */
   getAllInventoriesRavitaillementIDS(all_ravitaillements: Ravitaillement[]): Array<number> | false{
     if(!Array.isArray(all_ravitaillements)){
-      console.log("the variable is not an Array");
+      this.logger.log("the variable is not an Array");
       return false;
     }
     if(all_ravitaillements.some(rav => rav.id == undefined || !rav.id)){
-      console.log("certaine id sont undefined ou null");
+      this.logger.log("certaine id sont undefined ou null");
       return false;
     }
     return all_ravitaillements.map((rav:Ravitaillement) => rav.id as number);
   }
 
-  /***
-   * Return the last stock from database
-   * @return Promise<Reste[]>
-   */
-  async getLastStock():Promise<Reste[] | false>{
-    return await this.inventorySvc.getLastStock();
-  } 
+  
 }

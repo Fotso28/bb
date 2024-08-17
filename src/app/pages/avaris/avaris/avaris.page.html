@@ -1,29 +1,40 @@
-<ion-header [translucent]="true">
+<ion-header [translucent]="true" mode="md" class="no-shadow">
   <ion-toolbar>
-    <ion-menu-toggle slot="start">
-      <ion-button icon-only="true">
-        <ion-icon name="menu"></ion-icon>
-      </ion-button>
-    </ion-menu-toggle>
-    <ion-title>Avaris</ion-title>
-  </ion-toolbar>
+    <div class="d-flex" routerLink="/">
+      <div class="img ion-activatable">
+        <img src="assets/icon/back-button.png" class="back-btn" alt="">
+        <ion-ripple-effect class="ripple"></ion-ripple-effect>
+      </div>
+      <ion-title class="ion-text-center">Avaris</ion-title>
+    </div>
+</ion-toolbar>
 </ion-header>
 
-<ion-content [fullscreen]="true">
-  <ion-header collapse="condense">
-    <ion-toolbar>
-      <ion-title size="large">Avaris</ion-title>
-    </ion-toolbar>
-  </ion-header>
-  <ion-list>
-    <ion-item-sliding *ngFor="let av of avaris" #slidingItem>
-      <ion-item (click)="gotoFamilleDetail(av)">{{av.nom}}</ion-item>
-      <ion-item-options>
-        <ion-item-option color="danger" (click)="delete(av, slidingItem)">Delete</ion-item-option>
-      </ion-item-options>
-    </ion-item-sliding>
-    
-  </ion-list>
+<ion-content [fullscreen]="true" class="ion-padding">
+  <div class="mt25 custom_list">
+    <ion-list lines="none" mode="ios">
+      <ion-item-sliding *ngFor="let av of avaris" #slidingItem>
+        <ion-item (click)="gotoFamilleDetail(av)" button>
+          <div class="triangle" [ngClass]="av.all_ready_inventoried ? 'disabled' : 'active'"></div>
+          <div class="list">
+            <div class="title">{{av.nom}}</div>
+            <div class="sub-bloc" slot="end">
+              <div class="left">
+                <div class="badge">Detail</div>
+              </div>
+              <div class="right">
+                <div class="text">{{av.qte}} <small>Btle(s)</small></div>
+                <div class="date">{{av.date | date}}</div>
+              </div>
+            </div>
+          </div>
+        </ion-item>
+        <ion-item-options>
+          <ion-item-option color="danger" (click)="delete(av, slidingItem)">Delete</ion-item-option>
+        </ion-item-options>
+      </ion-item-sliding>
+    </ion-list>
+  </div>
   <ion-fab slot="fixed" vertical="bottom" horizontal="end">
     <ion-fab-button routerLink="/add-update-avaris/add">
       <ion-icon name="add"></ion-icon>

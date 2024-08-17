@@ -1,7 +1,10 @@
+import { ClassName } from "../_decorators/class-name.decorator";
+
+@ClassName('Depense')
 export class Depense{
     constructor(
       public date?: number,
-      public type?: string,
+      public type?: number,
       public motif?: string,
       public montant?: number,
       public user_id?: number,
@@ -10,8 +13,6 @@ export class Depense{
       public id?:number,
       ){
         this.montant = 0;
-        this.point_vente_id = 1;
         this.deletedAt = 0
-        this.user_id = 15;
       }
 }

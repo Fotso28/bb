@@ -1,71 +1,105 @@
-<ion-header [translucent]="true">
+<ion-header [translucent]="true" mode="md" class="no-shadow">
   <ion-toolbar>
-    <ion-menu-toggle slot="start">
-      <ion-button icon-only="true">
-        <ion-icon name="menu"></ion-icon>
-      </ion-button>
-    </ion-menu-toggle>
-    <ion-title>Casier</ion-title
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      >
+    <div class="d-flex" routerLink="/">
+      <div class="img ion-activatable">
+        <img src="assets/icon/back-button.png" class="back-btn" alt="">
+        <ion-ripple-effect class="ripple"></ion-ripple-effect>
+      </div>
+      <ion-title class="ion-text-center">Etape 1/4</ion-title>
+    </div>
   </ion-toolbar>
 </ion-header>
 
 <ion-content [fullscreen]="true" class="ion-padding">
+  <div class="pv"><app-point-vente></app-point-vente></div>
   <form [formGroup]="fournisseurForm">
     <div>
+
+      <ion-datetime-button datetime="datetime" class="mb15"></ion-datetime-button>
+      <ion-modal [keepContentsMounted]="true">
+        <ng-template>
+          <ion-datetime formControlName="date" mode="ios" id="datetime" presentation="date-time" 
+            [showDefaultButtons]="true" doneText="Ok" cancelText="Annuler">
+          </ion-datetime>
+        </ng-template>
+      </ion-modal>
+
+      <ion-card class="ion-activatable select d-block mb15"  id="nom" mode="ios">
+        <ion-card-header>Nom du fournisseur *</ion-card-header>
+        <ion-card-content>
+          <div>
+            <ion-label *ngIf="activeFournisseur">{{activeFournisseur.nom}}</ion-label>
+            <ion-icon name="chevron-down-outline" style="color: var(--ion-color-primary);"></ion-icon>
+          </div>
+        </ion-card-content>
+        <ion-ripple-effect style="color: var(--ion-color-primary);"></ion-ripple-effect>
+      </ion-card>
+
       <ion-input id="id_fournisseur" formControlName="id_fournisseur" style="display: none;"></ion-input>
-      <ion-input label="Nom du fournisseur*"  mode="md" label-placement="floating" fill="outline" placeholder="Tapez le nom du fournisseur" id="nom" formControlName="nom" readonly required></ion-input>
-      <ion-input type="text" mode="md" label="Numero de facture" min="0" label-placement="floating" fill="outline" inputmode="numeric" placeholder="Tapez le numero de la facture" formControlName="num_facture"></ion-input>
-      <ion-input type="text" mode="md" label="Photo" label-placement="floating" fill="outline" inputmode="text"  placeholder="Tapez l'url de l'image" formControlName="photo_facture_url"></ion-input>
+      <ion-input formControlName="nom" style="display: none;"></ion-input>
+
+      <div class="input">
+        <ion-label>Numero de facture *</ion-label>
+        <input type="tel" formControlName="num_facture" placeholder="Tapez le numero de la facture" />
+        <div *ngIf="fournisseurForm.get('num_facture')?.touched && fournisseurForm.get('num_facture')?.invalid">
+          <div *ngIf="fournisseurForm.controls['num_facture'].errors && fournisseurForm.controls['num_facture'].errors['required']" class="error-message">
+            <small>Valeur Requise.</small>
+          </div>
+          <div *ngIf="!(fournisseurForm.controls['num_facture'].errors && fournisseurForm.controls['num_facture'].errors['min']) && fournisseurForm.controls['num_facture'].errors && fournisseurForm.controls['num_facture'].errors['pattern']" class="error-message">
+            <small>Valeur incorrecte...</small>
+          </div>
+        </div>
+      </div>
+
+      <div class="input">
+        <ion-label>Montant versé *</ion-label>
+        <input appInputMomeyFormat type="tel" formControlName="montant_verse" placeholder="Montant versé" />
+        <div *ngIf="fournisseurForm.get('montant_verse')?.touched && fournisseurForm.get('montant_verse')?.invalid" class="error-message">
+          <div *ngIf="fournisseurForm.controls['montant_verse'].errors && fournisseurForm.controls['montant_verse'].errors['required']" class="error-message">
+            <small>Valeur Requise.</small>
+          </div>
+          <div *ngIf="fournisseurForm.controls['montant_verse'].errors && fournisseurForm.controls['montant_verse'].errors['min']" class="error-message">
+            <small>Valeur minimum 1.</small>
+          </div>
+          <div *ngIf="!(fournisseurForm.controls['montant_verse'].errors && fournisseurForm.controls['montant_verse'].errors['min']) && fournisseurForm.controls['montant_verse'].errors && fournisseurForm.controls['montant_verse'].errors['pattern']" class="error-message">
+            <small>Un nombre svp...</small>
+          </div>
+        </div>
+      </div>
+
+      <div class="img-view">
+        <div (click)="removeImage()" class="close-btn" *ngIf="photo_facture_url"><ion-icon name="close-outline" color="danger"></ion-icon></div>
+        <div *ngIf="!(photo_facture_url)" (click)="addImage()" class="placeholder">
+          <ion-icon name="camera"></ion-icon>
+          <ion-label>Ajouter l'image de la facture</ion-label>
+        </div>
+        <img *ngIf="photo_facture_url" [src]="photo_facture_url" alt="">
+      </div>
+      
     </div>
   </form>
+  
   <ion-fab slot="fixed" vertical="bottom" horizontal="end" *ngIf="!closebtn">
     <ion-fab-button (click)="next()">
-      <ion-icon name="add"></ion-icon>
+      <ion-icon name="chevron-forward-outline"></ion-icon>
     </ion-fab-button>
+    <!-- <ion-label style="position: absolute; bottom: 18px; left: -55px; z-index: 9; color:var(--ion-color-primary)">Suivant</ion-label> -->
   </ion-fab>
   <ng-container class="modal">
-    <ion-modal  #modal trigger="nom"  [initialBreakpoint]="0.6" [breakpoints]="[0, 0.6, 0.8]" [presentingElement]="presentingElement">
+    <ion-modal mode="ios"  #modal trigger="nom"  [initialBreakpoint]="0.6" [breakpoints]="[0, 0.6, 0.8]" [presentingElement]="presentingElement">
       <ng-template>
-        <ion-header>
-          <ion-toolbar>
-            <ion-title>Modal</ion-title>
-            <ion-buttons slot="end">
-              <ion-button (click)="modal.dismiss()">Close</ion-button>
-            </ion-buttons>
-          </ion-toolbar>
-        </ion-header>
         <ion-content>
+          <div style="display: flex; justify-content: flex-end; padding-top: 10px; padding-right: 10px;">
+            <small style="color: var(--ion-color-danger)" (click)="modal.dismiss()">Fermer</small>
+          </div>
+          <small style="text-align: center; display: block;">Liste des fournisseurs</small>
           <ion-list>
-            <ion-item *ngFor="let fournisseur of fournisseurs" (click)="fournisseurSelected(fournisseur)">
+            <ion-item style="height: 55px;" *ngFor="let fournisseur of fournisseurs" (click)="fournisseurSelected(fournisseur)">
               <ion-avatar slot="start">
-                <ion-img src="https://i.pravatar.cc/300?u=b"></ion-img>
+                <ion-img [src]="fournisseur.photo! || 'assets/icon/person.png'"></ion-img>
               </ion-avatar>
               <ion-label>
                 <h2>{{fournisseur.nom}}</h2>
-                <p>Sales Rep</p>
               </ion-label>
             </ion-item>
           </ion-list>

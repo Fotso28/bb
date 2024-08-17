@@ -1,0 +1,52 @@
+<ion-header [translucent]="true" mode="ios" class="no-shadow">
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-back-button></ion-back-button>
+    </ion-buttons>
+    <ion-title>view</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true">
+  <ion-grid>
+    <ion-row><ion-col size="12" class="text-right">{{getDate()}}</ion-col></ion-row>
+    <ion-row>
+      <ion-col size="6" class="text-left">
+        <div>
+          <h5>Total</h5>
+          <span>{{arround(vente.total)}}</span>
+        </div>
+        <div>
+          <h5>versement</h5>
+          <span>{{vente.versement}}</span>
+        </div>
+        <div>
+          <h5>Manquant</h5>
+          <span [style.color]="(arround(vente.total - vente.versement)) > 0 ? 'red' : 'black'">
+            {{ arround(vente.total - vente.versement) }}
+          </span>
+        </div>
+      </ion-col>
+      <ion-col size="6" class="text-right">
+        <h5>Gérants</h5>
+        <span *ngFor="let emp of employes">{{emp.nom}}</span>
+      </ion-col>
+    </ion-row>
+    <ion-row class="ligne bg-grey ion-margin-top" >
+      <ion-col size="2" style="font-size: 0.6rem; font-weight: 500;">Produits</ion-col>
+      <ion-col size="2" style="font-size: 0.6rem; font-weight: 500; text-align: right;">Stock</ion-col>
+      <ion-col size="2" style="font-size: 0.6rem; font-weight: 500; text-align: right;">Entrées</ion-col>
+      <ion-col size="2" style="font-size: 0.6rem; font-weight: 500; text-align: right;">Reste</ion-col>
+      <ion-col size="2" style="font-size: 0.6rem; font-weight: 500; text-align: right;">Vendu</ion-col>
+      <ion-col size="2" style="font-size: 0.6rem; font-weight: 500; text-align: right;">Montant</ion-col>
+    </ion-row>
+    <ion-row class="ligne" *ngFor="let sto of dateState">
+      <ion-col size="2" style="font-size: 10px;">{{sto.nom}}</ion-col>
+      <ion-col size="2" style="font-size: 11px; text-align: right;">{{sto.lastStock}}</ion-col>
+      <ion-col size="2" style="font-size: 11px; text-align: right;">{{sto.ravitaillement}}</ion-col>
+      <ion-col size="2" style="font-size: 11px; text-align: right;">{{sto.lastStock + sto.ravitaillement - sto.vente}}</ion-col>
+      <ion-col size="2" style="font-size: 11px; text-align: right;">{{sto.vente}}</ion-col>
+      <ion-col size="2" style="font-size: 11px; text-align: right;">{{arround(sto.prixV/sto.nbreBtleParCasier*sto.vente)}}</ion-col>
+    </ion-row>
+  </ion-grid>
+</ion-content>

@@ -1,29 +1,42 @@
-<ion-header [translucent]="true">
+<ion-header [translucent]="true" mode="md" class="no-shadow">
   <ion-toolbar>
-    <ion-menu-toggle slot="start">
-      <ion-button icon-only="true">
-        <ion-icon name="menu"></ion-icon>
-      </ion-button>
-    </ion-menu-toggle>
-    <ion-title>Fournisseurs</ion-title>
+    <div class="d-flex" routerLink="/">
+      <div class="img ion-activatable">
+        <img src="assets/icon/back-button.png" class="back-btn" alt="">
+        <ion-ripple-effect class="ripple"></ion-ripple-effect>
+      </div>
+      <ion-title class="ion-text-center">Fournisseur</ion-title>
+    </div>
   </ion-toolbar>
 </ion-header>
 
-<ion-content [fullscreen]="true">
+<ion-content [fullscreen]="true" class="ion-padding">
   <ion-header collapse="condense">
     <ion-toolbar>
       <ion-title size="large">Fournisseur</ion-title>
     </ion-toolbar>
   </ion-header>
-  <ion-list>
-    <ion-item-sliding *ngFor="let fournisseur of fournisseurs" #slidingItem>
-      <ion-item (click)="gotoFamilleDetail(fournisseur)">{{fournisseur.nom}}</ion-item>
-      <ion-item-options>
-        <ion-item-option color="danger" (click)="delete(fournisseur, slidingItem)">Delete</ion-item-option>
-      </ion-item-options>
-    </ion-item-sliding>
-    
-  </ion-list>
+  <div class="custom_list">
+    <ion-list lines="none">
+      <ion-item-sliding style="position: relative;" *ngFor="let fournisseur of fournisseurs" #slidingItem>
+        <div [ngClass]="{'active': fournisseur.collecte_ristourne, 'disabled': !fournisseur.collecte_ristourne}" class="triangle"></div>
+        <!-- <ion-item (click)="gotoFamilleDetail(fournisseur)">{{fournisseur.nom}}</ion-item> -->
+        <ion-item button (click)="gotoFamilleDetail(fournisseur)">
+          <ion-avatar slot="start" style="border: 1px solid #8d8d8d;display: flex;justify-content: center;align-items: center;">
+            <ion-icon *ngIf="!fournisseur.photo" name="person" size="large"></ion-icon>
+            <ion-img *ngIf="fournisseur.photo" [src]="fournisseur.photo"></ion-img>
+          </ion-avatar>
+          <div class="list ">
+            <div class="title">{{fournisseur.nom}}</div>
+            <small>{{fournisseur.phone1}}</small>
+          </div>
+        </ion-item>
+        <ion-item-options>
+          <ion-item-option color="danger" (click)="delete(fournisseur, slidingItem)">Delete</ion-item-option>
+        </ion-item-options>
+      </ion-item-sliding>
+    </ion-list>
+  </div>
   <ion-fab slot="fixed" vertical="bottom" horizontal="end">
     <ion-fab-button routerLink="/add-update-fournisseur/add">
       <ion-icon name="add"></ion-icon>

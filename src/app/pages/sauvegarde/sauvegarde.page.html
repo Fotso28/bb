@@ -1,0 +1,27 @@
+<ion-header [translucent]="true" mode="md" class="no-shadow">
+  <ion-toolbar>
+    <div class="d-flex" routerLink="/">
+      <div class="img ion-activatable">
+        <img src="assets/icon/back-button.png" class="back-btn" alt="">
+        <ion-ripple-effect class="ripple"></ion-ripple-effect>
+      </div>
+      <ion-title class="ion-text-center">Faire une sauvegarde</ion-title>
+    </div>
+</ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true">
+  <div class="ion-text-center" style="margin-top: 50px;">
+    <ion-icon name="cloud-upload-outline" color="secondary" style="font-size: 120px;"></ion-icon>
+  </div>
+  <h1 class="ion-text-center">Faire une sauvegarde</h1>
+  <p class="ion-text-center ion-margin" style="line-height: 25px; text-align: justify;">
+    Pour protéger vos informations et éviter toute perte de données, 
+    nous vous recommandons de faire une <strong>sauvegarde de votre 
+    application chaque semaine</strong>. Assurez-vous que vos
+    données importantes sont toujours en sécurité.
+  </p>
+  <ion-button routerLink="/trigger-sauvegarde" routerDirection="forward" 
+  class="ion-padding" color="primary" mode="ios" expand="block" 
+  style="color:#fff;letter-spacing:1px;font-size:18px;">Sauvegarder</ion-button>
+</ion-content>

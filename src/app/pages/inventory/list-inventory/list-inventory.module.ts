@@ -7,12 +7,14 @@ import { IonicModule } from '@ionic/angular';
 import { ListInventoryPageRoutingModule } from './list-inventory-routing.module';
 
 import { ListInventoryPage } from './list-inventory.page';
+import { ComponentsModule } from 'src/app/components/components.module';
+import { PipeModule } from 'src/app/pipes/pipes.module';
 
 @NgModule({
   imports: [
     CommonModule,
-    FormsModule,
-    IonicModule,
+    FormsModule, PipeModule,
+    IonicModule, ComponentsModule,
     ListInventoryPageRoutingModule
   ],
   declarations: [ListInventoryPage]

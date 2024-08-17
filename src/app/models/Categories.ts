@@ -1,3 +1,6 @@
+import { ClassName } from "../_decorators/class-name.decorator";
+
+@ClassName('Categorie')
 export class Categorie{
     constructor(
       public nom: string,
@@ -8,7 +11,6 @@ export class Categorie{
       public id?:number,
       ){
         this.deletedAt = 0;
-        this.user_id = 15;
       }
 }
 

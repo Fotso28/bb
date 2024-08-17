@@ -29,17 +29,9 @@ export class AddUpdateFamillePage implements OnInit {
   }
 
   initForm() {
-    if(this.action == "update"){
-      console.log("update")
-      this.familleForm = this.formBuilder.group({
-        nom: [this.famille.nom, Validators.required],
-        description: [this.famille.description]
-      });
-      return;
-    }
     this.familleForm = this.formBuilder.group({
-      nom: ['', Validators.required],
-      description: ['']
+      nom: [this.famille.nom || '', Validators.required],
+      description: [this.famille.description || '']
     });
   }
 

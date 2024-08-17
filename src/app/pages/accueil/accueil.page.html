@@ -1,0 +1,156 @@
+<ion-content [fullscreen]="true">
+  <div class="header">
+    <ion-toolbar color="primary">
+      <div><h1 style="text-align: center;margin-left: 25px; color: var(--ion-color-light)">Tableau de bord</h1></div>
+      <ion-buttons slot="end" (click)="openMenu()">
+        <ion-button icon-only>
+          <ion-icon name="ellipsis-vertical" color="light"></ion-icon>
+        </ion-button>
+      </ion-buttons>
+    </ion-toolbar>
+    <img src="assets/icon/cocktail.png" class="deco" alt="">
+    <div class="header-text">
+      <ion-grid>
+        <ion-row>
+          <ion-col size="4"></ion-col>
+          <ion-col size="8" style="display: flex;justify-content: flex-end;">
+            <ion-card class="ion-activatable select" mode="ios" (click)="openPointVente()">
+              <ion-card-header>Point de vente</ion-card-header>
+              <ion-card-content>
+                <div>
+                  <app-point-vente #pointVenteComponent color="#50c8ff"></app-point-vente>
+                  <ion-icon name="chevron-down-outline" style="color: var(--ion-color-primary);"></ion-icon>
+                </div>
+              </ion-card-content>
+              <ion-ripple-effect style="color: var(--ion-color-primary);"></ion-ripple-effect>
+            </ion-card>
+          </ion-col>
+        </ion-row>
+      </ion-grid>
+    </div>
+  </div>
+  <div class="content">
+    <div class="absolute">
+      <ion-grid>
+        <ion-row>
+          <ion-col size="6">
+            <ion-card class="ion-activatable" mode="ios" routerLink="/list-ravitaillement">
+              <ion-card-content>
+                <div class="ctt">
+                  <div class="img">
+                    <img  src="assets/icon/restock.png" alt="">
+                  </div>
+                  <span class="txt">Ravitaillements</span>
+                  <span class="barre" style="background: var(--ion-color-warning)"></span>
+                </div>
+              </ion-card-content>
+              <ion-ripple-effect style="color: var(--ion-color-warning)"></ion-ripple-effect>
+            </ion-card>
+          </ion-col>
+          <ion-col size="6">
+            <ion-card class="ion-activatable" mode="ios" routerLink="/list-inventory">
+              <ion-card-content>
+                <div class="ctt">
+                  <div class="img">
+                    <img src="assets/icon/accounting.png" alt="">
+                  </div>
+                  <span class="txt">Inventaires</span>
+                  <span class="barre" style="background: var(--ion-color-warning);"></span>
+                </div>
+              </ion-card-content>
+              <ion-ripple-effect style="color: var(--ion-color-warning);"></ion-ripple-effect>
+            </ion-card>
+          </ion-col>
+          <ion-col size="6">
+            <ion-card class="ion-activatable" mode="ios" routerLink="/list-inventory">
+              <ion-card-content>
+                <div class="ctt">
+                  <div class="img">
+                    <img src="assets/icon/sell.png" alt="">
+                  </div>
+                  <span class="txt">Ventes</span>
+                  <span class="barre" style="background: var(--ion-color-secondary-tint);"></span>
+                </div>
+              </ion-card-content>
+              <ion-ripple-effect style="color: var(--ion-color-secondary-tint);"></ion-ripple-effect>
+            </ion-card>
+          </ion-col>
+
+          <ion-col size="6">
+            <ion-card class="ion-activatable" mode="ios">
+              <ion-card-content>
+                <div class="ctt">
+                  <div class="img">
+                    <img src="assets/icon/stock.png" alt="">
+                  </div>
+                  <span class="txt">Stock</span>
+                  <span class="barre" style="background: var(--ion-color-secondary-tint);"></span>
+                </div>
+              </ion-card-content>
+              <ion-ripple-effect style="color: var(--ion-color-secondary-tint);"></ion-ripple-effect>
+            </ion-card>
+          </ion-col>
+          
+          <ion-col size="6">
+            <ion-card class="ion-activatable" mode="ios" routerLink="/depense">
+              <ion-card-content>
+                <div class="ctt">
+                  <div class="img">
+                    <img src="assets/icon/expense50.png" alt="">
+                  </div>
+                  <span class="txt">Dépenses</span>
+                  <span class="barre" style="background: var(--ion-color-danger)"></span>
+                </div>
+              </ion-card-content>
+              <ion-ripple-effect style="color: var(--ion-color-danger);"></ion-ripple-effect>
+            </ion-card>
+          </ion-col>
+          <ion-col size="6">
+            <ion-card class="ion-activatable" mode="ios" routerLink="/avaris">
+              <ion-card-content>
+                <div class="ctt">
+                  <div class="img">
+                    <img src="assets/icon/broken-bottle.png" alt="">
+                  </div>
+                  <span class="txt">Aravis</span>
+                  <span class="barre" style="background: var(--ion-color-danger);"></span>
+                </div>
+              </ion-card-content>
+              <ion-ripple-effect style="color: var(--ion-color-danger);"></ion-ripple-effect>
+            </ion-card>
+          </ion-col>
+          
+          <ion-col size="6">
+            <ion-card class="ion-activatable" mode="ios" routerLink="/ristourne">
+              <ion-card-content>
+                <div class="ctt">
+                  <div class="img">
+                    <img src="assets/icon/refund.png" alt="">
+                  </div>
+                  <span class="txt">Ristournes</span>
+                  <span class="barre" style="background: var(--ion-color-success)"></span>
+                </div>
+              </ion-card-content>
+              <ion-ripple-effect style="color: var(--ion-color-success);"></ion-ripple-effect>
+            </ion-card>
+          </ion-col>
+          <ion-col size="6">
+            <ion-card class="ion-activatable" mode="ios" routerLink="/rapport">
+              <ion-card-content>
+                <div class="ctt">
+                  <div class="img">
+                    <img src="assets/icon/sales-performance-balance.png" alt="">
+                  </div>
+                  <span class="txt">Rapport</span>
+                  <span class="barre" style="background: var(--ion-color-warning)"></span>
+                </div>
+              </ion-card-content>
+              <ion-ripple-effect style="color: var(--ion-color-warning);"></ion-ripple-effect>
+            </ion-card>
+          </ion-col>
+        </ion-row>
+      </ion-grid>
+    </div>
+  </div>
+  
+</ion-content>

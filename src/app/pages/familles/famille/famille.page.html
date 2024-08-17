@@ -1,29 +1,30 @@
-<ion-header [translucent]="true">
+<ion-header [translucent]="true" mode="md" class="no-shadow">
   <ion-toolbar>
-    <ion-menu-toggle slot="start">
-      <ion-button icon-only="true">
-        <ion-icon name="menu"></ion-icon>
-      </ion-button>
-    </ion-menu-toggle>
-    <ion-title>Famille</ion-title>
+    <div class="d-flex" routerLink="/">
+      <div class="img ion-activatable">
+        <img src="assets/icon/back-button.png" class="back-btn" alt="">
+        <ion-ripple-effect class="ripple"></ion-ripple-effect>
+      </div>
+      <ion-title class="ion-text-center">Famille</ion-title>
+    </div>
   </ion-toolbar>
 </ion-header>
-
-<ion-content [fullscreen]="true">
-  <ion-header collapse="condense">
-    <ion-toolbar>
-      <ion-title size="large">Famille</ion-title>
-    </ion-toolbar>
-  </ion-header>
-  <ion-list>
-    <ion-item-sliding *ngFor="let famille of familles" #slidingItem>
-      <ion-item (click)="gotoFamilleDetail(famille)">{{famille.nom}}</ion-item>
-      <ion-item-options>
-        <ion-item-option color="danger" (click)="delete(famille, slidingItem)">Delete</ion-item-option>
-      </ion-item-options>
-    </ion-item-sliding>
-    
-  </ion-list>
+<ion-content [fullscreen]="true" class="ion-padding">
+  <div class="custom_list">
+    <ion-list lines="none">
+      <ion-item-sliding *ngFor="let famille of familles" #slidingItem>
+        <ion-item button (click)="gotoFamilleDetail(famille)">
+          <div class="list ">
+            <div class="title">{{famille.nom}}</div>
+          </div>
+        </ion-item>
+        <ion-item-options>
+          <ion-item-option color="danger" (click)="delete(famille, slidingItem)">Delete</ion-item-option>
+        </ion-item-options>
+      </ion-item-sliding>
+    </ion-list>
+  </div>
+  
   <ion-fab slot="fixed" vertical="bottom" horizontal="end">
     <ion-fab-button routerLink="/add-update-famille/add">
       <ion-icon name="add"></ion-icon>

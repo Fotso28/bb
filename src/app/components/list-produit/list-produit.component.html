@@ -1,0 +1,34 @@
+<div>
+  <div *ngIf="modal" style="display: flex; justify-content: flex-end; padding-top: 10px; padding-right: 10px;">
+    <small style="color: var(--ion-color-danger)" (click)="modal.dismiss()">Fermer</small>
+  </div>
+  <ion-searchbar mode="ios" [(ngModel)]="search_key" placeholder="Search" (click)="modal ? modal.setCurrentBreakpoint(0.95) : ''" (ngModelChange)="filtreProduit()"></ion-searchbar>
+  <!-- <small style="text-align: center; display: block;">Liste des produits</small> -->
+  <ion-list class="produit" mode="ios" lines="none">
+    
+    <ng-container *ngFor="let famille of familles">
+      <h2 class="famille" *ngIf="hasElement(famille.nom!)">{{famille.nom}}</h2>
+
+      <ng-container *ngFor="let cat of categories">
+        <h5 *ngIf="hasElement(famille.nom!, cat.nom!)">{{cat.nom}}</h5>
+        <ng-container *ngFor="let prod of filtered_produits_ravitailles">
+          <ion-item-sliding #slidingItem>
+            <ion-item button *ngIf="cat.nom == prod.categorie && famille.nom == prod.famille" (click)="emitProduct(prod)">
+              <ion-avatar slot="start">
+                <ion-img [src]="prod.imgLink! || 'assets/icon/person.png'"></ion-img>
+              </ion-avatar>
+              <ion-label>
+                <h2>{{prod.nom}}</h2>
+                <small class="badge red" *ngIf="prodIsRavitaille(prod)">Ravitaillé</small>
+              </ion-label>
+            </ion-item>
+            <ion-item-options *ngIf="!modal">
+              <ion-item-option color="danger" (click)="emitDelete(prod, slidingItem)">Delete</ion-item-option>
+            </ion-item-options>
+          </ion-item-sliding>
+        </ng-container>
+      </ng-container>
+    </ng-container>
+  </ion-list>
+</div>
+

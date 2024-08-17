@@ -12,11 +12,17 @@ export class CameraService {
   constructor(){}
 
   async readPhoto(fileName: string){
-    const readFile = Filesystem.readFile({
-      path: fileName,
-      directory: Directory.Data
-    });
-    return readFile;
+    // console.warn(fileName)
+    try {
+      const readFile = Filesystem.readFile({
+        path: fileName,
+        directory: Directory.Data
+      });
+      return readFile;
+    } catch (error) {
+      console.log(error)
+      throw new Error("Fichier non lu")
+    }
   }
 
   async takePhoto(source: string = "Photos"): Promise<ImageStruct | null> {
@@ -170,11 +176,10 @@ export class CameraService {
         quality: 80,
         height: 500,
         width: 500,
-        limit: 6,
-        presentationStyle: 'popover',
-        
+        limit: 3,
+        presentationStyle: 'popover'
       });
-  
+      console.log('la galerie est:', galleryPhotos);
       return galleryPhotos;
     } catch (error) {
       throw new Error('Erreur lors de la sélection des images depuis la galerie : ' + error);

@@ -1,29 +1,38 @@
-<ion-header [translucent]="true">
+<ion-header [translucent]="true" mode="md" class="no-shadow">
   <ion-toolbar>
-    <ion-menu-toggle slot="start">
-      <ion-button icon-only="true">
-        <ion-icon name="menu"></ion-icon>
-      </ion-button>
-    </ion-menu-toggle>
-    <ion-title>Categories {{ type == "produit" ? "Produit" : "Dépense"}}</ion-title>
+    <div class="d-flex" routerLink="/">
+      <div class="img ion-activatable">
+        <img src="assets/icon/back-button.png" class="back-btn" alt="">
+        <ion-ripple-effect class="ripple"></ion-ripple-effect>
+      </div>
+      <ion-title class="ion-text-center">Categories {{ type == "produit" ? "Produit" : "Dépense"}}</ion-title>
+    </div>
   </ion-toolbar>
 </ion-header>
 
-<ion-content [fullscreen]="true">
-  <ion-header collapse="condense">
-    <ion-toolbar>
-      <ion-title size="large">Categorie</ion-title>
-    </ion-toolbar>
-  </ion-header>
-  <ion-list>
+<ion-content [fullscreen]="true" class="ion-padding">
+  <!-- <ion-list>
     <ion-item-sliding *ngFor="let categorie of categories" #slidingItem>
       <ion-item (click)="gotoFamilleDetail(categorie)">{{categorie.nom}}</ion-item>
       <ion-item-options>
         <ion-item-option color="danger" (click)="delete(categorie, slidingItem)">Delete</ion-item-option>
       </ion-item-options>
     </ion-item-sliding>
-    
-  </ion-list>
+  </ion-list> -->
+  <div class="custom_list">
+    <ion-list lines="none">
+      <ion-item-sliding *ngFor="let categorie of categories" #slidingItem>
+        <ion-item button (click)="gotoFamilleDetail(categorie)">
+          <div class="list ">
+            <div class="title">{{categorie.nom}}</div>
+          </div>
+        </ion-item>
+        <ion-item-options>
+          <ion-item-option color="danger" (click)="delete(categorie, slidingItem)">Delete</ion-item-option>
+        </ion-item-options>
+      </ion-item-sliding>
+    </ion-list>
+  </div>
   <ion-fab slot="fixed" vertical="bottom" horizontal="end">
     <ion-fab-button routerLink="/add-update-categorie/add/{{type}}">
       <ion-icon name="add"></ion-icon>

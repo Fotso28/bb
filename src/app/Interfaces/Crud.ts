@@ -1,6 +1,8 @@
+import { DBSQLiteValues } from "@capacitor-community/sqlite";
+
 export interface ICrud<T> {
     // Crée un nouvel objet
-    create(item: T): Promise<boolean>;
+    create(item: T): Promise<boolean | DBSQLiteValues>;
   
     // Lit un objet par son identifiant
     read(id: number): Promise<boolean>;

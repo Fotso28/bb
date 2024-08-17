@@ -1,0 +1,15 @@
+.flex {
+    display: flex;
+    align-items: center;
+  }
+  
+  .icon {
+    flex: 0 1 15%; /* 15% de largeur fixe */
+    text-align: center; /* Pour centrer les icônes */
+    font-size: 40px;
+    color: var(--ion-color-primary)
+  }
+  
+  .progress {
+    flex: 1 1 62%; /* 70% de largeur, avec la possibilité de s'étendre */
+  }

@@ -1,0 +1,128 @@
+.border-padding {
+    margin: 10px;
+    margin-top: 5px;
+}
+
+
+
+.card {
+    background: #FFF;
+    border-radius: 10px;
+    padding: 15px;
+    margin-bottom: 5px;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.01);
+}
+
+
+.today-consumption,
+.electricity-usage,
+.devices-usage,
+.power-status,
+.temperature-control,
+.details {
+    background: #F0F4F8;
+    border-radius: 10px;
+    padding: 10px;
+    text-align: center;
+}
+
+.usage-chart {
+    display: flex;
+    justify-content: space-around;
+}
+
+.date-setting {
+    .icon {
+        width: 40px;
+        height: 40px;
+        position: relative;
+
+        ion-icon {
+            width: 40px;
+            height: 40px;
+            color: var(--ion-color-primary)
+        }
+
+        .day {
+            position: absolute;
+            top: 15px;
+            right: 10px;
+            font-weight: 600;
+            color: var(--ion-color-primary)
+        }
+    }
+}
+
+.date>.start,
+.end {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    .note-date {
+        color: var(--ion-color-primary)
+    }
+}
+
+.somme {
+    h4 {
+        margin: 0;
+    }
+
+    div {
+        font-weight: 800;
+        font-size: 22px;
+    }
+}
+
+h5 {
+    margin: 5px 0 0 0;
+}
+
+.icon {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+}
+
+.ripple-parent {
+    position: relative;
+    overflow: hidden;
+}
+
+.ripple {
+    color: var(--ion-color-primary)
+}
+
+.date {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+
+    .icon {
+        position: relative;
+        display: flex;
+        justify-content: space-between;
+        color: var(--ion-color-primary);
+        ion-icon {
+            width: 40px;
+            height: 40px;
+            color: var(--ion-color-primary)
+        }
+
+        .day {
+            position: absolute;
+            top: 15px;
+            right: 11px;
+        }
+    }
+
+    .date-value {
+        display: flex;
+        align-items: flex-end;
+        justify-content: space-between;
+        width: 100%;
+    }
+}
+
+

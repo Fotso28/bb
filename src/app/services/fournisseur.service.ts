@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { Fournisseur } from '../models/Fournisseurs';
 import { BehaviorSubject } from 'rxjs';
 import { BdService } from './-bd.service';
+import { DBSQLiteValues } from '@capacitor-community/sqlite';
 
 @Injectable({
   providedIn: 'root'
@@ -12,7 +13,7 @@ export class FournisseurService {
 
   constructor(private bdSvc: BdService){}
   
-  async create(item: Fournisseur): Promise<boolean> {
+  async create(item: Fournisseur): Promise<boolean | DBSQLiteValues> {
     try {
         let itemsIsReaded = await this.bdSvc.create(item);
         if(itemsIsReaded) this.getAll();

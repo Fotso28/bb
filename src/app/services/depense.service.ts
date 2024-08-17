@@ -2,6 +2,8 @@ import { Injectable } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
 import { BdService } from './-bd.service';
 import { Depense } from '../models/Depenses';
+import { DBSQLiteValues } from '@capacitor-community/sqlite';
+import { PointVenteService } from './point-vente.service';
 
 @Injectable({
   providedIn: 'root'
@@ -10,10 +12,16 @@ export class DepenseService {
 
   depenseSubject: BehaviorSubject<Depense[]> = new BehaviorSubject<Depense[]>([]);
 
-  constructor(private bdSvc: BdService){}
+  constructor(private bdSvc: BdService, private pv: PointVenteService){}
   
-  async create(item: Depense): Promise<boolean> {
+  async create(item: Depense): Promise<boolean | DBSQLiteValues> {
     try {
+        if(this.pv.getActivePointeVente() && this.pv.getActivePointeVente()?.id){
+          item.point_vente_id = this.pv.getActivePointeVente()?.id
+        }else{
+          console.warn("point de vente n'existe pas");
+        }
+        
         let itemsIsReaded = await this.bdSvc.create(item);
         if(itemsIsReaded) this.getAll();
         return itemsIsReaded;
@@ -52,9 +60,25 @@ export class DepenseService {
 
   async getAll(): Promise<boolean> {
     try {
-      const sql = `SELECT Depense.id, Depense.date,  Depense.type, Depense.motif, Depense.montant, Depense.user_id, Depense.point_vente_id, PointVente.nom
-       FROM Depense 
-       JOIN PointVente On Depense.point_vente_id = PointVente.id`;
+      // const sql = `SELECT Depense.id, Depense.date, Depense.type, Depense.motif, Depense.montant, 
+      //   Depense.user_id, Depense.point_vente_id, PointVente.nom FROM 
+      //   Depense JOIN PointVente On Depense.point_vente_id = PointVente.id`;
+      const sql = `SELECT 
+                      Depense.id, 
+                      Depense.date, 
+                      Depense.type, 
+                      Depense.motif, 
+                      Depense.montant, 
+                      Depense.user_id, 
+                      Depense.point_vente_id, 
+                      PointVente.nom, 
+                      Depense.deletedAt,
+                      Categorie.nom AS categorie_nom
+                    FROM Depense JOIN PointVente 
+                    ON Depense.point_vente_id = PointVente.id 
+                    JOIN Categorie 
+                    ON Depense.type = Categorie.id 
+                    WHERE Depense.deletedAt = 0`;
       let all = (await this.bdSvc.query(sql, true)).values as Array<Depense>;
       // let all = await this.bdSvc.readAll('Depense') as Array<Depense>;
       this.depenseSubject.next(all);

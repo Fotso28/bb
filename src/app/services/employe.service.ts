@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { Employe } from '../models/Employes';
 import { BdService } from './-bd.service';
 import { BehaviorSubject } from 'rxjs';
+import { DBSQLiteValues } from '@capacitor-community/sqlite';
 
 @Injectable({
   providedIn: 'root'
@@ -12,7 +13,7 @@ export class EmployeService {
 
   constructor(private bdSvc: BdService){}
   
-  async create(item: Employe): Promise<boolean> {
+  async create(item: Employe): Promise<boolean | DBSQLiteValues> {
     try {
         let itemsIsReaded = await this.bdSvc.create(item);
         if(itemsIsReaded) this.getAll();
@@ -78,5 +79,21 @@ export class EmployeService {
     if(item.photo) employe.photo = item.photo;
     if(item.deletedAt) employe.deletedAt = item.deletedAt;
     return employe;
+  }
+  async getById(id: Array<number> | number){
+    try {
+      let constraint = "";
+      let sql = "SELECT id,nom FROM Employe ";
+      if(Array.isArray(id)){
+        sql += `WHERE id IN (${id})`;
+      }
+      if(typeof id == "number"){
+        sql += `WHERE id = ${id}`;
+      }
+      return (await this.bdSvc.query(sql)).values;
+    } catch (error) {
+      console.log(error);
+      return false;
+    }
   }
 }

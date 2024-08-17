@@ -1,15 +1,15 @@
 import { CapacitorConfig } from '@capacitor/cli';
-import { CapacitorSQLite} from '@capacitor-community/sqlite';
+import { CapacitorSQLite } from '@capacitor-community/sqlite';
 
 const config: CapacitorConfig = {
-  appId: 'io.ionic.starter',
-  appName: 'tabs',
+  appId: 'app.kordo.com',
+  appName: 'kordo',
   webDir: 'www',
+  
   server: {
     androidScheme: 'https'
   },
-  plugins: {
-    
+  plugins: { 
     CapacitorSQLite: {
       iosDatabaseLocation: 'Library/CapacitorDatabase',
       iosIsEncryption: false,
@@ -27,5 +27,4 @@ const config: CapacitorConfig = {
     }
   }
 };
-
 export default config;

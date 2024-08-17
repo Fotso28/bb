@@ -1,15 +1,17 @@
 import { NgModule } from '@angular/core';
 import { PreloadAllModules, RouterModule, Routes } from '@angular/router';
+import { ComponentsModule } from './components/components.module';
+import { HttpClientModule } from '@angular/common/http';
 
 const routes: Routes = [
   {
     path: '',
-    redirectTo: 'folder/Inbox',
+    redirectTo: 'accueil',
     pathMatch: 'full'
   },
   {
-    path: 'folder/Inbox',
-    loadChildren: () => import('./folder/folder.module').then( m => m.FolderPageModule)
+    path: 'accueil',
+    loadChildren: () => import('./pages/accueil/accueil.module').then( m => m.AccueilPageModule)
   },
   {
     path: 'famille',
@@ -104,7 +106,7 @@ const routes: Routes = [
     loadChildren: () => import('./pages/ravitaillements/3_ravitaillement-emballage-step/ravitaillement-emballage-step.module').then( m => m.RavitaillementEmballageStepPageModule)
   },
   {
-    path: 'ravitaillement-confirmation-step',
+    path: 'ravitaillement-confirmation-step/:action',
     loadChildren: () => import('./pages/ravitaillements/4_ravitaillement-confirmation-step/ravitaillement-confirmation-step.module').then( m => m.RavitaillementConfirmationStepPageModule)
   },
   {
@@ -114,11 +116,51 @@ const routes: Routes = [
   {
     path: 'more-detail',
     loadChildren: () => import('./pages/inventory/more-detail/more-detail.module').then( m => m.MoreDetailPageModule)
+  },
+  {
+    path: 'view-inventory',
+    loadChildren: () => import('./pages/inventory/view-inventory/view-inventory.module').then( m => m.ViewInventoryPageModule)
+  },
+  {
+    path: 'list-ravitaillement',
+    loadChildren: () => import('./pages/ravitaillements/list-ravitaillement/list-ravitaillement.module').then( m => m.ListRavitaillementPageModule)
+  },
+  {
+    path: 'ristourne',
+    loadChildren: () => import('./pages/statistic/ristourne/ristourne.module').then( m => m.RistournePageModule)
+  },
+  {
+    path: 'loading-page',
+    loadChildren: () => import('./pages/loading-page/loading-page.module').then( m => m.LoadingPagePageModule)
+  },
+  {
+    path: 'rapport',
+    loadChildren: () => import('./pages/rapport/rapport.module').then( m => m.RapportPageModule)
+  },
+  {
+    path: 'sauvegarde',
+    loadChildren: () => import('./pages/sauvegarde/sauvegarde.module').then( m => m.SauvegardePageModule)
+  },
+  {
+    path: 'trigger-sauvegarde',
+    loadChildren: () => import('./pages/sauvegarde/trigger-sauvegarde/trigger-sauvegarde.module').then( m => m.TriggerSauvegardePageModule)
+  },
+  {
+    path: 'register',
+    loadChildren: () => import('./pages/auth/register/register.module').then( m => m.RegisterPageModule)
+  },
+  {
+    path: 'login',
+    loadChildren: () => import('./pages/auth/login/login.module').then( m => m.LoginPageModule)
+  },
+  {
+    path: 'reset-password',
+    loadChildren: () => import('./pages/auth/reset-password/reset-password.module').then( m => m.ResetPasswordPageModule)
   }
 ];
 
 @NgModule({
-  imports: [
+  imports: [ HttpClientModule,
     RouterModule.forRoot(routes, { preloadingStrategy: PreloadAllModules })
   ],
   exports: [RouterModule]

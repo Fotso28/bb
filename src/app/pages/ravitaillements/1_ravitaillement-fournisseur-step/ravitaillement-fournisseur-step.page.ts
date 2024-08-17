@@ -2,9 +2,11 @@ import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { ModalController } from '@ionic/angular';
-import { showToast } from 'src/app/_lib/lib';
+import { ALPHA_NUMERIC } from 'src/app/_lib/const';
+import { showToast, trimAndParseInt } from 'src/app/_lib/lib';
 import { Fournisseur } from 'src/app/models/Fournisseurs';
 import { Ravitaillement } from 'src/app/models/Ravitaillements';
+import { CameraService, ImageStruct } from 'src/app/services/camera.service';
 import { RavitaillementService } from 'src/app/services/ravitaillement.service';
 
 @Component({
@@ -18,54 +20,76 @@ export class RavitaillementFournisseurStepPage implements OnInit {
 
   fournisseurs: Array<Fournisseur> = [];
 
+  ravitaillement! : Ravitaillement;
   
   action!: 'update' | 'add';
 
   presentingElement: any = null; // modal variable
   constructor(private formBuilder: FormBuilder, 
-    private ravitaillementSvc: RavitaillementService, 
+    private ravitaillementSvc: RavitaillementService,
+    private cameraSvc: CameraService, 
     private modal: ModalController, private router: Router){}
 
   // initialFournisseurvalue: string = ""
   async ngOnInit() {
-    // let rav = this.ravitaillementSvc.getRavitaillementInstance();
-    // rav._produit_rav_liste = [
-    //   {id:1, nom: 'Fotso', prixA:  2500, prixV: 2000, qte: 1, qte_par_casier: 1500},
-    //   {id:2, nom: 'Fotso', prixA: 1500, prixV: 2000, qte: 1, qte_par_casier: 1500}
-    // ]
-    // console.log('Voici le contenu',rav)
     try {
-      this.initForm();
-      this.fournisseurs  = await this.getFournisseurs();
-      if(!this.fournisseurs.length){
-        showToast("Aucun fournisseur! Veuillez Créer les fournisseurs!");
-        return;
-      }
-      this.initFournisseur();
-      console.log(this.fournisseurs)
-      this.presentingElement = document.querySelector('.modal'); // modal initiation
+      this.initForm(); 
     } catch (error) {
       showToast("Une erreur");
       console.log(error);
     }
   }
 
+  async ionViewWillEnter(){
+    
+    let _fournisseurs  = await this.getFournisseurs();
+    _fournisseurs.map(async (fournisseur: Fournisseur) => {
+      if(fournisseur.photo){
+        console.warn(fournisseur);
+        fournisseur.photo = await this.readImage(fournisseur.photo!);
+      }
+      return fournisseur;
+    })
+    this.fournisseurs = _fournisseurs;
+
+    if(!this.fournisseurs.length){
+      showToast("Aucun fournisseur! Veuillez Créer les fournisseurs!");
+      return;
+    }
+    
+    this.initFournisseur();
+
+    console.log(this.ravitaillement);
+
+    if(this.ravitaillement.num_facture == ""){
+      this.fournisseurForm.patchValue({num_facture: ""})
+    }
+
+    if(this.ravitaillement.montant_verse == undefined || this.ravitaillement.montant_verse < 0){
+      console.warn("le nomtant n'est pas conforme")
+    }
+
+    this.presentingElement = document.querySelector('.modal'); // modal initiation
+  }
+
   // initialiaze fournisseur modal
   initFournisseur(){
     const FIRST_ARRAY_INDEX = 0;
+    this.activeFournisseur = this.fournisseurs[FIRST_ARRAY_INDEX];
     this.fournisseurForm.controls['id_fournisseur'].patchValue(this.fournisseurs[FIRST_ARRAY_INDEX].id);
     this.fournisseurForm.controls['nom'].patchValue(this.fournisseurs[FIRST_ARRAY_INDEX].nom);
     this.ravitaillementSvc.fournisseurs = {id: this.fournisseurs[FIRST_ARRAY_INDEX].id!, nom: this.fournisseurs[FIRST_ARRAY_INDEX].nom!}
   }
 
   initForm() {
-    const ravitaillement : Ravitaillement = this.ravitaillementSvc.getRavitaillementInstance();
-
+    this.ravitaillement = this.ravitaillementSvc.getRavitaillementInstance();
+    console.log(this.ravitaillement.montant_verse);
     this.fournisseurForm = this.formBuilder.group({
-      id_fournisseur: [ravitaillement.id_fournisseur || '', Validators.required],
-      nom: [ravitaillement.nom_fournisseur || '', Validators.required],
-      num_facture: [ravitaillement.num_facture || ''],
-      photo_facture_url: [ravitaillement.photo_facture_url || '']
+      date: [(new Date()).toJSON(), [Validators.required]],
+      id_fournisseur: [this.ravitaillement.id_fournisseur || '', Validators.required],
+      nom: [this.ravitaillement.nom_fournisseur || '', Validators.required],
+      num_facture: [this.ravitaillement.num_facture || '', [Validators.required, Validators.pattern(ALPHA_NUMERIC)]],
+      montant_verse: ['0', [Validators.required, Validators.min(0), Validators.pattern(ALPHA_NUMERIC)]]
     });
   }
 
@@ -73,32 +97,55 @@ export class RavitaillementFournisseurStepPage implements OnInit {
     return await this.ravitaillementSvc.getFournisseurs();
   }
 
+  montantChange($event: Event){
+    this.fournisseurForm.get('montant_verse')?.markAsTouched();
+  }
+
+  activeFournisseur!: Fournisseur;
   fournisseurSelected(fournisseur: Fournisseur){
     this.ravitaillementSvc.fournisseurs = {id: fournisseur.id!, nom: fournisseur.nom}
     this.modal.dismiss();
     this.fournisseurForm.controls['id_fournisseur'].patchValue(fournisseur.id);
     this.fournisseurForm.controls['nom'].patchValue(fournisseur.nom);
+    this.activeFournisseur = fournisseur;
   }
 
   closebtn = false;
-
   next(){
-    console.log(this.fournisseurForm.value);
     try {
+      
+      if(this.fournisseurForm.invalid){
+        showToast('champ incorrect');
+        this.fournisseurForm.markAllAsTouched();
+        return;
+      }
+
+      if(isNaN(trimAndParseInt(this.fournisseurForm.value.montant_verse))){
+        showToast('Veuillez saisir le montant versé');
+        return;
+      }
+
       if(!this.ravitaillementSvc.fournisseurs?.id){
         showToast('Veuillez Choisir un fournisseur');
         return;
       }
-  
-      this.closebtn = true;
-      setTimeout(()=>{
-        this.closebtn = false;
-      }, 1500);
-      // this.ravitaillementSvc.getRavitaillementInstance().id_fournisseur = this.ravStepOneValue.fournisseur.id;
+
+      if(!this.fournisseurForm.value.num_facture){
+        showToast('Numero de facture');
+        return;
+      }
+
+      if(this.fournisseurForm.value.montant_verse < 0){
+        showToast('Montant versé incorrect', 'danger');
+        return;
+      }
+
       this.ravitaillementSvc.getRavitaillementInstance().num_facture = this.fournisseurForm.value.num_facture;
       this.ravitaillementSvc.getRavitaillementInstance().photo_facture_url = this.fournisseurForm.value.photo_facture_url;
-  
-      
+      this.ravitaillementSvc.getRavitaillementInstance().date = new Date(this.fournisseurForm.value.date).getTime();
+      this.ravitaillementSvc.getRavitaillementInstance().montant_verse = trimAndParseInt(this.fournisseurForm.value.montant_verse);
+      this.fournisseurForm.updateValueAndValidity();
+      this.fournisseurForm.markAllAsTouched();
   
       this.router.navigateByUrl("/ravitaillement-produit-step");
   
@@ -108,6 +155,29 @@ export class RavitaillementFournisseurStepPage implements OnInit {
       showToast("Une erreur s'est produite!!!");
       console.log(error)
     }
+  }
+
+  // For display image facture
+  photo_facture_url: string | undefined = undefined
+  async addImage(): Promise<ImageStruct | null>{
+    let image: ImageStruct | null =  await this.cameraSvc.takePhoto();
+    if(image){
+      this.ravitaillementSvc.photo_facture = image.photo;
+      this.photo_facture_url = image.photo?.webPath;
+    }
+    return image;
+  }
+
+  removeImage(){
+    this.photo_facture_url = "";
+  }
+
+   async  readImage(imageName: string){
+    if(imageName){
+      let image = await this.cameraSvc.readPhoto(imageName);
+      return 'data:image/jpeg;base64,'+image.data as string || '';
+    }
+    return '';
   }
 
 }

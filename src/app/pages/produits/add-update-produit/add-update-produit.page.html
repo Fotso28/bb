@@ -1,45 +1,200 @@
-<ion-header [translucent]="true">
+<ion-header [translucent]="true" mode="md" class="no-shadow">
   <ion-toolbar>
     <ion-buttons slot="start">
       <ion-back-button></ion-back-button>
     </ion-buttons>
-    <ion-title>Produit</ion-title>
+    <ion-title class="ion-text-center">{{action == "update" ? 'Modifier le ' : 'Ajouter un '}} Produit</ion-title>
   </ion-toolbar>
 </ion-header>
 <ion-content [fullscreen]="true" class="ion-padding">
-  <form [formGroup]="produitForm">
+  <form if="produitForm" [formGroup]="produitForm" (ngSubmit)="submit()">
     <div>
-      <ion-input id="nom" formControlName="nom" label="Intitulé *"  inputmode="text" placeholder="Tapez la quantité initiale" mode="md" errorText="Nom invalide" label-placement="floating" fill="outline"  required></ion-input>
-      <ion-input id="prixA" formControlName="prixA" label="Prix d'achat *"  inputmode="numeric" placeholder="Tapez le prix d'achat" mode="md" errorText="Nom invalide" label-placement="floating" fill="outline"  required></ion-input>
-      <ion-input id="prixV" formControlName="prixV" label="Prix de vente *"  inputmode="numeric" placeholder="Tapez le prix de vente" mode="md" errorText="Nom invalide" label-placement="floating" fill="outline"  required></ion-input>
-      <ion-input id="nbreBtleParCasier" formControlName="nbreBtleParCasier" label="Nombre de bouteilles par casier *"  inputmode="numeric" placeholder="Tapez le nom du fournisseur" mode="md" errorText="Nom invalide" label-placement="floating" fill="outline"  required></ion-input>
-      <ion-input id="ristourne" formControlName="ristourne" label="Montant de la ristourne *"  inputmode="numeric" placeholder="Tapez le montant de la ristourne" mode="md" errorText="Nom invalide" label-placement="floating" fill="outline"  required></ion-input>
-       <!-- <ion-input id="categorie" formControlName="categorie" label="Categorie*" placeholder="Tapez le nom du fournisseur" mode="md" errorText="Nom invalide" label-placement="floating" fill="outline"  required></ion-input> -->
-       <ion-select mode="ios" id="id_categorie" fill="outline" formControlName="id_categorie" label="Categorie *" placeholder="Tapez le nom du fournisseur" aria-label="Fruit">
-        <ion-select-option *ngFor="let categorie of categories" [value]="categorie.id">{{categorie.nom}}</ion-select-option>
-      </ion-select>
-      <!-- <ion-input id="famille" formControlName="famille" label="Famille*" placeholder="Tapez le nom du famille" mode="md" errorText="Nom invalide" label-placement="floating" fill="outline"  required></ion-input> -->
-      <ion-select mode="ios" id="id_famille" fill="outline" formControlName="id_famille" label="Famille *" placeholder="Tapez le nom du famille"  aria-label="Fruit">
-        <ion-select-option *ngFor="let famille of familles" [value]="famille.id">{{famille.nom}}</ion-select-option>
-      </ion-select>
-      <!-- <ion-input id="casier" formControlName="casier" label="Type de casier*"  placeholder="Type de casier" mode="md" errorText="Nom invalide" label-placement="floating" fill="outline"  required></ion-input> -->
-      <ion-select mode="ios" id="id_casier"  fill="outline"  formControlName="id_casier" label="Type de casier *"  placeholder="Type de casier"  aria-label="Fruit">
-        <ion-select-option *ngFor="let casier of casiers" [value]="casier.id">{{casier.nom}}</ion-select-option>
-      </ion-select>
-      <ion-select mode="ios" id="_fournisseurs_ids" fill="outline" formControlName="_fournisseurs_ids" label="Les fournisseurs *" placeholder="Tapez le nom du fournisseur" aria-label="Fruit" [multiple]="true">
-        <ion-select-option *ngFor="let fournisseur of fournisseurs" [value]="fournisseur.id">{{fournisseur.nom}}</ion-select-option>
-      </ion-select>
-      <ion-input id="upload" formControlName="upload" label="image"  placeholder="Les images" mode="md" errorText="Nom invalide" label-placement="floating" fill="outline"  ></ion-input>
-      <ion-input id="imgLink" formControlName="imgLink" label="image Link"  placeholder="Les images" mode="md" errorText="Nom invalide" label-placement="floating" fill="outline"  ></ion-input>
-      <!-- <ion-input id="upload"  label="image"  placeholder="Les images" mode="md" errorText="Nom invalide" label-placement="floating" fill="outline"  ></ion-input> -->
-      <ion-item>
-        <ion-toggle justify="space-between" formControlName="hasCasier" required>Le casier est compté</ion-toggle>
-      </ion-item>
+      <div class="input">
+        <ion-label>Nom *</ion-label>
+        <input type="text" formControlName="nom" placeholder="Nom du produit" />
+        <div *ngIf="produitForm.get('nom')?.touched && produitForm.get('nom')?.invalid">
+          <div *ngIf="produitForm.controls['nom'].errors && produitForm.controls['nom'].errors['required']" class="error-message">
+            <small>Valeur Requise.</small>
+          </div>
+        </div>
+      </div>
+  
+      <ion-grid>
+        <ion-row>
+          <ion-col size="6">
+            <div class="input">
+              <ion-label>Prix d'achat *</ion-label>
+              <input appInputMomeyFormat type="tel" formControlName="prixA" placeholder="Le prix d'achat du produit" />
+              <div *ngIf="produitForm.get('prixA')?.touched && produitForm.get('prixA')?.invalid">
+                <div *ngIf="produitForm.controls['prixA'].errors && produitForm.controls['prixA'].errors['required']" class="error-message">
+                  <small>Valeur Requise.</small>
+                </div>
+                <div *ngIf="produitForm.controls['prixA'].errors && produitForm.controls['prixA'].errors['pattern']" class="error-message">
+                  <small>Un nombre svp..</small>
+                </div>
+                <div *ngIf="produitForm.controls['prixA'].errors && produitForm.controls['prixA'].errors['min']" class="error-message">
+                  <small>Minimum 1</small>
+                </div>
+              </div>
+            </div>
+          </ion-col>
+  
+          <ion-col size="6">
+            <div class="input">
+              <ion-label>Prix de vente *</ion-label>
+              <input appInputMomeyFormat type="tel" formControlName="prixV" placeholder="Le prix de vente du produit" />
+              <div *ngIf="produitForm.get('prixV')?.touched && produitForm.get('prixV')?.invalid">
+                <div *ngIf="produitForm.controls['prixV'].errors && produitForm.controls['prixV'].errors['required']" class="error-message">
+                  <small>Valeur Requise.</small>
+                </div>
+                <div *ngIf="produitForm.controls['prixV'].errors && produitForm.controls['prixV'].errors['pattern']" class="error-message">
+                  <small>Un nombre svp.</small>
+                </div>
+                <div *ngIf="produitForm.controls['prixV'].errors && produitForm.controls['prixV'].errors['min']" class="error-message">
+                  <small>Minimum 1</small>
+                </div>
+              </div>
+            </div>
+          </ion-col>
+  
+          <ion-col size="6">
+            <div class="input">
+              <ion-label>Nbre de bouteilles/casier *</ion-label>
+              <input appInputMomeyFormat type="tel" formControlName="nbreBtleParCasier" placeholder="Nombre de bouteilles par pack" />
+              <div *ngIf="produitForm.get('nbreBtleParCasier')?.touched && produitForm.get('nbreBtleParCasier')?.invalid">
+                <div *ngIf="produitForm.controls['nbreBtleParCasier'].errors && produitForm.controls['nbreBtleParCasier'].errors['required']" class="error-message">
+                  <small>Valeur Requise.</small>
+                </div>
+                <div *ngIf="produitForm.controls['nbreBtleParCasier'].errors && produitForm.controls['nbreBtleParCasier'].errors['pattern']" class="error-message">
+                  <small>Un nombre svp.</small>
+                </div>
+                <div *ngIf="produitForm.controls['nbreBtleParCasier'].errors && produitForm.controls['nbreBtleParCasier'].errors['min']" class="error-message">
+                  <small>Minimum 1</small>
+                </div>
+              </div>
+            </div>
+          </ion-col>
+  
+          <ion-col size="6">
+            <div class="input">
+              <ion-label>Ristourne *</ion-label>
+              <input appInputMomeyFormat type="tel" formControlName="ristourne" placeholder="Montant de la ristourne par pack" />
+              <div *ngIf="produitForm.get('ristourne')?.touched && produitForm.get('ristourne')?.invalid">
+                <div *ngIf="(produitForm.controls['ristourne'].errors && produitForm.controls['ristourne'].errors['required'])" class="error-message">
+                  <small>Valeur Requise.</small>
+                </div>
+                <div *ngIf="(produitForm.controls['ristourne'].errors && produitForm.controls['ristourne'].errors['pattern'])" class="error-message">
+                  <small>Un nombre svp.</small>
+                </div>
+              </div>
+            </div>
+          </ion-col>
+  
+          <ion-col size="6">
+            <ion-card class="ion-activatable select d-block mb15" mode="ios" (click)="openModal('categorie')">
+              <ion-card-header>Catégorie *</ion-card-header>
+              <ion-card-content>
+                <div>
+                  <ion-label *ngIf="categorie">{{categorie.nom}}</ion-label>
+                  <ion-icon name="chevron-down-outline" style="color: var(--ion-color-primary);"></ion-icon>
+                </div>
+              </ion-card-content>
+              <ion-ripple-effect style="color: var(--ion-color-primary);"></ion-ripple-effect>
+            </ion-card>
+            <div class="parent-error" *ngIf="produitForm.get('id_categorie')?.touched && produitForm.get('id_categorie')?.invalid">
+              <div *ngIf="produitForm.controls['id_categorie'].errors && produitForm.controls['id_categorie'].errors['required']" class="error-message">
+                <small>La catégorie est requise.</small>
+              </div>
+            </div>
+          </ion-col>
+  
+          <ion-col size="6">
+            <ion-card class="ion-activatable select d-block mb15" mode="ios" (click)="openModal('famille')">
+              <ion-card-header>Famille *</ion-card-header>
+              <ion-card-content>
+                <div>
+                  <ion-label *ngIf="famille">{{famille.nom}}</ion-label>
+                  <ion-icon name="chevron-down-outline" style="color: var(--ion-color-primary);"></ion-icon>
+                </div>
+              </ion-card-content>
+              <ion-ripple-effect style="color: var(--ion-color-primary);"></ion-ripple-effect>
+            </ion-card>
+            <div class="parent-error" *ngIf="produitForm.get('id_famille')?.touched && produitForm.get('id_famille')?.invalid">
+              <div *ngIf="produitForm.controls['id_famille'].errors && produitForm.controls['id_famille'].errors['required']" class="error-message">
+                <small>La famille est requise.</small>
+              </div>
+            </div>
+          </ion-col>
+  
+          <ion-col size="4">
+            <ion-card class="ion-activatable select d-block mb15" mode="ios" (click)="openModal('casier')">
+              <ion-card-header>Type Casier *</ion-card-header>
+              <ion-card-content>
+                <div>
+                  <ion-label *ngIf="casier">{{casier.nom}}</ion-label>
+                  <ion-icon name="chevron-down-outline" style="color: var(--ion-color-primary);"></ion-icon>
+                </div>
+              </ion-card-content>
+              <ion-ripple-effect style="color: var(--ion-color-primary);"></ion-ripple-effect>
+            </ion-card>
+            <div class="parent-error" *ngIf="produitForm.get('id_casier')?.touched && produitForm.get('id_casier')?.invalid">
+              <div *ngIf="produitForm.controls['id_casier'].errors && produitForm.controls['id_casier'].errors['required']" class="error-message">
+                <small>Le type de casier est requis.</small>
+              </div>
+            </div>
+          </ion-col>
+  
+          <ion-col size="8">
+            <ion-card class="ion-activatable select d-block mb15" mode="ios" (click)="openModal('fournisseur')">
+              <ion-card-header>Fournisseur *</ion-card-header>
+              <ion-card-content>
+                <div>
+                  <div *ngIf="fournisseur.length">
+                    <ion-label *ngFor="let four of fournisseur; let isLast = last">{{four.nom}}<span *ngIf="!isLast">;</span></ion-label>
+                  </div>
+                  <ion-icon name="chevron-down-outline" style="color: var(--ion-color-primary);"></ion-icon>
+                </div>
+              </ion-card-content>
+              <ion-ripple-effect style="color: var(--ion-color-primary);"></ion-ripple-effect>
+            </ion-card>
+            <div class="parent-error" *ngIf="produitForm.get('_fournisseurs_ids')?.touched && produitForm.get('_fournisseurs_ids')?.invalid">
+              <div *ngIf="produitForm.controls['_fournisseurs_ids'].errors && produitForm.controls['_fournisseurs_ids'].errors['required']" class="error-message">
+                <small>Le fournisseur est requis.</small>
+              </div>
+            </div>
+          </ion-col>
+        </ion-row>
+      </ion-grid>
+  
+      <ion-card style="margin: 0; padding: 12px 0" class="mb15" mode="ios">
+        <ion-item style="border-radius: 10px;" lines="none">
+          <ion-toggle justify="space-between" formControlName="hasCasier" required>Le casier est compté</ion-toggle>
+        </ion-item>
+      </ion-card>
+  
+      <div class="img-view">
+        <div (click)="removeImage()" class="close-btn" *ngIf="image?.photo?.webPath || produit_img_data"><ion-icon name="close-outline" color="danger"></ion-icon></div>
+        <div *ngIf="!(image?.photo?.webPath || produit_img_data)" (click)="takeImage()" class="placeholder">
+          <ion-icon name="camera"></ion-icon>
+          <ion-label>Ajouter une image du produit</ion-label>
+        </div>
+        <img *ngIf="image?.photo?.webPath || produit_img_data" [src]="image?.photo?.webPath || produit_img_data" alt="">
+      </div>
     </div>
+
+
+    <ion-select mode="ios" label="Choisir une catégorie" style="display: none;" #categorieElt formControlName="id_categorie" (ionChange)="valueChange($event, 'categorie')">
+      <ion-select-option *ngFor="let cat of categories" [value]="cat.id">{{cat.nom}}</ion-select-option>
+    </ion-select>
+    <ion-select mode="ios" label="Choisir une famille" style="display: none;" #familleElt formControlName="id_famille" (ionChange)="valueChange($event, 'famille')">
+      <ion-select-option *ngFor="let fr of familles" [value]="fr.id">{{fr.nom}}</ion-select-option>
+    </ion-select>
+    <ion-select mode="ios" label="Choisir un casier" style="display: none;" #casierElt formControlName="id_casier" (ionChange)="valueChange($event, 'casier')">
+      <ion-select-option *ngFor="let cs of casiers" [value]="cs.id">{{cs.nom}}</ion-select-option>
+    </ion-select>
+    <ion-select mode="ios" label="Choisir les fournisseurs" style="display: none;" multiple="true" #fournisseurElt formControlName="_fournisseurs_ids" (ionChange)="valueChange($event, 'fournisseur')">
+      <ion-select-option *ngFor="let fr of fournisseurs" [value]="fr.id">{{fr.nom}}</ion-select-option>
+    </ion-select>
+    <ion-button type="submit" mode="ios" expand="block" class="btn mt20">{{action == "update" ? 'Modifier' : 'Ajouter'}}</ion-button>
   </form>
-  <ion-button (click)="takeImage()">Ajouter une image</ion-button><br><br>
-  <div class="image" >
-    <img [src]="image?.photo?.webPath || produit_img_data" alt="">
-  </div>
-  <ion-button type="submit" (click)="submit()" class="btn btn-primary">Ajouter Produit</ion-button>
 </ion-content>

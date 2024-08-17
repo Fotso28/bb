@@ -8,6 +8,8 @@ import { showError, showToast } from '../_lib/lib';
 import { User, UserService } from './user.service';
 import { PointVenteService } from './point-vente.service';
 import { PointVente } from '../models/PointVentes';
+import { DBSQLiteValues } from '@capacitor-community/sqlite';
+import { LoggerService } from './logger.service';
 
 @Injectable({
   providedIn: 'root'
@@ -25,7 +27,11 @@ export class InventoryService {
   public produits: ProduitsRavitailles[] = [];
 
   ids_ravitaillement!:  Array<number | undefined>
-  constructor(private bdSvc: BdService, private userSvc: UserService, private pointVenteSvc: PointVenteService) {
+  lastStockProduct_id!:  number;
+  constructor(private bdSvc: BdService, 
+    private userSvc: UserService, 
+    private pointVenteSvc: PointVenteService, 
+    private logger: LoggerService) {
       
   }
 
@@ -35,7 +41,11 @@ export class InventoryService {
    */
    async getUninventoryRavitaillements(): Promise<Ravitaillement[] |false>{
     try {
-      let sql = 'SELECT * FROM Ravitaillement WHERE all_ready_inventoried = 0';
+      let _pointVente: PointVente | null = this.pointVenteSvc.getActivePointeVente();
+      if(!(_pointVente && Object.keys(_pointVente).includes('id'))){
+        return false;
+      }
+      let sql = 'SELECT * FROM Ravitaillement WHERE all_ready_inventoried = 0 AND id_point_vente = '+_pointVente.id;
       let _rav = await this.bdSvc.query(sql)
       if(!_rav){
         return false
@@ -59,51 +69,55 @@ export class InventoryService {
     return this.ventes;
   }
 
-  /**
-   * 
-   * @returns Promise<Reste[]>
+    /**
+   * @returns Promise<Reste[] | false>
    */
-  async getLastStock(): Promise<Reste[] | false>{
+  async getLastStock(): Promise<Reste[] | false> {
     try {
-      let sql = 'SELECT * FROM Reste WHERE id = (SELECT MAX(id) FROM Reste)';
-      let _reste = await this.bdSvc.query(sql)
-      return _reste.values as Reste[];
+      let _pointVente = this.pointVenteSvc.getActivePointeVente();
+      if(!(_pointVente && Object.keys(_pointVente).includes('id'))){
+        this.logger.log('No point of sales');
+        return false;
+      }
+      
+      let sql = 'SELECT * FROM Reste WHERE id = (SELECT MAX(id) FROM Reste) AND id_point_vente = '+ _pointVente.id;
+      let _reste = await this.bdSvc.query(sql);
+
+      // Vérifie si _reste.values existe et est un tableau
+      if (_reste && Array.isArray(_reste.values)) {
+        return _reste.values as Reste[];
+      } else {
+        this.logger.log('No results found for last stock');
+        return false;
+      }
     } catch (error) {
-      console.log(error);
+      // Utilise le logger pour enregistrer les erreurs
+      this.logger.log(error);
       return false;
     }
   }
 
-  async saveStock(reste: Reste){
-    return  await this.bdSvc.create(reste);
+  async saveStock(reste: Reste, returnSaveValue: boolean =false){
+    return  await this.bdSvc.create(reste, returnSaveValue);
   }
-  async saveVente(vente: Vente): Promise<boolean>{
-    return  await this.bdSvc.create(vente);
+  async saveVente(vente: Vente, returnSaveValue: boolean = false): Promise<false| DBSQLiteValues>{
+    return  await this.bdSvc.create(vente, returnSaveValue);
   }
 
   async markAllAsRavitaille(){
-    return await this.bdSvc.query('UPDATE Ravitaillement SET all_ready_inventoried = 1 WHERE all_ready_inventoried = 0')
+    let _pointVente = this.pointVenteSvc.getActivePointeVente();
+    if(!(_pointVente && Object.keys(_pointVente).includes('id'))){
+      this.logger.log('No point of sales');
+      return false;
+    }
+    return await this.bdSvc.query('UPDATE Ravitaillement SET all_ready_inventoried = 1 WHERE all_ready_inventoried = 0 AND id_point_vente = '+ _pointVente.id)
   }
 
-  sommeArrayProduits(arr: ProduitsRavitailles[][]): ProduitsRavitailles[] {
-      try {
-        const productMap: { [id: number]: ProduitsRavitailles } = {};
-        arr.forEach(subArray => {
-          subArray.forEach(product => {
-            const { id, qte_btle, ...rest } = product;
-            if (id && productMap[id]  && qte_btle != undefined) {
-              productMap[id].qte_btle! += qte_btle;
-            } else {
-              productMap[id] = { id, qte_btle, ...rest };
-            }
-          });
-        });
-        return Object.values(productMap);
-      } catch (error) {
-        showError(error)
-        return [];
-      }
-    }
+  getDb(){
+    return this.bdSvc.getDb();
+  }
+
+  
   
     async getRavitaillements():Promise<Ravitaillement[] | false>{
       try {
@@ -127,9 +141,9 @@ export class InventoryService {
       }
     }
   
-    async saveReste(reste: Reste): Promise<boolean>{
+    async saveReste(reste: Reste, returnSaveValue: boolean=false): Promise<false| DBSQLiteValues>{
       try {
-        return await this.saveStock(reste)
+        return await this.saveStock(reste, returnSaveValue)
       } catch (error) {
         showError(error)
         return false;
@@ -139,7 +153,7 @@ export class InventoryService {
     /**
      * Enregistrer les restes courant
      */
-    async saveCurrentStock(restes: ProduitsRavitailles[]){
+    async saveCurrentStock(restes: ProduitsRavitailles[], returnSaveValue: boolean = false): Promise<false | DBSQLiteValues>{
       
         try {
           let currentUser: User | null = this.userSvc.getActiveUser();
@@ -147,20 +161,20 @@ export class InventoryService {
           
           
           if(!currentUser){
-            console.log("user undifined");
-            return 
+            showError("utilisateur indefini")
+            return false
           }
   
           if(!currentPointVente){
-            console.log("pointVente undifined");
-            return 
+            showError("pointVente undifined");
+            return false
           }
   
           let timestamp: number = (new Date).getTime();
           let restes_string: string = JSON.stringify(restes);
           let newReste: Reste = new Reste(timestamp, restes_string, currentUser.id, currentPointVente.id!); 
-          
-          return await this.saveReste(newReste);
+          // newReste.id_point_vente = currentPointVente.id!
+          return await this.saveReste(newReste, returnSaveValue);
           // Envoyer les données au service ou effectuer d'autres actions
         } catch (error) {
           showError(error)
@@ -258,9 +272,9 @@ export class InventoryService {
       }
     }
 
-    async saveProduitVendu( vente: Vente): Promise<boolean>{
+    async saveProduitVendu( vente: Vente, returnSaveValue: boolean = false): Promise<boolean| DBSQLiteValues>{
       try {
-        let isSaved: boolean = await this.saveVente(vente);
+        let isSaved: boolean| DBSQLiteValues = await this.saveVente(vente, returnSaveValue);
         return isSaved;
       } catch (error) {
         console.log(error);
@@ -283,8 +297,8 @@ export class InventoryService {
       }
   }
 
-  async getInventory(){
-    return (await this.bdSvc.query('Select * FROM Vente')) ;
+  async getInventory(id: number){
+    return (await this.bdSvc.readAll("Vente", `AND id_point_vente = ${id}`)) ;
   }
 
   /**
@@ -301,6 +315,10 @@ export class InventoryService {
       return false
     }
     return true;
+  }
+
+  async getReste(id:number): Promise<Reste>{
+    return await this.bdSvc.read("Reste", id) as Reste
   }
 }
 

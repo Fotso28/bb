@@ -1,3 +1,6 @@
+import { ClassName } from "../_decorators/class-name.decorator";
+
+@ClassName('PointVente')
 export class PointVente{
     constructor(
       public nom: string,

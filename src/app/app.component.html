@@ -1,16 +1,31 @@
 <ion-app>
   <ion-split-pane contentId="main-content">
-    <ion-menu contentId="main-content" type="overlay">
+    <ion-menu menuId="main-menu" contentId="main-content" type="overlay">
       <ion-content>
-        <ion-list id="inbox-list">
-          <ion-list-header>Inbox</ion-list-header>
-          <ion-note>hi@ionicframework.com</ion-note>
-          <ion-menu-toggle auto-hide="false" *ngFor="let p of appPages; let i = index">
-            <ion-item routerDirection="root" [routerLink]="[p.url]" lines="none" detail="false" routerLinkActive="selected">
-              <ion-icon aria-hidden="true" slot="start" [ios]="p.icon + '-outline'" [md]="p.icon + '-sharp'"></ion-icon>
-              <ion-label>{{ p.title }}</ion-label>
-            </ion-item>
-          </ion-menu-toggle>
+        <div class="menu-header">
+          <h3>Cameroun</h3>
+          <ion-note>{{"osw.fotso@gmail.com"}}</ion-note>
+        </div>
+        <ion-list id="inbox-list" detail="true">
+          <ng-container *ngFor="let ms of menuSection;let msIndex = index;">
+            <ng-container *ngIf="msIndex != 0 && menuSection[msIndex - 1] !== ms">
+              <!-- Ajoutez votre séparation ici -->
+              <ion-item-divider>{{ms}}</ion-item-divider>
+            </ng-container>
+            <ng-container *ngFor="let p of appPages; let i = index">
+              <ion-menu-toggle *ngIf="ms == p.categorie" auto-hide="false">
+                <ion-item routerDirection="root" [routerLink]="[p.url]" lines="none" detail="false" routerLinkActive="selected">
+                  <img *ngIf="p.categorie != 'Aide'" src=" {{'assets/icon/'+p.icon+'.png'}}" alt="">
+                  <ion-icon style="padding-right: 15px; color: var(--ion-color-secondary)" *ngIf="p.categorie == 'Aide'" [name]="p.icon"></ion-icon>
+                  <!-- <ion-icon aria-hidden="true" slot="start" [ios]="p.icon + '-outline'" [md]="p.icon + '-sharp'"></ion-icon> -->
+                  <ion-label>{{ p.title }}</ion-label>
+                </ion-item>
+              </ion-menu-toggle>
+            </ng-container>
+          </ng-container>
+          <div class="version">
+            <small>Version 1.0.1</small>
+          </div>
         </ion-list>
       </ion-content>
     </ion-menu>

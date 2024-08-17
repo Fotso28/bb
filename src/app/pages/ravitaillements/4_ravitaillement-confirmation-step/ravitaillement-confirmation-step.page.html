@@ -1,20 +1,136 @@
-<ion-header [translucent]="true">
+<ion-header [translucent]="true" mode="md" class="no-shadow">
   <ion-toolbar>
-    <ion-title>ravitaillement-confirmation-step</ion-title>
+    <ion-buttons slot="start">
+      <ion-back-button></ion-back-button>
+    </ion-buttons>
+    <ion-title class="ion-text-center">Etape 4/4</ion-title>
   </ion-toolbar>
 </ion-header>
 
 <ion-content [fullscreen]="true">
-  <div>
-    <ion-fab slot="fixed" vertical="bottom" horizontal="start">
-      <ion-fab-button (click)="prev()">
-        <ion-icon name="add"></ion-icon>
-      </ion-fab-button>
-    </ion-fab>
-    <ion-fab slot="fixed" vertical="bottom" horizontal="end">
-      <ion-fab-button >
-        <ion-icon name="add"></ion-icon>
-      </ion-fab-button>
-    </ion-fab>
+  <ion-grid *ngIf="ravitaillement">
+    <ion-row><ion-col size="12" class="date">{{getDate()}}</ion-col></ion-row>
+    <ion-row>
+      <ion-col size="6" class="text-left">
+        <div class="item">
+          <h5>Point de vente</h5>
+          <span>{{activePointVente.nom}}</span>
+        </div>
+        <div class="item">
+          <h5>Numero Facture</h5>
+          <span>{{ravitaillement.num_facture}}</span>
+        </div>
+        <div class="item">
+          <h5>Fournisseurs</h5>
+          <span>{{ravitaillement.nom_fournisseur}}</span>
+        </div>
+      </ion-col>
+      <ion-col size="6" class="text-right">
+        <div class="item">
+          <h5>Total</h5>
+          <span>{{ravitaillement.total | currency: "XAF": 'symbol'}}</span>
+        </div>
+        <div class="item">
+          <h5>Versement</h5>
+          <span>{{ravitaillement.montant_verse | currency: "XAF"}}</span>
+        </div>
+      </ion-col>
+    </ion-row>
+    <div class="table">
+      <ion-row class="table_header bg ion-margin-top" >
+        <ion-col size="3">Produits</ion-col>
+        <ion-col size="5" class="text-right" (click)="showTooltip('Nombre de bouteilles supplementaire')">
+          <span>Nbre Btle Supp</span>
+          <ion-icon alt="Nombre de casiers pleins" size="small" name="information-circle-outline"></ion-icon>
+        </ion-col>
+        <ion-col size="4" class="text-right" (click)="showTooltip('Nombre de casiers plein')">
+          <span>Nbre Casiers </span>
+          <ion-icon alt="Nombre de casiers pleins" size="small" name="information-circle-outline"></ion-icon>
+        </ion-col>
+      </ion-row>
+      <div>
+        <ion-row class="table_content" *ngFor="let prod of produits">
+          <ion-col size="3">{{prod.nom}}</ion-col>
+          <ion-col size="5" class="text-right" >
+            <span>{{getNbreBouteilleSupplementaire(prod)}}</span>
+          </ion-col>
+          <ion-col size="4" class="text-right">
+            <span>{{getNbreCasiers(prod)}} </span>
+          </ion-col>
+        </ion-row>
+      </div>
+    </div>
+
+    <ion-row>
+      <ion-col size="12"><h5 style="font-size: 18px;text-align: left;margin-top: 20px;text-align: center;">Mouvements des emballages</h5></ion-col>
+    </ion-row>
+    
+    <div class="table" >
+      <ion-row>
+        <ion-col size="12" class="bg"><h5>Emballages Entrés</h5></ion-col>
+      </ion-row>
+      <ion-row class="table_header bg " >
+        <ion-col size="3">Intitule</ion-col>
+        <ion-col size="5" class="text-right" (click)="showTooltip('Nombre de bouteille supplementaire')">
+          <span>Nbre Btle Supp</span>
+          <ion-icon alt="Nombre de casiers pleins" size="small" name="information-circle-outline"></ion-icon>
+        </ion-col>
+        <ion-col size="4" class="text-right" (click)="showTooltip('Nombre de casiers plein')">
+          <span>Nbre Embl Plein</span>
+          <ion-icon alt="Nombre de casiers pleins" size="small" name="information-circle-outline"></ion-icon>
+        </ion-col>
+      </ion-row>
+      <ng-container *ngFor="let cs of casiers">
+        <ion-row class="table_content" *ngIf="cs.transaction == 'IN'">
+          <ion-col size="3">{{cs.nom}}</ion-col>
+          <ion-col size="5" class="text-right" >
+            <span></span>
+          </ion-col>
+          <ion-col size="4" class="text-right">
+            <span>{{cs.qte}}</span>
+          </ion-col>
+        </ion-row>
+      </ng-container>
+    </div>
+
+
+    <div class="table" style="margin: 25px 0 50px">
+      <ion-row>
+        <ion-col size="12" class="bg"><h5>Emballages Sortis</h5></ion-col>
+      </ion-row>
+      <ion-row class="table_header bg " >
+        <ion-col size="3">Intitule</ion-col>
+        <ion-col size="5" class="text-right" (click)="showTooltip('Nombre de bouteille supplementaire')">
+          <span>Nbre Btle Supp</span>
+          <ion-icon alt="Nombre de casiers pleins" size="small" name="information-circle-outline"></ion-icon>
+        </ion-col>
+        <ion-col size="4" class="text-right" (click)="showTooltip('Nombre de casiers plein')">
+          <span>Nbre Embl Plein</span>
+          <ion-icon alt="Nombre de casiers pleins" size="small" name="information-circle-outline"></ion-icon>
+        </ion-col>
+      </ion-row>
+      <ng-container *ngFor="let cs of casiers">
+        <ion-row class="table_content" *ngIf="cs.transaction == 'OUT'">
+          <ion-col size="3">{{cs.nom}}</ion-col>
+          <ion-col size="5" class="text-right" >
+            <span></span>
+          </ion-col>
+          <ion-col size="4" class="text-right">
+            <span>{{cs.qte}}</span>
+          </ion-col>
+        </ion-row>
+      </ng-container>
+    </div>
+  </ion-grid>
+  <div style="padding: 0 16px">
+    <img *ngIf="image_facture_url()" [src]="image_facture_url()" alt="" style="width: 100%; border-radius: 8px;">
   </div>
+  <ion-fab *ngIf="action == 'add'" slot="fixed" vertical="bottom" horizontal="end">
+    <ion-fab-button (click)="save()">
+      <ion-icon name="checkmark-outline"></ion-icon>
+    </ion-fab-button>
+  </ion-fab>
+  
 </ion-content>
+
+

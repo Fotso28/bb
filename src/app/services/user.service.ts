@@ -20,17 +20,23 @@ export class UserService {
    * @return User | null
    */
   getActiveUser(): User | null{
-    let user = localStorage.getItem('user');
-    if(!user){
-      return null
-    }else{
-      return JSON.parse(user);
+    try {
+      let user = localStorage.getItem('user');
+      if(!user){
+        return null
+      }else{
+        return JSON.parse(user);
+      }
+    } catch (error) {
+      return null;
     }
   }
 }
 
-export interface User{
-    id: number,
-    name: string,
-    age: number
+export interface User {
+  id: number;
+  username: string;
+  telephone: string;
+  localite: string;
+  token: string
 }

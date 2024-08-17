@@ -1,15 +1,45 @@
-<ion-header [translucent]="true">
+<ion-header [translucent]="true"  mode="md" class="no-shadow">
   <ion-toolbar>
-    <ion-title>list-inventory</ion-title>
+    <div class="d-flex" routerLink="/">
+      <div class="img ion-activatable">
+        <img src="assets/icon/back-button.png" class="back-btn" alt="">
+        <ion-ripple-effect class="ripple"></ion-ripple-effect>
+      </div>
+      <ion-title>Liste des inventaires</ion-title>
+    </div>
   </ion-toolbar>
 </ion-header>
 
-<ion-content [fullscreen]="true">
-  <ion-list *ngIf="inventaires">
-    <ion-item *ngFor="let inv of inventaires">
+<ion-content [fullscreen]="true" class="ion-padding">
+  <div class="pv"><app-point-vente (pointVenteEvent)="changePointVente($event)"></app-point-vente></div>
+  <!-- <ion-list *ngIf="inventaires">
+    <ion-item *ngFor="let inv of inventaires" (click)="viewInventory(inv)">
       <ion-label>{{inv.date}}</ion-label>
     </ion-item>
-  </ion-list>
+  </ion-list> -->
+  <div class="custom_list">
+    <ion-list lines="none" *ngIf="inventaires">
+      <ion-item-sliding  style="position: relative;" *ngFor="let inv of inventaires" (click)="viewInventory(inv)" >
+        <!-- <div class="triangle" class="disabled"></div> -->
+        <ion-item button>
+          <div class="list ">
+            <div class="title">{{inv.date | date}} <br>
+              <!-- <small ><strong>{{inv.}} </strong></small> -->
+            </div>
+            <div class="sub-bloc" slot="end">
+              <div class="left">
+                <div class="badge">Détail</div>
+              </div>
+              <div class="right">
+                <div class="text"><small>Total: </small>{{inv.total! | customCurrency}}</div>
+                <div class="text"><small>Versement: </small> {{inv.versement| customCurrency}}</div>
+              </div>
+            </div>
+          </div>
+        </ion-item>
+      </ion-item-sliding>
+    </ion-list>
+  </div>
   <ion-fab slot="fixed" vertical="bottom" horizontal="end">
     <ion-fab-button routerLink="/add-inventory">
       <ion-icon name="add"></ion-icon>

@@ -2,7 +2,7 @@ import { Component, OnInit, ViewChild } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { IonInput, ToastController } from '@ionic/angular';
-import { resetForm } from 'src/app/_lib/lib';
+import { resetForm, showToast } from 'src/app/_lib/lib';
 import { Categorie, CategorieType } from 'src/app/models/Categories';
 import { CategorieService } from 'src/app/services/categorie.service';
 
@@ -32,28 +32,17 @@ export class AddUpdateCategoriePage implements OnInit {
   }
 
   initForm() {
-
-    if(this.action == "update"){
-      console.log("update")
-      this.categorieForm = this.formBuilder.group({
-        nom: [this.categorie.nom, Validators.required],
-        description: [this.categorie.description],
-        type: [this.type]
-      });
-      return;
-    }
-
     this.categorieForm = this.formBuilder.group({
-      nom: ['', Validators.required],
-      description: [''],
-      type: [this.type]
+      nom: [this.categorie.nom || '', Validators.required],
+      description: [this.categorie.description || ''],
+      type: [this.type ]
     });
   }
 
   submit() {
 
     if(this.categorieForm.invalid) {
-      this.showToast("Remplissez les champ!");
+      showToast("Remplissez les champ!");
       return;
     }
     if(!this.type){
@@ -72,21 +61,21 @@ export class AddUpdateCategoriePage implements OnInit {
 
       this.categorieSvc.update(newCategorie).then((val:any)=>{
         if(val){
-          this.showToast("element mis à jour")
+          showToast("element mis à jour")
           resetForm(this.categorieForm);
           this.router.navigateByUrl(`/categorie/${this.type}`)
         }
-      }).catch((error: any)=> this.showToast("Veuillez réessayer"));
+      }).catch((error: any)=> showToast("Veuillez réessayer", 'danger'));
 
     }else{
 
       this.categorieSvc.create(newCategorie).then((val:any)=>{
         if(val){
-          this.showToast("Nouveau element créer")
+          showToast("Nouveau element créer")
           resetForm(this.categorieForm);
           this.router.navigateByUrl(`/categorie/${this.type}`)
         }
-      }).catch((error:any)=> this.showToast("Veuillez réessayer"));
+      }).catch((error:any)=> showToast("Veuillez réessayer", 'danger'));
 
     }
     // Vous pouvez ajouter ici la logique pour ajouter la categorie à votre application
@@ -97,18 +86,6 @@ export class AddUpdateCategoriePage implements OnInit {
     const categorieModifiee = new Categorie(formData.nom, formData.description, formData.deletedAt, formData.id);
 
     // Vous pouvez ajouter ici la logique pour modifier la Categorie dans votre application
-  }
-
-  async showToast(message: string){
-    let toast = await this.toast.create({
-      message: message,
-      duration: 2000,
-      position: "bottom",
-      icon: "home",
-      mode: 'ios',
-      color: "danger",
-    });
-    await toast.present()
   }
 
   // @ViewChild('ionInputEl', { static: true }) ionInputEl!: IonInput;

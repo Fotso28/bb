@@ -3,6 +3,7 @@ import { BehaviorSubject } from 'rxjs';
 import { Casier } from '../models/Casiers';
 import { BdService } from './-bd.service';
 import { Platform } from '@ionic/angular';
+import { DBSQLiteValues } from '@capacitor-community/sqlite';
 
 @Injectable({
   providedIn: 'root'
@@ -18,7 +19,7 @@ export class CasierService {
       return this.platform.is('capacitor')
     }
     
-    async create(item: Casier): Promise<boolean> {
+    async create(item: Casier): Promise<boolean | DBSQLiteValues> {
 
       if(!this.isMobile()){
         return false
@@ -66,7 +67,7 @@ export class CasierService {
     }
   
     async delete(item: Casier): Promise<boolean> {
-
+     
       if(!this.isMobile()){
         return false
       }
@@ -80,17 +81,17 @@ export class CasierService {
       }
     }
   
-    async getAll(): Promise<boolean> {
+    async getAll(): Promise<false | Array<Casier>> {
       if(!this.isMobile()){
         return false
       }
       try {
         let all = await this.bdSvc.readAll('Casier') as Array<Casier>;
         this.casierSubject.next(all);
-        return true
+        return all;
       } catch (error) {
         console.log(error);
-        return true;
+        return false;
       }
     }
 

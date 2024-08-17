@@ -3,7 +3,7 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { IonInput, Platform, ToastController } from '@ionic/angular';
 import { MAX_QTY_LENGHT, MIN_QTY_LENGHT } from 'src/app/_lib/const';
-import { resetForm, showToast } from 'src/app/_lib/lib';
+import { resetForm, showToast, trimAndParseInt } from 'src/app/_lib/lib';
 import { Casier } from 'src/app/models/Casiers';
 import { CasierService } from 'src/app/services/casier.service';
 
@@ -14,7 +14,7 @@ import { CasierService } from 'src/app/services/casier.service';
   styleUrls: ['./add-update-casier.page.scss'],
 })
 export class AddUpdateCasierPage implements OnInit {
-
+  
   casierForm!: FormGroup;
   casier!: Casier;
   action!: 'update' | 'add';
@@ -36,19 +36,10 @@ export class AddUpdateCasierPage implements OnInit {
   }
 
   initForm() {
-    if(this.action == "update"){
-      console.log("update")
-      this.casierForm = this.formBuilder.group({
-        nom: [this.casier.nom, Validators.required],
-        description: [this.casier.description],
-        nbre_btle_par_casier: [this.casier.nbre_btle_par_casier, [Validators.required, Validators.min(MIN_QTY_LENGHT), Validators.max(MAX_QTY_LENGHT)]]
-      });
-      return;
-    }
     this.casierForm = this.formBuilder.group({
-      nom: ['', Validators.required],
-      description: [''],
-      nbre_btle_par_casier: ['', [Validators.required, Validators.min(MIN_QTY_LENGHT), Validators.max(MAX_QTY_LENGHT)]]
+      nom: [this.casier?.nom || '', Validators.required],
+      description: [this.casier?.description || ''],
+      nbre_btle_par_casier: [this.casier?.nbre_btle_par_casier?.toString() || '1', [Validators.required, Validators.pattern(/^[0-9\s]+$/), Validators.min(1)]]
     });
   }
 
@@ -60,8 +51,10 @@ export class AddUpdateCasierPage implements OnInit {
     }
 
     const formData = this.casierForm.value;
-
+    formData.nbre_btle_par_casier = trimAndParseInt(formData.nbre_btle_par_casier)
     let newCasier : Casier = this.casierSvc.hydrateCasier(formData);
+
+    console.log(newCasier);
     // console.log(newCasier); return;
     if(this.action === "update"){
       console.log("update")
@@ -92,19 +85,19 @@ export class AddUpdateCasierPage implements OnInit {
 
   
 
-  @ViewChild('ionInputEl', { static: true }) ionInputEl!: IonInput;
-  filteredNumber(ev:any){
-    const value = ev.target!.value;
+  // @ViewChild('ionInputEl', { static: true }) ionInputEl!: IonInput;
+  // filteredNumber(ev:any){
+  //   const value = ev.target!.value;
 
-    // Removes non alphanumeric characters
-    const filteredValue = value.replace(/[^0-9]+/g, '');
+  //   // Removes non alphanumeric characters
+  //   const filteredValue = value.replace(/[^0-9]+/g, '');
 
-    /**
-     * Update both the state variable and
-     * the component to keep them in sync.
-     */
-    this.casierForm.get('nbre_btle_par_casier')?.setValue(filteredValue);
-  }
+  //   /**
+  //    * Update both the state variable and
+  //    * the component to keep them in sync.
+  //    */
+  //   this.casierForm.get('nbre_btle_par_casier')?.setValue(filteredValue);
+  // }
 
 
 }

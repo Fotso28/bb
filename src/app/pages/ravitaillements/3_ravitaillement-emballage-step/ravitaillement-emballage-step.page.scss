@@ -12,23 +12,27 @@ ion-col{
 ion-col.right{
     padding: 0 !important;
 }
-ion-col.left{
-    padding-left: 0 !important;
-    padding-right: 0 !important;
-    position: relative;
+.left{
+    position: absolute;
+    right: 5px;
+    top: 6px;
 }
 ion-select{
     height: 56px;
     --margin-top: 8px;
     --margin-bottom: 8px;
     padding-left: 8px;
-    background-color:  var(--ion-color-primary);
+    background-color:  #50c8ff38;
     position: absolute;
     top: 6px;
-    left: -2px;
+    left: 5px;
     // 
     overflow-x: hidden;
-    color: #fff
+    color: var(--ion-color-primary);
+
+}
+ion-select::part(icon) {
+    color: var(--ion-color-primary); /* Red color for the icon */
 }
 ion-card{
     margin: 0;
@@ -37,6 +41,7 @@ ion-card{
 }
 ion-card-content{
     padding-left: 0px;
+    padding-right: 0px;
 }
 .input{
     width: 100%;
@@ -56,16 +61,27 @@ ion-card-content{
     width: 95%;
     position: absolute;
     top: 6px;
+    right: -5px;
     height: 44px;
-    background-color: blue;
+    background-color: var(--ion-color-primary);
     display: flex;
     justify-content: center;
     align-items: center;
     border-radius: 0 10px 10px 0;
-    color: #000;
     // position: relative;
     overflow: hidden;
 }
 .btn span{
-    color: #fff
+    color: #fff;
+    font-size: 16px;
+    font-weight: 500;
 }
+ion-grid{
+    padding-right: 15px;
+    padding-left: 10px;
+}
+ion-item{
+    height: 30px;
+}
+
+

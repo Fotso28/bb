@@ -1,4 +1,4 @@
-<ion-header [translucent]="true">
+<ion-header [translucent]="true" mode="md" class="no-shadow">
   <ion-toolbar>
     <ion-buttons slot="start">
       <ion-back-button></ion-back-button>
@@ -9,14 +9,27 @@
 
 <ion-content [fullscreen]="true" class="ion-padding">
   <form [formGroup]="familleForm" (ngSubmit)="submit()">
-    <div>
-      <ion-input label="Outline input*"
-        errorText="Invalid email" label-placement="floating" fill="outline" placeholder="Enter text" id="nom" formControlName="nom" required></ion-input>
-  
-      <ion-input label="Outline input" label-placement="floating" fill="outline" placeholder="Enter text" formControlName="description"></ion-input>
+    <div class="input">
+      <ion-label>Nom *</ion-label>
+      <input type="text" formControlName="nom" placeholder="Entrez le nom de la catégorie" />
+      <div *ngIf="familleForm.get('nom')?.touched && familleForm.get('nom')?.invalid">
+        <div *ngIf="familleForm.controls['nom'].errors && familleForm.controls['nom'].errors['required']" class="error-message">
+          <small>Valeur Requise.</small>
+        </div>
+      </div>
     </div>
-    <ion-button type="submit" class="btn btn-primary">Ajouter Famille</ion-button>
-    <ion-button type="button" (click)="modifierFamille()" class="btn btn-primary">Modifier Famille</ion-button>
+    
+    <div class="input">
+      <ion-label>Description</ion-label>
+      <textarea type="text" rows="5" formControlName="description" placeholder="Tapez une description"></textarea>
+      <div *ngIf="familleForm.get('description')?.touched && familleForm.get('description')?.invalid">
+        <div *ngIf="familleForm.controls['description'].errors && familleForm.controls['description'].errors['required']" class="error-message">
+          <small>Valeur Requise.</small>
+        </div>
+      </div>
+    </div>
+    
+    <ion-button type="submit" mode="ios" expand="block" class="btn">{{action == "update" ? 'Modifier' : 'Ajouter'}}</ion-button> 
   </form>
   
 </ion-content>

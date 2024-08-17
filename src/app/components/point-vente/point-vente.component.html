@@ -1,0 +1,13 @@
+  <form *ngIf="pointVente" [formGroup]="pvForm" style="display: none;">
+    <div class="pointvente ripple-parent" style="display: none;">
+      
+      <ion-select #select label="Point de vente" 
+        formControlName="activePointVente" 
+        mode="ios" (ionChange)="changePv($event)" 
+        placeholder="Choisir">
+          <ion-select-option *ngFor="let pv of pointVente" [value]="pv">{{pv.nom}}</ion-select-option>
+      </ion-select>
+      <!-- <ion-ripple-effect></ion-ripple-effect> -->
+    </div>
+  </form>
+  <ion-label (click)="openModal()" *ngIf="activePv" [style.color]="color">{{activePv.nom}}</ion-label> 

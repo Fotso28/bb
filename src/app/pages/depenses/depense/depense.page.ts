@@ -27,7 +27,7 @@ export class DepensePage implements OnInit {
     console.log(all)
     this.depenseSvc.depenseSubject.subscribe({
       next: (items: any[]) => {
-        this.depenses = items;
+        this.depenses = items.reverse();
         console.log(items);
       }
     })
@@ -60,6 +60,7 @@ export class DepensePage implements OnInit {
   async delete(depense: Depense, slidingItem:any){
     slidingItem.close();
     let item : Depense = this.depenseSvc.hydrateDepense(depense);
+    console.log(item);
     let role = await this.confirm();
     if(role == "confirm"){
       this.depenseSvc.delete(item).then((value:boolean)=>{

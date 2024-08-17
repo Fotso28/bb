@@ -7,14 +7,15 @@ import { IonicModule } from '@ionic/angular';
 import { AddUpdateProduitPageRoutingModule } from './add-update-produit-routing.module';
 
 import { AddUpdateProduitPage } from './add-update-produit.page';
+import { DirectivesModule } from 'src/app/directive/directives.module';
 
 @NgModule({
   imports: [
     CommonModule,
     FormsModule,ReactiveFormsModule,
-    IonicModule,
+    IonicModule, DirectivesModule,
     AddUpdateProduitPageRoutingModule
   ],
-  declarations: [AddUpdateProduitPage]
+  declarations: [AddUpdateProduitPage, ]
 })
 export class AddUpdateProduitPageModule {}

@@ -7,12 +7,14 @@ import { IonicModule } from '@ionic/angular';
 import { RavitaillementFournisseurStepPageRoutingModule } from './ravitaillement-fournisseur-step-routing.module';
 
 import { RavitaillementFournisseurStepPage } from './ravitaillement-fournisseur-step.page';
+import { ComponentsModule } from 'src/app/components/components.module';
+import { DirectivesModule } from 'src/app/directive/directives.module';
 
 @NgModule({
   imports: [
     CommonModule,
-    FormsModule, ReactiveFormsModule,
-    IonicModule,
+    FormsModule, ReactiveFormsModule, ComponentsModule,
+    IonicModule, DirectivesModule,
     RavitaillementFournisseurStepPageRoutingModule
   ],
   declarations: [RavitaillementFournisseurStepPage]

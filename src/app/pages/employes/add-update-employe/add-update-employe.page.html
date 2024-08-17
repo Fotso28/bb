@@ -1,31 +1,57 @@
-<ion-header [translucent]="true">
+<ion-header [translucent]="true" mode="md" class="no-shadow">
   <ion-toolbar>
     <ion-buttons slot="start">
       <ion-back-button></ion-back-button>
     </ion-buttons>
-    <ion-title>Employe</ion-title>
+    <ion-title class="ion-text-center">{{action == "update" ? 'Modifier ' : 'Ajouter un '}} Employe</ion-title>
   </ion-toolbar>
 </ion-header>
-
 <ion-content [fullscreen]="true" class="ion-padding">
   <form [formGroup]="employeForm" (ngSubmit)="submit()">
     <div>
-      <ion-input label="Nom*"  inputmode="text" mode="md" errorText="Nom invalide" label-placement="floating" fill="outline" placeholder="Tapez le nom du employe" id="nom" formControlName="nom" required></ion-input>
-      <ion-input label="Adresse" inputmode="text" mode="md" errorText="Nom invalide" label-placement="floating" fill="outline" placeholder="Tapez l'adresse" id="adresse" formControlName="adresse" ></ion-input>
-      <ion-input label="Télephone" inputmode="numeric"  mode="md" errorText="Nom invalide" label-placement="floating" fill="outline" placeholder="Tapez le numero de téléphone" id="phone1" formControlName="phone1" ></ion-input>
-      <ion-input label="N° CNI*" inputmode="text"  mode="md" errorText="Nom invalide" label-placement="floating" fill="outline" placeholder="Tapez le numero de cni" id="cni" formControlName="cni" ></ion-input>
-    </div>
-    <ion-button type="submit" class="btn btn-primary">Ajouter Employe</ion-button>
-    <ion-button type="button" (click)="addAttachments()" class="btn btn-primary">Pieces Jointes</ion-button>
-  </form>
-  <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px;">
-    <!-- <div style="position: relative;" *ngFor="let url of photos">
-      <img style="width: 100%" [src]="url.webPath || 'data:image/jpeg;base64,' + url?.data" alt="">
-      <div (click)="removeImagetoDisplayingImages(url.webPath ||  url?.data)" style="position: absolute;top:0px; right: 0px; color: red; background-color: #fff;width: 30px;height: 30px; display: flex;justify-content: center; align-items: center; border-bottom-left-radius: 50%; border: 1px solid #ccc">
-        <ion-icon name="close">close</ion-icon>
+
+      <div class="input">
+        <ion-label>Nom *</ion-label>
+        <input type="text" formControlName="nom" placeholder="Entrez le nom du employe" />
+        <div *ngIf="employeForm.controls['nom'].errors && employeForm.controls['nom'].errors['required']" class="error-message">
+          <small>Valeur Requise.</small>
+        </div>
       </div>
-    </div> -->
-    <app-images *ngFor="let url of photos" [url]="url" (emitDeleteEvent)="removeImagetoDisplayingImages(url.webPath ||  url?.data)"></app-images>
-  </div>
+
+      <div class="input">
+        <ion-label>Téléphone *</ion-label>
+        <input type="number" formControlName="phone1" placeholder="Entrez le numero de téléphone" />
+        <div *ngIf="employeForm.controls['phone1'].errors && employeForm.controls['phone1'].errors['required']" class="error-message">
+          <small>Valeur Requise.</small>
+        </div>
+      </div>
+      
+      <div class="input">
+        <ion-label>Adresse</ion-label>
+        <input type="text" formControlName="adresse" placeholder="Entrez l'adresse" />
+      </div>
+
+      <div class="input">
+        <ion-label>N° CNI *</ion-label>
+        <input type="number" formControlName="cni" placeholder="Entrez le numero de cni" />
+      </div>
+
+      <!-- <ion-input label="N° CNI*" inputmode="text"  mode="md" errorText="Nom invalide" label-placement="floating" fill="outline" placeholder="Tapez le numero de cni" id="cni" formControlName="cni" ></ion-input> -->
+      <!-- <ion-input label="Télephone" inputmode="numeric"  mode="md" errorText="Nom invalide" label-placement="floating" fill="outline" placeholder="Tapez le numero de téléphone" id="phone1" formControlName="phone1" ></ion-input> -->
+      <!-- <ion-input label="Adresse" inputmode="text" mode="md" errorText="Nom invalide" label-placement="floating" fill="outline" placeholder="Tapez l'adresse" id="adresse" formControlName="adresse" ></ion-input> -->
+      <!-- <ion-input label="Nom*"  inputmode="text" mode="md" errorText="Nom invalide" label-placement="floating" fill="outline" placeholder="Tapez le nom du employe" id="nom" formControlName="nom" required></ion-input> -->
+    </div>
+    
+    <!-- <ion-button type="button" (click)="addAttachments()" class="btn btn-primary">Pieces Jointes</ion-button> -->
+    <div style="height: 300px; overflow-y: hidden;" class="img-view">
+      <!-- <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px;align-items: center;justify-content: center;" class="img-view"> -->
+      <div *ngIf="!(photos.length)" (click)="addAttachments()" class="placeholder" style="position: absolute;left: 50%;transform: translateX(-50%); width: 300px;">
+        <ion-icon name="camera" ></ion-icon>
+        <ion-label>Pieces jointes</ion-label>
+      </div>
+      <app-images *ngFor="let url of photos" [url]="url" (emitDeleteEvent)="removeImagetoDisplayingImages(url.webPath ||  url?.data)"></app-images>
+    </div>
+    <ion-button type="submit" expand="block" mode="ios" class="btn " style="margin-top: 25px;">{{action == "update" ? 'Modifier' : 'Ajouter'}}</ion-button>
+  </form>
 </ion-content>
 

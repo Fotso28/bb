@@ -1,0 +1,145 @@
+<ion-content [fullscreen]="true" class="">
+  <ion-toolbar>
+    <div class="d-flex" routerLink="/">
+      <div class="img ion-activatable">
+        <img src="assets/icon/back-button.png" class="back-btn" alt="">
+        <ion-ripple-effect class="ripple"></ion-ripple-effect>
+      </div>
+      <ion-title>Ristourne</ion-title>
+    </div>
+  </ion-toolbar>
+  <div >
+    <div class="pv"><app-point-vente (pointVenteEvent)="pointVenteChange($event)"></app-point-vente></div>
+    <div class="border-padding">
+      <div class="card ion-activatable ripple-parent" id="fournisseur" style="padding: 3px 15px;">
+        <ion-grid>
+          <ion-row *ngIf="activeFournisseur">
+            <ion-col size="10">
+              <div class="name">
+                <ion-label>Fournisseur</ion-label>
+                <h5>{{activeFournisseur.nom}}</h5>
+              </div>
+            </ion-col>
+            <ion-col class="icon" size="2">
+              <ion-icon name="chevron-down-outline" style="color: var(--ion-color-secondary-shade)"></ion-icon>
+            </ion-col>
+          </ion-row>
+        </ion-grid>
+        <ion-ripple-effect class="ripple"></ion-ripple-effect>
+      </div>
+    </div>
+    <ion-datetime-button style="display: none" datetime="datetimedebut"></ion-datetime-button>
+    <ion-modal #datedebut [keepContentsMounted]="true">
+      <ng-template>
+        <ion-datetime  mode="ios" id="datetimedebut" [max]="end" presentation="date" (ionChange)="getNewDate($event, 'debut')"
+          [showDefaultButtons]="true" doneText="Ok" cancelText="Annuler">
+        </ion-datetime>
+      </ng-template>
+    </ion-modal>
+    <ion-datetime-button style="display: none" datetime="datetimefin"></ion-datetime-button>
+    <ion-modal #datefin [keepContentsMounted]="true">
+      <ng-template>
+        <ion-datetime  mode="ios" id="datetimefin" [min]="debut" presentation="date" (ionChange)="getNewDate($event, 'fin')"
+          [showDefaultButtons]="true" doneText="Ok" cancelText="Annuler">
+        </ion-datetime>
+      </ng-template>
+    </ion-modal>
+    <ion-grid>
+      <ion-row>
+        <ion-col size="6">
+          <div class="card ion-activatable ripple-parent date" (click)="openDateModal('debut')">
+            <!-- <ion-note></ion-note> -->
+            <div class="date-value">
+              <div class="icon">
+                <ion-icon name="calendar-clear-outline" style="color: var(--ion-color-secondary-shade)"></ion-icon>
+                <div class="day" *ngIf="debut">
+                  <span>{{getDay(debut)}}</span>
+                </div>
+              </div>
+              <div style="display: flex;flex-direction: column;padding-left: 3px;">
+                <span style="font-weight: 600;">Debut</span>
+                <ion-label *ngIf="debut">{{getDate(debut)}}</ion-label>
+              </div>
+            </div>
+            <ion-ripple-effect class="ripple"></ion-ripple-effect>
+          </div>
+        </ion-col>
+        <ion-col size="6">
+          <div class="card ion-activatable ripple-parent date" (click)="openDateModal('fin')">
+            
+            <div class="date-value">
+              <div class="icon">
+                <ion-icon name="calendar-clear" style="color: var(--ion-color-secondary-shade)"></ion-icon>
+                <div class="day" style="color: #fff" *ngIf="end">{{getDay(end)}}</div>
+              </div>
+              <div style="display: flex;flex-direction: column; padding-left: 3px;">
+                <span style="font-weight: 600;">Debut</span>
+                <ion-label *ngIf="end">{{getDate(end)}}</ion-label>
+              </div>
+            </div>
+            <ion-ripple-effect class="ripple"></ion-ripple-effect>
+          </div>
+        </ion-col>
+      </ion-row>
+    </ion-grid>
+
+    <div class="card ristourne border-padding" style="padding: 8px 3px">
+      <div class="date-setting somme">
+        <ion-grid>
+          <ion-row>
+            <ion-col size="10">
+              <h4>Ristourne</h4>
+              <div>
+                <span class="price" style="color: var(--ion-color-secondary-shade)">{{ristourne}}</span>
+              </div>
+            </ion-col>
+            <ion-col size="2">
+              <div class="icon" style="align-items: flex-end;">
+                <img src="assets/icon/sales-performance-balance.png" alt="">
+                <!-- <ion-icon name="logo-euro" style="color: var(--ion-color-secondary-shade)"></ion-icon> -->
+              </div>
+            </ion-col>
+          </ion-row>
+        </ion-grid>
+      </div>
+    </div>
+    <div class="table" *ngIf="ravitaillements.length">
+      <h5 style="padding-left: 15px; margin: 15px 0 0;">Liste des ravitaillements</h5>
+      <ion-grid  class="border-padding">
+        <ion-row>
+          <ion-col size="5" class=""><h5>Intitulé</h5></ion-col>
+          <ion-col size="3" class=""><h5 style="text-align: right; width: 100%;">Qté</h5></ion-col>
+          <ion-col size="4" class=""><h5 style="text-align: right; width: 100%;">Ristourne</h5></ion-col>
+        </ion-row>
+        <ion-row *ngFor="let rav of ravitaillements" (click)="ViewDetails(rav)">
+          <ion-col size="5" class=""><h5>{{getDate(rav.date!)}}</h5></ion-col>
+          <ion-col size="3" class="">{{rav.qte}}</ion-col>
+          <ion-col size="4" class="">{{rav.ristourne}}</ion-col>
+        </ion-row>
+      </ion-grid>
+    </div>
+  </div>
+
+<ion-modal mode="ios"  #modal trigger="fournisseur"  [initialBreakpoint]="0.6" [breakpoints]="[0, 0.6, 0.8]" >
+  <ng-template>
+    <ion-content>
+      <div style="display: flex; justify-content: flex-end; padding-top: 10px; padding-right: 10px;">
+        <small style="color: var(--ion-color-danger)" (click)="modal.dismiss()">Fermer</small>
+      </div>
+      <small style="text-align: center; display: block;">Liste des fournisseurs</small>
+      <ion-list>
+        <ion-item *ngFor="let fournisseur of fournisseurs" (click)="fournisseurSelected(fournisseur)">
+          <ion-avatar slot="start">
+            <ion-img [src]="fournisseur.photo! || 'assets/icon/person.png'"></ion-img>
+          </ion-avatar>
+          <ion-label>
+            <h2>{{fournisseur.nom}}</h2>
+            <p>Sales Rep</p>
+          </ion-label>
+        </ion-item>
+      </ion-list>
+    </ion-content>
+  </ng-template>
+</ion-modal>
+
+

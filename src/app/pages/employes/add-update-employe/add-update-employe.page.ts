@@ -4,7 +4,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { GalleryPhoto, GalleryPhotos, Photo } from '@capacitor/camera';
 import { ReadFileResult } from '@capacitor/filesystem';
 import { IonInput, ToastController } from '@ionic/angular';
-import { resetForm } from 'src/app/_lib/lib';
+import { resetForm, showToast } from 'src/app/_lib/lib';
 import { Employe } from 'src/app/models/Employes';
 import { CameraService } from 'src/app/services/camera.service';
 import { EmployeService } from 'src/app/services/employe.service';
@@ -34,6 +34,7 @@ export class AddUpdateEmployePage implements OnInit {
   }
 
   async initForm() {
+    console.log(this.employe);
     if(this.action == "update"){
       console.log("update")
       this.employeForm = this.formBuilder.group({
@@ -63,7 +64,7 @@ export class AddUpdateEmployePage implements OnInit {
     this.employeForm = this.formBuilder.group({
         nom: ["", Validators.required],
         adresse: [""],
-        phone1: [""],
+        phone1: ["", Validators.required],
         cni: [""],
         photo: [""],
     });
@@ -74,7 +75,7 @@ export class AddUpdateEmployePage implements OnInit {
   async submit() {
 
     if(this.employeForm.invalid) {
-      this.showToast("Remplissez les champ!");
+      showToast("Remplissez les champ!", 'danger');
       return;
     }
 
@@ -91,24 +92,23 @@ export class AddUpdateEmployePage implements OnInit {
       console.log("update")
       newEmploye.id = this.employe.id;
       newEmploye.deletedAt = this.employe.deletedAt;
-
       this.employeSvc.update(newEmploye).then((val)=>{
         if(val){
-          this.showToast("element mis à jour")
+          showToast("element mis à jour")
           resetForm(this.employeForm);
           this.router.navigateByUrl("/employe")
         }
-      }).catch((error)=> this.showToast("Veuillez réessayer"));
+      }).catch((error)=> showToast("Veuillez réessayer", "danger"));
 
     }else{
 
       this.employeSvc.create(newEmploye).then((val)=>{
         if(val){
-          this.showToast("Nouveau element créer")
+          showToast("Nouveau element créer")
           resetForm(this.employeForm);
           this.router.navigateByUrl("/employe")
         }
-      }).catch((error)=> this.showToast("Veuillez réessayer"));
+      }).catch((error)=> showToast("Veuillez réessayer", 'danger'));
 
     }
     // Vous pouvez ajouter ici la logique pour ajouter la employe à votre application
@@ -119,18 +119,6 @@ export class AddUpdateEmployePage implements OnInit {
     const employeModifiee = new Employe(formData.nom, formData.description, formData.deletedAt, formData.id);
 
     // Vous pouvez ajouter ici la logique pour modifier la employe dans votre application
-  }
-
-  async showToast(message: string){
-    let toast = await this.toast.create({
-      message: message,
-      duration: 2000,
-      position: "bottom",
-      icon: "home",
-      mode: 'ios',
-      color: "danger",
-    });
-    await toast.present()
   }
 
   @ViewChild('ionInputEl', { static: true }) ionInputEl!: IonInput;
@@ -156,8 +144,15 @@ export class AddUpdateEmployePage implements OnInit {
    */
   addAttachments(): void{
     this.cameraSvc.pickImages().then((galleryPhotos: GalleryPhotos)=>{
-      this.photos.push(...galleryPhotos.photos)
-    })
+      this.photos.push(...galleryPhotos.photos);
+      console.log(this.photos);
+    });
+
+    // Vérification et ajustement si la taille dépasse 3
+    if (this.photos.length > 3) {
+      this.photos = this.photos.slice(0, 3);
+      showToast("Maximum 3 images depassé");
+    }
   }
 
   /**
@@ -165,9 +160,10 @@ export class AddUpdateEmployePage implements OnInit {
    * @param url Photo url
    */
   removeImagetoDisplayingImages(url:string|undefined):void{
-    console.log('photos', this.photos)
-    console.log('url', url)
-    this.photos = this.photos.filter((filterdUrl: any) => (filterdUrl.webPath as string) != url && (filterdUrl.data as string) != url); 
+    this.photos = this.photos.filter((filterdUrl: any) => (filterdUrl.webPath as string) != url && (filterdUrl.data as string) != url);
+    if(!this.photos.length){
+      this.employeForm.value.photo = JSON.stringify([]);
+    }
   }
 
   async savePhotos(){

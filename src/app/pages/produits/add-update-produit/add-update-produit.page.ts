@@ -2,9 +2,9 @@ import { Component, OnInit, ViewChild, numberAttribute } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ReadFileResult } from '@capacitor/filesystem';
-import { IonInput, ToastController } from '@ionic/angular';
+import { ActionSheetController, AlertController, IonInput, IonSelect, ToastController } from '@ionic/angular';
 import { MIN_QTY_LENGHT } from 'src/app/_lib/const';
-import { resetForm, showToast } from 'src/app/_lib/lib';
+import { resetForm, showToast, trimAndParseInt } from 'src/app/_lib/lib';
 import { Casier } from 'src/app/models/Casiers';
 import { Categorie } from 'src/app/models/Categories';
 import { Famille } from 'src/app/models/Familles';
@@ -26,6 +26,11 @@ import { UserService } from 'src/app/services/user.service';
 })
 export class AddUpdateProduitPage implements OnInit {
 
+  @ViewChild("categorieElt", { static: false }) categorieElt! : IonSelect;
+  @ViewChild("fournisseurElt", { static: false }) fournisseurElt! : IonSelect;
+  @ViewChild("familleElt", { static: false }) familleElt! : IonSelect;
+  @ViewChild("casierElt", { static: false }) casierElt! : IonSelect;
+
   produitForm!: FormGroup;
   produit!: Produit;
   produit_img_data!: string;
@@ -45,7 +50,8 @@ export class AddUpdateProduitPage implements OnInit {
     private categorieSvc: CategorieService,
     private casierSvc: CasierService,
     private cameraSvc: CameraService,
-    private userSvc: UserService,
+    private alertController: AlertController,
+    private actionSheetCtrl: ActionSheetController,
     private router: Router) { }
 
   async ngOnInit() {
@@ -62,14 +68,15 @@ export class AddUpdateProduitPage implements OnInit {
     this.produit = this.produitSvc.initProduitValues(memo);
 
     
-    console.log(this.image?.photo.webPath);
-    if(this.produit.imgLink){
-      this.readImage(this.produit.imgLink!).then((val:string) =>{
-        this.produit_img_data = val;
-      });
-    }
     this.action = this.route.snapshot.paramMap.get('action') as 'update' | 'add';
     this.initForm();
+    if(this.produit.imgLink){
+      console.log(this.produit.imgLink);
+      if(/\.jpeg$/.test(this.produit.imgLink) && !/assets\/product-img\//.test(this.produit.imgLink)){
+        this.produit.imgLink = await this.readImage(this.produit.imgLink!)
+      }
+      this.produit_img_data = this.produit.imgLink;
+    }
 
     this.familles = await this.produitSvc.getFamilles();
     // if(this.familles.length < 1){
@@ -103,6 +110,10 @@ export class AddUpdateProduitPage implements OnInit {
     //   showToast('Veuillez paramétrer les fournisseurs');
     //   return;
     // }
+
+    console.log(this.produit)
+
+    this.displayOnModal(this.produit.id_categorie, this.produit.id_casier, this.produit.id_famille,this.produit._fournisseurs_ids)
     
   }
 
@@ -110,20 +121,19 @@ export class AddUpdateProduitPage implements OnInit {
       // console.log("update")
     this.produitForm = this.formBuilder.group({
       nom: [this.produit.nom || "", Validators.required],
-      prixA: [this.produit.prixA || 0, Validators.required],
-      prixV: [this.produit.prixV || 0, Validators.required],
-      nbreBtleParCasier: [this.produit.nbreBtleParCasier ||  0, [Validators.required, Validators.min, Validators.max]],
-      ristourne: [this.produit.ristourne || 0, [Validators.required, Validators.min, Validators.max]],
+      prixA: [this.produit.prixA?.toString() || '0', [Validators.required, Validators.min(1), Validators.pattern(/^[0-9\s]+$/)]],
+      prixV: [this.produit.prixV?.toString() || '0', [Validators.required, Validators.min(1), Validators.pattern(/^[0-9\s]+$/)]],
+      nbreBtleParCasier: [this.produit.nbreBtleParCasier?.toString() ||  '0', [Validators.required, Validators.min(1), Validators.pattern(/^[0-9\s]+$/)]],
+      ristourne: [this.produit.ristourne?.toString() || '0', [Validators.required, Validators.min(0), Validators.pattern(/^[0-9\s]+$/)]],
       id_categorie: [this.produit.id_categorie || "", Validators.required],
       id_famille: [this.produit.id_famille || "", Validators.required],
       id_casier: [this.produit.id_casier || "", Validators.required],
       _fournisseurs_ids: [this.produit._fournisseurs_ids || "", Validators.required],
       upload: [this.produit.upload || ""],
       imgLink: [this.produit.imgLink || ""],
-      hasCasier: [!!this.produit.hasCasier || false, Validators.required]
+      hasCasier: [this.produit.hasCasier == undefined ? true : this.produit.hasCasier, Validators.required]
     });
     console.log(this.produit._fournisseurs_ids)
-
   }
 
   // initProduitValues(memo:any): Produit{
@@ -147,16 +157,23 @@ export class AddUpdateProduitPage implements OnInit {
   // }
 
   async submit() {
-    // console.log(this.produitForm.value); return;
+    console.log(this.action)
     if(this.produitForm.invalid) {
-      this.showToast("Remplissez les champ!");
+      this.produitForm.markAllAsTouched();
+      showToast("Remplissez les champ!", 'danger');
       return;
     }
 
     console.log(this.produitForm.value); 
 
     const formData = this.produitForm.value;
-
+    
+    
+    formData.prixA = trimAndParseInt(formData.prixA);
+    formData.prixV = trimAndParseInt(formData.prixV);
+    formData.ristourne = trimAndParseInt(formData.ristourne);
+    formData.nbreBtleParCasier = trimAndParseInt(formData.nbreBtleParCasier);
+    console.log(formData); 
     let fournisseurAsTable: {id: number, nom: string}[] = [];
 
     // convert a list of id founisseur to a list of (id and nom)
@@ -171,38 +188,41 @@ export class AddUpdateProduitPage implements OnInit {
 
     formData._fournisseurs_ids = fournisseurAsTable;
 
+    
+
     let newProduit : Produit = this.produitSvc.initProduitValues(formData);
 
     console.log('le new produit est : ',newProduit)
-
     if(this.image){
-      let imgIsSaved = await this.saveImage(this.image);
-      newProduit.imgLink = imgIsSaved?.filepath;
+        console.log(this.image, 'je suis entree')
+        let imgIsSaved = await this.saveImage(this.image);
+        newProduit.imgLink = imgIsSaved?.filepath;
     }
+    // return;
     // console.log(newProduit); return;
     if(this.action === "update"){
-      console.log("update")
-      newProduit.id = this.produit.id;
-      newProduit.deletedAt = this.produit.deletedAt;
+        console.log("update")
+        newProduit.id = this.produit.id;
+        newProduit.deletedAt = this.produit.deletedAt;
 
       this.produitSvc.update(newProduit).then((val: any)=>{
         console.log(val)
         if(val){
-          this.showToast("effectué")
+          showToast("effectué")
           resetForm(this.produitForm);
           this.router.navigateByUrl("/produit")
         }
-      }).catch((error:any)=> this.showToast("Veuillez réessayer"));
+      }).catch((error:any)=> showToast("Veuillez réessayer", 'danger'));
 
     }else{
 
       this.produitSvc.create(newProduit).then((val)=>{
         if(val){
-          this.showToast("Nouveau element créer")
+          showToast("Nouveau element créer")
           resetForm(this.produitForm);
           this.router.navigateByUrl("/produit")
         }
-      }).catch((error:any)=> this.showToast("Veuillez réessayer"));
+      }).catch((error:any)=> showToast("Veuillez réessayer", 'danger'));
 
     }
     // Vous pouvez ajouter ici la logique pour ajouter la produit à votre application
@@ -215,17 +235,7 @@ export class AddUpdateProduitPage implements OnInit {
     // Vous pouvez ajouter ici la logique pour modifier la Produit dans votre application
   }
 
-  async showToast(message: string){
-    let toast = await this.toast.create({
-      message: message,
-      duration: 2000,
-      position: "bottom",
-      icon: "home",
-      mode: 'ios',
-      color: "danger",
-    });
-    await toast.present()
-  }
+
 
   @ViewChild('ionInputEl', { static: true }) ionInputEl!: IonInput;
   filteredNumber(ev:any){
@@ -298,11 +308,192 @@ export class AddUpdateProduitPage implements OnInit {
   }
 
   async readImage(imageName: string):Promise<string>{
-    let image: ReadFileResult = await this.cameraSvc.readPhoto(imageName);
-    return 'data:image/jpeg;base64,'+image.data as string || '' 
+    if(imageName){
+      let image: ReadFileResult = await this.cameraSvc.readPhoto(imageName);
+      return 'data:image/jpeg;base64,'+image.data as string || '' 
+    }
+    return '';
+  }
+
+  async removeImage(){
+    let role = await this.confirm();
+    if(role == "confirm"){
+        this.image = null;
+        this.produit_img_data = "";
+        this.produit.imgLink = "";
+        this.produitForm.patchValue({imgLink: ""})
+    }
+  }
+
+  openModal(modalType: "fournisseur"| "famille" | "casier" | "categorie"){
+    
+    if(modalType == 'fournisseur'){
+      if(this.fournisseurs.length){
+        this.fournisseurElt.open();
+        return;
+      }else{
+        this.presentAlert("/add-update-fournisseur/add", "Aucun fournisseur de produit n'a été crée!", "Créer un Fournisseur")
+      }
+    }
+
+    if(modalType == 'famille'){
+      if(this.familles.length){
+        this.familleElt.open();
+        return;
+      }else{
+        this.presentAlert("/add-update-famille/add", "Aucune famille de produit n'a été crée!", "Créer une Famille")
+      }
+    }
+
+    if(modalType == 'casier'){
+      
+      if(this.casiers.length){
+        this.casierElt.open();
+        return;
+      }else{
+        this.presentAlert("/add-update-casier/add", "Aucun Type de casier n'a été crée!", "Créer Casier")
+      }
+    }
+
+    if(modalType == 'categorie'){
+      if(this.categories.length){
+        this.categorieElt.open();
+        return;
+      }else{
+        this.presentAlert("/add-update-categorie/add/produit", "Aucune catégorie n'a été créee!", "Créer Catégorie")
+      }
+    }
+  }
+
+  // juste pour afficher les modals
+  categorie: any;
+  fournisseur: any = [];
+  casier: any;
+  famille: any;
+  valueChange(event: Event, modalType: "fournisseur"| "famille" | "casier" | "categorie"){
+    
+    if(modalType == "categorie"){
+      let _categorie = this.categories.filter((cat:Categorie) => cat.id == (event as CustomEvent).detail.value) ;
+      if(_categorie.length){
+        this.categorie = _categorie[0];
+      }
+    }
+
+    if(modalType == "fournisseur"){
+      let _fournisseur = this.fournisseurs.filter((fournisseur:Fournisseur) => (event as CustomEvent).detail.value.includes(fournisseur.id)) ;
+      if(_fournisseur.length){
+        this.fournisseur = _fournisseur;
+      }
+    }
+
+    if(modalType == "casier"){
+      let _casier = this.casiers.filter((casier:Casier) => casier.id == (event as CustomEvent).detail.value) ;
+      if(_casier.length){
+        this.casier = _casier[0];
+      }
+    }
+
+    if(modalType == "famille"){
+      let _famille = this.familles.filter((famille:Famille) => famille.id == (event as CustomEvent).detail.value) ;
+      if(_famille.length){
+        this.famille = _famille[0];
+      }
+    }
+  }
+
+  displayOnModal(id_categorie: any, id_casier: any, id_famille: any, _fournisseurs_ids: Array<any>){
+    console.warn(this.categories, id_categorie)
+    if(id_categorie){
+      let _categorie = this.categories.filter((cat:Categorie) => cat.id == id_categorie) ;
+      if(_categorie.length){
+        this.categorie = _categorie[0];
+      }
+    }
+    // else{
+    //   if(this.categories.length){
+    //     this.categorie = this.categories[0];
+    //   }
+    // }
+    console.log(this.categorie)
+    if(_fournisseurs_ids.length){
+      let _fournisseur = this.fournisseurs.filter((fournisseur:Fournisseur) => _fournisseurs_ids.includes(fournisseur.id!)) ;
+      if(_fournisseur.length){
+        this.fournisseur = _fournisseur;
+      }
+    }
+    // else{
+    //   if(this.fournisseurs.length){
+    //     this.fournisseur = this.fournisseurs[0];
+    //     console.warn(this.fournisseurs)
+    //   }
+    // }
+
+    if(id_casier){
+      let _casier = this.casiers.filter((casier:Casier) => casier.id == id_casier) ;
+      if(_casier.length){
+        this.casier = _casier[0];
+      }
+    }
+    // else{
+    //   if(this.casiers.length){
+    //     this.casier = this.casiers[0];
+    //   }
+    // }
+
+    if(id_famille){
+      let _famille = this.familles.filter((famille:Famille) => famille.id == id_famille) ;
+      if(_famille.length){
+        this.famille = _famille[0];
+      }
+    }
+    // else{
+    //   if(this.familles.length){
+    //     this.famille = this.familles[0];
+    //   }
+    // }
+  }
+
+  async presentAlert(endpoint: string, message: string, subHeader: string ="", header: string = "") {
+    const alert = await this.alertController.create({
+      header,
+      subHeader,
+      message,
+      mode: "ios",
+      buttons: [
+        {
+          text: 'Créer',
+          handler: () => {
+            this.router.navigateByUrl(endpoint);
+          }
+        }
+      ]
+    });
+
+    await alert.present();
+  }
+
+  async confirm(){
+
+    const actionSheet = await this.actionSheetCtrl.create({
+      header: 'Voulez vous supprimer cet image ?',
+      mode: 'ios',
+      buttons: [
+        {
+          text: 'Oui',
+          role: 'confirm',
+        },
+        {
+          text: 'Non',
+          role: 'cancel',
+        },
+      ],
+    });
+
+    actionSheet.present();
+
+    const { role } = await actionSheet.onWillDismiss();
+
+    return role;
   }
 
 }
-
-
-

@@ -1,8 +1,9 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
-import { IonInput, NavController, ToastController } from '@ionic/angular';
-import { resetForm, showToast } from 'src/app/_lib/lib';
+import { IonInput } from '@ionic/angular';
+import { ALPHA_NUMERIC } from 'src/app/_lib/const';
+import { showToast, trimAndParseInt } from 'src/app/_lib/lib';
 import { Casier } from 'src/app/models/Casiers';
 import { Produit } from 'src/app/models/Produits';
 import { ProduitsRavitailles } from 'src/app/models/ProduitsRavitailles';
@@ -49,14 +50,25 @@ export class AddProduitPage implements OnInit {
     console.log(this.produit)
     this.produitForm = this.formBuilder.group({
       nom_produit:  [this.produit.nom,    Validators.required],
-      qte_casier:   [this.produit.qte_btle ? Math.floor(this.produit.qte_btle / this.produit.nbreBtleParCasier) : 0,    [Validators.required]],
-      qte_btle_sup: [this.produit.qte_btle ? this.produit.qte_btle % this.produit.nbreBtleParCasier : 0],
+      qte_casier:   [this.produit.qte_btle ? Math.floor(this.produit.qte_btle / this.produit.nbreBtleParCasier).toString() : '0',    [Validators.required, Validators.min(1), Validators.pattern(ALPHA_NUMERIC)]],
+      qte_btle_sup: [this.produit.qte_btle ? (this.produit.qte_btle % this.produit.nbreBtleParCasier).toString() : '0'],
     });
   }
 
 
 
   addUpdateProduitToRavitaillement(){
+    
+      if(this.produitForm.invalid){
+        this.produitForm.markAllAsTouched();
+        showToast("Remplissez tous les champs");
+        return;
+      }
+
+      if(!this.produitForm.value.qte_casier || this.produitForm.value.qte_casier < 1){
+        showToast("Quantité incorrect");
+        return;
+      }
 
       if(!this.produit.id){
         showToast('Produit non defini')
@@ -92,10 +104,11 @@ export class AddProduitPage implements OnInit {
       );
 
       produitRavitaille.ristourne = this.produit.ristourne;
-      produitRavitaille.qte_btle = parseInt(this.produitForm.value.qte_casier, 10) * (+this.produit.nbreBtleParCasier) + parseInt(this.produitForm.value.qte_btle_sup, 10);
+      produitRavitaille.qte_btle = trimAndParseInt(this.produitForm.value.qte_casier) * (+this.produit.nbreBtleParCasier) + trimAndParseInt(this.produitForm.value.qte_btle_sup);
       produitRavitaille.famille = this.produit.famille;
       produitRavitaille.categorie = this.produit.categorie;
-      // console.log(produitRavitaille);
+      produitRavitaille.hasCasier = this.produit.hasCasier;
+      produitRavitaille.imgLink = this.produit.imgLink;
       
       this.ravitaillementSvc.setlisteProduitsRavitailles(produitRavitaille);
       this.router.navigateByUrl("/ravitaillement-produit-step")

@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { PointVente } from '../models/PointVentes';
 import { BdService } from './-bd.service';
 import { BehaviorSubject } from 'rxjs';
+import { DBSQLiteValues } from '@capacitor-community/sqlite';
 
 @Injectable({
   providedIn: 'root'
@@ -13,7 +14,7 @@ export class PointVenteService {
 
     constructor(private bdSvc: BdService){}
     
-    async create(item: PointVente): Promise<boolean> {
+    async create(item: PointVente): Promise<boolean | DBSQLiteValues> {
       try {
           let itemsIsReaded = await this.bdSvc.create(item);
           if(itemsIsReaded) this.getAll();
@@ -26,7 +27,7 @@ export class PointVenteService {
   
     async read(id: number): Promise<boolean> {
       try {
-        let itemIsReaded: boolean = await this.bdSvc.read('Famille',id);
+        let itemIsReaded: boolean = await this.bdSvc.read('PointVente',id);
         if(itemIsReaded) this.getAll();
         return itemIsReaded;
       } catch (error) {

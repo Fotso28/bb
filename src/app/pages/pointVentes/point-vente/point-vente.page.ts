@@ -14,7 +14,7 @@ export class PointVentePage implements OnInit {
 
   pointVentes : PointVente[] = [];
   constructor(
-    private pointVenteSvc: PointVenteService,
+    public pointVenteSvc: PointVenteService,
     private actionSheetCtrl: ActionSheetController,
      private router: Router) {}
 
@@ -74,5 +74,4 @@ export class PointVentePage implements OnInit {
   gotoFamilleDetail(pointVente:PointVente){
     this.router.navigateByUrl("/add-update-point-vente/update", {state: pointVente});
   }
-
 }

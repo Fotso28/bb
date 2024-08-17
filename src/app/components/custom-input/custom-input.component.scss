@@ -18,19 +18,7 @@
     }
 
 }
-input{
-    border: 1px solid blue;
-    border-radius: 10px;
-    z-index: 1;
-    width: 100%;
-    padding-left: 8px;
-    padding-right: 10px;
-    height: 32px;
-    outline: none;
-}
-input[type='number']{
-    text-align: right;
-}
+
 ion-col.center{
     display: flex;
     align-items: center;
@@ -41,4 +29,7 @@ ion-col.center{
 }
 .ng-invalid{
     border: 1px solid rgb(159, 1, 1);
+}
+.input{
+    margin-bottom: 0;
 }

@@ -1,0 +1,21 @@
+<ion-header [translucent]="true" mode="md" class="no-shadow">
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-back-button></ion-back-button>
+    </ion-buttons>
+    <ion-title class="ion-text-center">Faire une sauvegarde</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true" class="ion-padding ">
+  <div class="ion-text-center" style="margin-top: 60px;">
+    <img src="assets/icon-background.png" style="max-width: 250px; width: 150px;border-radius: 8px;" alt="">
+  </div>
+  <h3 style="margin-top: 30px; text-align: center;padding-bottom: 40px;">Veuillez patienter</h3>
+  <div class="flex" >
+    <ion-icon class="icon" name="server-outline"></ion-icon>
+    <ion-progress-bar class="progress" [buffer]="imageBuffer" [value]="databaseBuffer"></ion-progress-bar>
+    <ion-icon class="icon" name="cloud-upload-outline" style="flex-basis: 20%;font-size: 60px;"></ion-icon>
+  </div>
+  <div style="text-align: center;"><small>{{info}}</small></div>
+</ion-content>

@@ -1,6 +1,6 @@
 <div style="position: relative;">
   <img style="width: 100%" [src]="url.webPath || 'data:image/jpeg;base64,' + url.data" alt="">
   <div (click)="removeImagetoDisplayingImagesEvent(url.webPath ||  url.data)" style="position: absolute;top:0px; right: 0px; color: red; background-color: #fff;width: 30px;height: 30px; display: flex;justify-content: center; align-items: center; border-bottom-left-radius: 50%; border: 1px solid #ccc">
-    <ion-icon name="close">close</ion-icon>
+    <ion-icon name="close" color="danger">close</ion-icon>
   </div> 
 </div>

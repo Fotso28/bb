@@ -1,19 +1,55 @@
-<ion-header [translucent]="true">
+<ion-header [translucent]="true" mode="md" class="no-shadow">
   <ion-toolbar>
     <ion-buttons slot="start">
       <ion-back-button></ion-back-button>
     </ion-buttons>
-    <ion-title>Avaris</ion-title>
+    <ion-title class="ion-text-center">Etape 2/4</ion-title>
   </ion-toolbar>
 </ion-header>
 <ion-content [fullscreen]="true" class="ion-padding">
   <form [formGroup]="produitForm" >
-    <div>
-      <ion-input id="nom_produit"   formControlName="nom_produit"   label="Nom du produit *"                          readonly inputmode="text"     placeholder="Nom du produit"    mode="md" label-placement="floating" fill="outline"  required></ion-input>
-      <ion-input id="qte_casier" appNumberInput   formControlName="qte_casier"    label="Nombre de Casier *"  inputmode="numeric"   placeholder="Nom du produit"  mode="md"                                 label-placement="floating" fill="outline"  required></ion-input>
-      <ion-input id="qte_btle_sup"  formControlName="qte_btle_sup"  label="Quantité de bouteilles Supplementaires *"  inputmode="numeric"           placeholder="Tapez le nombre de bouteilles supplementaires" value="0" mode="md" errorText="Nom invalide" label-placement="floating" fill="outline"></ion-input>
+
+    <ion-card class=" select d-block mb15"  id="nom" mode="ios">
+      <ion-card-header>Nom du produit *</ion-card-header>
+      <ion-card-content>
+        <div>
+          <ion-label *ngIf="produitElt.value">{{produitElt.value}}</ion-label>
+          <!-- <ion-icon name="chevron-down-outline" style="color: var(--ion-color-primary);"></ion-icon> -->
+        </div>
+      </ion-card-content>
+      <!-- <ion-ripple-effect style="color: var(--ion-color-primary);"></ion-ripple-effect> -->
+    </ion-card>
+
+    <div class="input">
+      <ion-label>Nombre de Casier *</ion-label>
+      <input appInputMomeyFormat type="tel" formControlName="qte_casier" placeholder="Nombre de casiers entrés" />
+      <div *ngIf="produitForm.get('qte_casier')?.touched && produitForm.get('qte_casier')?.invalid">
+        <div *ngIf="produitForm.controls['qte_casier'].errors && produitForm.controls['qte_casier'].errors['required']" class="error-message">
+          <small>Valeur Requise.</small>
+        </div>
+        <div *ngIf="produitForm.controls['qte_casier'].errors && produitForm.controls['qte_casier'].errors['min']" class="error-message">
+          <small>Minimum 1</small>
+        </div>
+        <div *ngIf="!(produitForm.controls['qte_casier'].errors && produitForm.controls['qte_casier'].errors['min']) && produitForm.controls['qte_casier'].errors && produitForm.controls['qte_casier'].errors['pattern']" class="error-message">
+          <small>Un nombre entier SVP...</small>
+        </div>
+      </div>
     </div>
-    <ion-button type="submit" (click)="addUpdateProduitToRavitaillement()" class="btn btn-primary">Ajouter Produit</ion-button>
+
+    <!-- <div class="input">
+      <ion-label>Quantité de bouteilles Supplementaires *</ion-label>
+      <input appInputMomeyFormat type="tel" formControlName="qte_btle_sup" placeholder="Tapez le nombre de bouteilles supplementaires" />
+      <div *ngIf="produitForm.controls['qte_btle_sup'].errors && produitForm.controls['qte_btle_sup'].errors['required']" class="error-message">
+        <small>Valeur Requise.</small>
+      </div>
+    </div> -->
+
+    <div>
+      <ion-input style="display: none;" #produitElt formControlName="nom_produit"></ion-input>
+      <!-- <ion-input id="qte_casier" appNumberInput formControlName="qte_casier" label="Nombre de Casier *" inputmode="numeric" placeholder="Nom du produit" mode="md"                                 label-placement="floating" fill="outline"  required></ion-input> -->
+      <!-- <ion-input id="qte_btle_sup"  formControlName="qte_btle_sup"  label=""  inputmode="numeric" value="0" mode="md" errorText="Nom invalide" label-placement="floating" fill="outline"></ion-input> -->
+    </div>
+    <ion-button type="submit" mode="ios" expand="block" (click)="addUpdateProduitToRavitaillement()" class="btn">Ajouter Produit</ion-button>
   </form>
 </ion-content>
 

@@ -13,9 +13,9 @@ export class ProduitService {
 
   produitSubject: BehaviorSubject<Produit[]> = new BehaviorSubject<Produit[]>([]);
 
-  constructor(private bdSvc: BdService, private userSvc: UserService){}
+  constructor(private bdSvc: BdService, private userSvc: UserService, ){}
   
-  async create(item: Produit): Promise<boolean> {
+  async create(item: Produit): Promise<boolean | DBSQLiteValues> {
     try {
         if(!item.user_id) throw new Error("None of the users are defined");
 
@@ -85,7 +85,7 @@ export class ProduitService {
   async getAll(): Promise<boolean> {
     try {
       let produits =  await this.bdSvc.readAll('Produit') as Array<Produit>;
-      if(produits.length){
+      if(produits && produits.length){
         this.produitSubject.next(produits);
       }
       return true;
@@ -95,10 +95,48 @@ export class ProduitService {
     }
   }
 
-  async getProduitRavitaillesList(): Promise<ProduitsRavitailles[]>{
-    let produitRavitailles:  DBSQLiteValues = await this.bdSvc.query("select Produit.id, Produit.qte as qte_btle,Produit.ristourne,Produit.nbreBtleParCasier, Produit.prixV, Produit.prixA, Produit.nom as nom, Categorie.nom as categorie, Famille.nom as famille from Produit inner join Categorie, Famille on Produit.id_categorie = Categorie.id AND Produit.id_famille = Famille.id");
+  async getProducts(): Promise<Produit[] | false> {
+    try {
+      return await this.bdSvc.readAll('Produit') as Array<Produit>;
+    } catch (error) {
+      console.log(error);
+      return false;
+    }
+  }
+
+  async getProduitRavitaillesList(nom_fournisseur: string = ""): Promise<ProduitsRavitailles[]>{
+    try {
+
+      let user = this.userSvc.getActiveUser();
+      
+      if(!user){
+        throw new Error("Aucun utilisateur n'est defini");
+      }
+
+      let params = [user.id, `%${nom_fournisseur}%`];
+      // console.log("user est :", user.id)
+      // let params = [user.id];
+      let sql = `SELECT Produit.id, Produit.qte as qte_btle, Produit.ristourne,
+                    Produit.nbreBtleParCasier, Produit.prixV, Produit.prixA, Produit.imgLink ,
+                    Produit.nom as nom, Categorie.nom as categorie, Famille.nom as famille 
+                FROM Produit 
+                INNER JOIN Categorie, Famille 
+                ON Produit.id_categorie = Categorie.id AND Produit.id_famille = Famille.id
+                WHERE Produit.user_id = ? `;
+
+      if (nom_fournisseur) {
+        sql += ` AND Produit.fournisseurs LIKE ?`;
+      }else{
+        params.pop();
+      }
+      
+      let produitRavitailles:  DBSQLiteValues = await this.bdSvc.query(sql, false, params);
     
-    return produitRavitailles?.values as ProduitsRavitailles[];
+      return produitRavitailles?.values as ProduitsRavitailles[];
+    } catch (error) {
+      console.log(error);
+      return [];
+    }
   }
 
 
@@ -122,5 +160,22 @@ export class ProduitService {
     produit.user_id = this.userSvc.getActiveUser()?.id;
     console.log(produit)
     return produit;
+  }
+
+  async getProduitByName(name: Array<string>): Promise<DBSQLiteValues | false>{
+    try {
+      let param = "";
+      name.forEach((value: string, index: number)=>{
+        param += "'"+value+"'";
+        if(index < name.length-1){
+          param += ", "
+        }
+      })
+      let sql = `SELECT nom, id_casier, nbreBtleParCasier FROM Produit WHERE nom IN (${param})`;
+      console.log(sql)
+      return await this.bdSvc.query(sql);
+    } catch (error) {
+      return false;
+    }
   }
 }

@@ -7,13 +7,14 @@ import { IonicModule } from '@ionic/angular';
 import { RavitaillementProduitStepPageRoutingModule } from './ravitaillement-produit-step-routing.module';
 
 import { RavitaillementProduitStepPage } from './ravitaillement-produit-step.page';
+import { ComponentsModule } from 'src/app/components/components.module';
 
 @NgModule({
   imports: [
     CommonModule,
     FormsModule,
     IonicModule,
-    RavitaillementProduitStepPageRoutingModule
+    RavitaillementProduitStepPageRoutingModule, ComponentsModule
   ],
   declarations: [RavitaillementProduitStepPage]
 })

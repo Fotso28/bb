@@ -1,21 +1,58 @@
-<ion-header [translucent]="true">
+<ion-header [translucent]="true" mode="md" class="no-shadow">
   <ion-toolbar>
     <ion-buttons slot="start">
       <ion-back-button></ion-back-button>
     </ion-buttons>
-    <ion-title>Casier</ion-title>
+    <ion-title class="ion-text-center">{{action == "update" ? 'Modifier ' : 'Ajouter un '}} le Casier</ion-title>
   </ion-toolbar>
 </ion-header>
 
 <ion-content [fullscreen]="true" class="ion-padding">
   <form [formGroup]="casierForm" (ngSubmit)="submit()">
     <div>
-      <ion-input label="Nom*" mode="md" errorText="Nom invalide" label-placement="floating" fill="outline" placeholder="Tapez le nom du casier" id="nom" formControlName="nom" required></ion-input>
-  
-      <ion-input type="text" mode="md" label="element/casier" min="0" label-placement="floating" fill="outline" inputmode="numeric" (ionInput) ="filteredNumber($event)" placeholder="Tapez le nombre d'element par casier" formControlName="nbre_btle_par_casier" required></ion-input>
-      <ion-textarea type="text" mode="md" label="Description" label-placement="floating" fill="outline" inputmode="text"  placeholder="Tapez une description" formControlName="description"></ion-textarea>
+
+      <div class="input">
+        <ion-label>Nom *</ion-label>
+        <input type="text" formControlName="nom" placeholder="Entrez le nom du Point de vente" />
+        <div *ngIf="casierForm.get('nom')?.touched && casierForm.get('nom')?.invalid">
+          <div *ngIf="casierForm.controls['nom'].errors && casierForm.controls['nom'].errors['required']" class="error-message">
+            <small>Valeur Requise.</small>
+          </div>
+        </div>
+      </div>
+
+      <!-- <ion-input label="Nom*" mode="md" errorText="Nom invalide" label-placement="floating" fill="outline" placeholder="Tapez le nom du casier" id="nom" formControlName="nom" required></ion-input> -->
+      
+      <div class="input">
+        <ion-label>element/casier *</ion-label>
+        <input type="tel" appInputMomeyFormat formControlName="nbre_btle_par_casier" placeholder="Tapez le nombre d'element par casier" />
+        <div *ngIf="casierForm.get('nbre_btle_par_casier')?.touched && casierForm.get('nbre_btle_par_casier')?.invalid">
+          <div *ngIf="casierForm.controls['nbre_btle_par_casier'].errors && casierForm.controls['nbre_btle_par_casier'].errors['required']" class="error-message">
+            <small>Valeur Requise.</small>
+          </div>
+          <div *ngIf="(casierForm.controls['nbre_btle_par_casier'].errors && casierForm.controls['nbre_btle_par_casier'].errors['min'])" class="error-message">
+            <small>Minimum 1</small>
+          </div>
+          <div *ngIf="(casierForm.controls['nbre_btle_par_casier'].errors && casierForm.controls['nbre_btle_par_casier'].errors['pattern'])" class="error-message">
+            <small>Un nombre positif svp.</small>
+          </div>
+        </div>
+      </div>
+
+      <div class="input">
+        <ion-label>Description</ion-label>
+        <textarea type="text" formControlName="description" placeholder="Tapez une description"></textarea>
+        <div *ngIf="casierForm.get('description')?.touched && casierForm.get('description')?.invalid">
+          <div *ngIf="casierForm.controls['description'].errors && casierForm.controls['description'].errors['required']" class="error-message">
+            <small>Valeur Requise.</small>
+          </div>
+        </div>
+      </div>
+
+      <!-- <ion-textarea type="text" mode="md" label="Description" label-placement="floating" fill="outline" inputmode="text"  placeholder="Tapez une description" formControlName="description"></ion-textarea> -->
+      <!-- <ion-input type="text" mode="md" label="element/casier" min="0" label-placement="floating" fill="outline" inputmode="numeric" (ionInput) ="filteredNumber($event)" placeholder="Tapez le nombre d'element par casier" formControlName="nbre_btle_par_casier" required></ion-input> -->
     </div>
-    <ion-button type="submit" class="btn btn-primary">Ajouter Casier</ion-button>
+    <ion-button type="submit" mode="ios" expand="block" class="btn">{{action == "update" ? 'Modifier' : 'Ajouter'}}</ion-button>
   </form>
   
 </ion-content>

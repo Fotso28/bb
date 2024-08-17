@@ -20,7 +20,10 @@ export class AvarisPage implements OnInit {
      private router: Router) {}
 
   async ngOnInit() {
-    this.initializeAvarisData();
+    await this.initializeAvarisData();
+   
+
+    // this.backSvc.uploadImages();
   }
 
   async initializeAvarisData(): Promise<void>{
@@ -28,7 +31,7 @@ export class AvarisPage implements OnInit {
     console.log(all)
     this.avarisSvc.avarisSubject.subscribe({
       next: (items: Avaris[]) => {
-        this.avaris = items;
+        this.avaris = items.reverse();
         console.log(items);
       }
     })
@@ -37,7 +40,7 @@ export class AvarisPage implements OnInit {
   async confirm(){
 
     const actionSheet = await this.actionSheetCtrl.create({
-      header: 'Etes vous sûr ?',
+      header: 'Etes vous sûr ?', 
       mode: 'ios',
       buttons: [
         {
@@ -60,6 +63,9 @@ export class AvarisPage implements OnInit {
 
   async delete(avaris: Avaris, slidingItem:any){
     slidingItem.close();
+    if(avaris.all_ready_inventoried){
+      showToast("Impossible de supprimer cet Avaris")
+    }
     let item : Avaris = this.avarisSvc.hydrateAvaris(avaris);
     let role = await this.confirm();
     if(role == "confirm"){
@@ -68,8 +74,7 @@ export class AvarisPage implements OnInit {
           showToast('Bien supprimé!')
         }
       })
-    }
-    
+    } 
   }
 
   gotoFamilleDetail(avaris:Avaris){

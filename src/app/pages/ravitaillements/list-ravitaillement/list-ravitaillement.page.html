@@ -1,0 +1,44 @@
+<ion-header [translucent]="true" mode="md" class="no-shadow">
+  <ion-toolbar>
+    <div class="d-flex" routerLink="/">
+      <div class="img ion-activatable">
+        <img src="assets/icon/back-button.png" class="back-btn" alt="">
+        <ion-ripple-effect class="ripple"></ion-ripple-effect>
+      </div>
+      <ion-title class="ion-text-center">Liste des ravitaillements</ion-title>
+    </div>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true" class="ion-padding">
+  <div class="pv"><app-point-vente (pointVenteEvent)="changePointVente($event)"></app-point-vente></div>
+  
+  <div class="custom_list">
+    <ion-list lines="none">
+      <ion-item-sliding  style="position: relative;" *ngFor="let rav of all_ravitaillements" >
+        <!-- <div class="triangle" class="disabled"></div> -->
+        <ion-item button (click)="viewAndUpdateRavitaillemnt(rav)">
+          <div class="list ">
+            <div class="title">{{rav.date | date}} <br>
+              <small ><strong>{{rav.nom_fournisseur}} </strong></small>
+            </div>
+            <div class="sub-bloc" slot="end">
+              <div class="left">
+                <div class="badge">Détail</div>
+              </div>
+              <div class="right">
+                <div class="text"><small>Total: </small>{{rav.total! | customCurrency}}</div>
+                <div class="text"><small>Versement: </small> {{rav.montant_verse! | customCurrency}}</div>
+              </div>
+            </div>
+          </div>
+        </ion-item>
+      </ion-item-sliding>
+    </ion-list>
+  </div>
+  <ion-fab slot="fixed" vertical="bottom" horizontal="end">
+    <ion-fab-button routerLink="/ravitaillement-fournisseur-step">
+      <ion-icon name="add"></ion-icon>
+    </ion-fab-button>
+  </ion-fab>
+</ion-content>

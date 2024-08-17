@@ -1,25 +1,65 @@
-<ion-header [translucent]="true">
+
+<ion-header [translucent]="true" mode="md" class="no-shadow">
   <ion-toolbar>
     <ion-buttons slot="start">
       <ion-back-button></ion-back-button>
     </ion-buttons>
-    <ion-title>Fournisseur - {{fournisseur.nom}}</ion-title>
+    <ion-title class="ion-text-center">{{action == "update" ? 'Modifier ' : 'Ajouter un '}} partenaire</ion-title>
   </ion-toolbar>
 </ion-header>
-
 <ion-content [fullscreen]="true" class="ion-padding">
   <form [formGroup]="fournisseurForm" (ngSubmit)="submit()">
     <div>
-      <ion-input label="Nom*"  inputmode="text" mode="md" errorText="Nom invalide" label-placement="floating" fill="outline" placeholder="Tapez le nom du fournisseur" id="nom" formControlName="nom" required></ion-input>
-      <ion-input label="Adresse" inputmode="text" mode="md" errorText="Adresse invalide" label-placement="floating" fill="outline" placeholder="Tapez l'adresse" id="adresse" formControlName="adresse" ></ion-input>
-      <ion-input label="Télephone" inputmode="numeric"  mode="md" errorText="Nom invalide" label-placement="floating" fill="outline" placeholder="Tapez le numero de téléphone" id="phone1" formControlName="phone1" ></ion-input>
-      <ion-item>
-        <ion-toggle justify="space-between" formControlName="collecte_ristourne">Collecter la ristourne</ion-toggle>
-      </ion-item>
+
+      <div class="input">
+        <ion-label>Nom *</ion-label>
+        <input type="text" formControlName="nom" placeholder="Entrez le nom du fournisseur" />
+        <div *ngIf="fournisseurForm.get('nom')?.touched && fournisseurForm.get('nom')?.invalid">
+          <div *ngIf="fournisseurForm.controls['nom'].errors && fournisseurForm.controls['nom'].errors['required']" class="error-message">
+            <small>Valeur Requise.</small>
+          </div>
+        </div>
+      </div>
+
+      <div class="input">
+        <ion-label>Adresse *</ion-label>
+        <input type="text" formControlName="adresse" placeholder="Entrez l'adresse du fournisseur" />
+        <div *ngIf="fournisseurForm.get('adresse')?.touched && fournisseurForm.get('adresse')?.invalid">
+          <div *ngIf="fournisseurForm.controls['adresse'].errors && fournisseurForm.controls['adresse'].errors['required']" class="error-message">
+            <small>Valeur Requise.</small>
+          </div>
+        </div>
+      </div>
+
+      <div class="input">
+        <ion-label>Téléphone *</ion-label>
+        <input type="tel" formControlName="phone1" placeholder="Entrez le téléphone du fournisseur" />
+        <div *ngIf="fournisseurForm.get('phone1')?.touched && fournisseurForm.get('phone1')?.invalid">
+          <div *ngIf="fournisseurForm.controls['phone1'].errors && fournisseurForm.controls['phone1'].errors['required']" class="error-message">
+              <small>Valeur Requise.</small>
+          </div>
+        </div>
+      </div>
+
+      <!-- <ion-input label="Télephone" inputmode="numeric"  mode="md" errorText="Nom invalide" label-placement="floating" fill="outline" placeholder="Tapez le numero de téléphone" id="phone1" formControlName="phone1" ></ion-input> -->
+      <!-- <ion-input label="Adresse" inputmode="text" mode="md" errorText="Adresse invalide" label-placement="floating" fill="outline" placeholder="Tapez l'adresse" id="adresse" formControlName="adresse" ></ion-input> -->
+      <!-- <ion-input label="Nom*"  inputmode="text" mode="md" errorText="Nom invalide" label-placement="floating" fill="outline" placeholder="Tapez le nom du fournisseur" id="nom" formControlName="nom" required></ion-input> -->
+      <ion-card style="margin: 0; padding: 12px 0" class="mb15" mode="ios">
+        <ion-item style="border-radius: 10px;" lines="none">
+          <ion-toggle justify="space-between" formControlName="collecte_ristourne" required>Collecter la ristourne</ion-toggle>
+        </ion-item>
+      </ion-card>
     </div>
-    <ion-button  class="btn btn-primary" (click)="addImage()">Ajouter une image</ion-button>
-    <ion-button type="submit" class="btn btn-primary">Ajouter Fournisseur</ion-button>
-    <ion-button (click)="modifierFournisseur()" class="btn btn-primary">Modifier Fournisseur</ion-button>
+
+    <div class="img-view">
+      <div (click)="removeImage()" class="close-btn" *ngIf="image?.photo?.webPath || produit_img_data"><ion-icon name="close-outline" color="danger"></ion-icon></div>
+      <div *ngIf="!(image?.photo?.webPath || produit_img_data)" (click)="takeImage()" class="placeholder">
+        <ion-icon name="camera"></ion-icon>
+        <ion-label>Ajouter une image du produit</ion-label>
+      </div>
+      <img *ngIf="image?.photo?.webPath || produit_img_data" [src]="image?.photo?.webPath || produit_img_data" alt="">
+    </div>
+    <ion-button mode="ios" expand="block" type="submit" class="btn mt20">{{action == "update" ? 'Modifier' : 'Ajouter'}}</ion-button>
   </form>
   
 </ion-content>

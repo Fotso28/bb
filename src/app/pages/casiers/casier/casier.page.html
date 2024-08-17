@@ -1,21 +1,17 @@
-<ion-header [translucent]="true">
+<ion-header [translucent]="true" mode="md" class="no-shadow">
   <ion-toolbar>
-    <ion-menu-toggle slot="start">
-      <ion-button icon-only="true">
-        <ion-icon name="menu"></ion-icon>
-      </ion-button>
-    </ion-menu-toggle>
-    <ion-title>Casiers</ion-title>
-  </ion-toolbar>
+    <div class="d-flex" routerLink="/">
+      <div class="img ion-activatable">
+        <img src="assets/icon/back-button.png" class="back-btn" alt="">
+        <ion-ripple-effect class="ripple"></ion-ripple-effect>
+      </div>
+      <ion-title class="ion-text-center">Casier</ion-title>
+    </div>
+</ion-toolbar>
 </ion-header>
 
-<ion-content [fullscreen]="true">
-  <ion-header collapse="condense">
-    <ion-toolbar>
-      <ion-title size="large">Casier</ion-title>
-    </ion-toolbar>
-  </ion-header>
-  <ion-list>
+<ion-content [fullscreen]="true" class="ion-padding">
+  <!-- <ion-list>
     <ion-item-sliding *ngFor="let casier of casiers" #slidingItem>
       <ion-item (click)="gotoFamilleDetail(casier)">{{casier.nom}}</ion-item>
       <ion-item-options>
@@ -23,7 +19,23 @@
       </ion-item-options>
     </ion-item-sliding>
     
-  </ion-list>
+  </ion-list> -->
+  <div class="custom_list">
+    <ion-list lines="none">
+      <ion-item-sliding style="position: relative;" *ngFor="let casier of casiers" #slidingItem>
+        <div class="triangle"></div>
+        <ion-item button (click)="gotoFamilleDetail(casier)">
+          <div class="list ">
+            <div class="title">{{casier.nom}}</div>
+            <small>Nombre de btles <strong style="color: var(--ion-color-primary)">{{casier.nbre_btle_par_casier}}</strong></small>
+          </div>
+        </ion-item>
+        <ion-item-options>
+          <ion-item-option color="danger" (click)="delete(casier, slidingItem)">Delete</ion-item-option>
+        </ion-item-options>
+      </ion-item-sliding>
+    </ion-list>
+  </div>
   <ion-fab slot="fixed" vertical="bottom" horizontal="end">
     <ion-fab-button routerLink="/add-update-casier/add">
       <ion-icon name="add"></ion-icon>

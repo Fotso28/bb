@@ -1,0 +1,17 @@
+.text{
+    font-size: 14px !important;
+}
+.title{
+    padding-bottom: 0;
+
+    small{
+        width: 100%;
+        max-width: 100%;
+        overflow: hidden;
+        text-wrap: nowrap;
+        text-overflow: ellipsis;
+    }
+}
+
+
+

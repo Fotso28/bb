@@ -1,5 +1,7 @@
 import { ProduitsRavitailles } from "./ProduitsRavitailles";
+import { ClassName } from "../_decorators/class-name.decorator";
 
+@ClassName('Ravitaillement')
 export class Ravitaillement {
     public produits: string = "";
     public casiers: string = "";
@@ -33,6 +35,7 @@ export class Ravitaillement {
     get _casier(): Custom_Casier_Model[] {
         return this.casiers ? JSON.parse(this.casiers) : null;
     }
+
 
     /***
      * Just for store list of  product

@@ -1,0 +1,44 @@
+.all{
+    position: relative;
+}
+.bloc{
+    position: absolute;
+    width: 100%;
+}
+ion-row{
+    height: 20px;
+}
+ion-button{
+    font-size: 1em;
+}
+.flex-container {
+    width: 100%;
+    min-width: 100%;
+    display: flex;
+    align-items: center; /* Aligne les éléments verticalement au centre */
+  }
+  
+  .flex-container ion-select {
+    width: 80px; /* Largeur fixe pour le ion-select */
+  }
+  
+  .flex-input {
+    flex: 1; /* Prend tout l'espace disponible */
+    // margin-left: 10px; /* Espacement entre le select et l'input */
+    box-sizing: border-box; /* Assure que padding et border sont inclus dans la largeur totale */
+  }
+  .c_input{
+    position: relative;
+    width: 100%;
+    .code_pays{
+        position: absolute;
+        left: 10px;
+        top: 16px;
+    }
+    input{
+        padding-left: 50px;
+    }
+  }
+  
+  
+  

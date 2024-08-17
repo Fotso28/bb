@@ -1,0 +1,16 @@
+#main{
+    position: fixed;
+    transform: translateY(-800px);
+    right: 5px;
+    width: 210px;
+    z-index: 999999 !important;
+    background: #fff;
+    padding-bottom: 15px;
+    transition: transform 0.3s ease-out, box-shadow 0.3s ease-out; /* Ajout de la transition pour box-shadow */
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); /* Ombre avec un léger flou */
+}
+
+.show{
+    transform: translateY(-15px) !important;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.2); 
+}

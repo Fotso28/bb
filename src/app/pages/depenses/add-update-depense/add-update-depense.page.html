@@ -1,4 +1,4 @@
-<ion-header [translucent]="true">
+<ion-header [translucent]="true" mode="md" class="no-shadow">
   <ion-toolbar>
     <ion-buttons slot="start">
       <ion-back-button></ion-back-button>
@@ -9,16 +9,85 @@
 <ion-content [fullscreen]="true" class="ion-padding">
   <form [formGroup]="depenseForm" (ngSubmit)="submit()">
     <div>
-      <ion-select mode="ios" id="type" fill="outline" formControlName="type" label="Categorie Depense *" placeholder="Type" aria-label="Categorie">
+      <ion-datetime-button datetime="datetime" style="margin-bottom: 15px;"></ion-datetime-button>
+      <ion-modal [keepContentsMounted]="true">
+        <ng-template>
+          <ion-datetime [max]="end" [min]="debut" formControlName="date" mode="ios" id="datetime" presentation="date" 
+            [showDefaultButtons]="true" doneText="Ok" cancelText="Annuler">
+          </ion-datetime>
+        </ng-template>
+      </ion-modal>
+      <ion-card class="ion-activatable select d-block mb15"  id="nom" mode="ios" id="produit">
+        <ion-card-header>Catégorie de la dépense *</ion-card-header>
+        <ion-card-content>
+          <div>
+            <ion-label *ngIf="activeDepenseType">{{activeDepenseType.nom}}</ion-label>
+            <ion-icon name="chevron-down-outline" style="color: var(--ion-color-primary);"></ion-icon>
+          </div>
+        </ion-card-content>
+        <ion-ripple-effect style="color: var(--ion-color-primary);"></ion-ripple-effect>
+      </ion-card>
+      <ion-select mode="ios" style="display: none;" id="type" fill="outline" formControlName="type" label="Categorie Depense *" placeholder="Type" aria-label="Categorie">
         <ion-select-option *ngFor="let type of type" [value]="type.id">{{type.nom}}</ion-select-option>
       </ion-select>
-      <ion-input id="date" formControlName="date" label="Date *"  inputmode="numeric" placeholder="Date" mode="md" label-placement="floating" fill="outline"  required></ion-input>
-      <ion-input id="motif" formControlName="motif" label="Motif *"  placeholder="Tapez le Motif" mode="md" errorText="Nom invalide" label-placement="floating" fill="outline"></ion-input>
-      <ion-input id="montant" formControlName="montant" label="Montant *"  placeholder="Tapez le Montant" mode="md" errorText="Nom invalide" label-placement="floating" fill="outline"></ion-input>
-      <ion-input id="motif" formControlName="motif" label="Motif *"  placeholder="Tapez le Motif" mode="md" errorText="Nom invalide" label-placement="floating" fill="outline"></ion-input>
+      <!-- <ion-input id="date" formControlName="date" label="Date *"  inputmode="numeric" placeholder="Date" mode="md" label-placement="floating" fill="outline"  required></ion-input> -->
+      <div class="input">
+        <ion-label>Montant *</ion-label>
+        <input type="tel" appInputMomeyFormat formControlName="montant" placeholder="Le motif de la dépense" />
+        <div *ngIf="depenseForm.controls['montant'].errors && depenseForm.controls['montant'].errors['required']" class="error-message">
+          <small>Valeur Requise.</small> 
+        </div>
+        <div *ngIf="(depenseForm.controls['montant'].errors && depenseForm.controls['montant'].errors['min'])" class="error-message">
+          <small>Minimum 1</small>
+        </div>
+        <div *ngIf="(depenseForm.controls['montant'].errors && depenseForm.controls['montant'].errors['pattern'])" class="error-message">
+          <small>Un nombre positif svp.</small>
+        </div>
+      </div>
+
+      <div class="input">
+        <ion-label>Motif *</ion-label>
+        <textarea type="text" rows="4" appInputMomeyFormat formControlName="motif" placeholder="Le motif de la dépense"></textarea>
+        <div *ngIf="depenseForm.controls['motif'].errors && depenseForm.controls['motif'].errors['required']" class="error-message">
+          <small>Valeur Requise.</small> 
+        </div>
+        <div *ngIf="(depenseForm.controls['motif'].errors && depenseForm.controls['motif'].errors['min'])" class="error-message">
+          <small>Minimum 1</small>
+        </div>
+        <div *ngIf="(depenseForm.controls['motif'].errors && depenseForm.controls['motif'].errors['pattern'])" class="error-message">
+          <small>Un nombre positif svp.</small>
+        </div>
+      </div>
+      <!-- <ion-input id="montant" formControlName="montant" label="Montant *"  placeholder="Tapez le Montant" mode="md" errorText="Nom invalide" label-placement="floating" fill="outline"></ion-input> -->
     </div>
-    <ion-button type="submit" class="btn btn-primary">Ajouter Produit</ion-button>
+    <ion-button type="submit" mode="ios" expand="block mt20" class="btn">Ajouter</ion-button>
   </form>
-  
+  <ng-container class="modal">
+    <ion-modal mode="ios" #modal trigger="produit"  [presentingElement]="presentingElement">
+      <ng-template>
+        <ion-header  mode="md" class="no-shadow">
+          <ion-toolbar  color="primary">
+            <ion-title style="color: #fff">
+              Categorie de Dépense
+            </ion-title>
+            <ion-buttons  slot="end" (click)="modal.dismiss()">
+              <ion-button>
+                <ion-icon name="close-circle-outline" slot="icon-only" color="danger"></ion-icon>
+              </ion-button>
+            </ion-buttons>
+          </ion-toolbar>
+        </ion-header>
+        <ion-content>
+          <ion-list class="produit" mode="ios" lines="none">
+            <ion-item style="height: 50px;" button  *ngFor="let tp of type" (click)="selectType(tp)">
+              <ion-label>
+                <h2>{{tp.nom}}</h2>
+              </ion-label>
+            </ion-item>
+          </ion-list>
+        </ion-content>
+      </ng-template>
+    </ion-modal>
+  </ng-container>
 </ion-content>
 

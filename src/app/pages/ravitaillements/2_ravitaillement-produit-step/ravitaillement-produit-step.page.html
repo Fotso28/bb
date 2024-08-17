@@ -1,56 +1,84 @@
-<ion-header [translucent]="true">
+<ion-header [translucent]="true" mode="md" class="no-shadow">
   <ion-toolbar>
     <ion-buttons slot="start">
       <ion-back-button></ion-back-button>
     </ion-buttons>
-    <ion-title>Casier {{sommePrix()}}</ion-title>
+    <ion-title class="ion-text-center" *ngIf="sommePrix()">{{sommePrix()}} <span>FCFA</span></ion-title>
     <ion-buttons slot="end" id="produit">
       <ion-icon  slot="icon-only" name="add"></ion-icon>
     </ion-buttons>
   </ion-toolbar>
 </ion-header>
+
 <ion-content [fullscreen]="true" class="ion-padding">
-  <ion-list>
-    <ion-item-sliding *ngFor="let prod of produits_ravitailles" >
+  <ion-list *ngIf="produits_ravitailles.length" lines="none">
+    <ion-item-sliding *ngFor="let prod of produits_ravitailles.reverse(   )" >
       <ion-item (click)="addUpdateProduitToRavitaillement(prod)">
+        <ion-avatar slot="start">
+          <ion-img [src]="prod.imgLink"></ion-img>
+        </ion-avatar>
         <ion-label>{{prod.nom}}</ion-label>
+        <small class="badge blue">{{prod.qte_btle!/prod.nbreBtleParCasier! || 'erreur'}}</small>
       </ion-item>
       <ion-item-options>
-        <ion-item-option (click)="deleteProd(prod)" color="danger">Delete</ion-item-option>
+        <ion-item-option (click)="deleteProd(prod)">Supprimer</ion-item-option>
       </ion-item-options>
     </ion-item-sliding>
   </ion-list>
-  <div *ngIf="!closebtn">
-    <ion-fab slot="fixed" vertical="bottom" horizontal="start">
-      <ion-fab-button (click)="prev()">
-        <ion-icon name="add"></ion-icon>
-      </ion-fab-button>
-    </ion-fab>
-    <ion-fab slot="fixed" vertical="bottom" horizontal="end">
-      <ion-fab-button (click)="next()">
-        <ion-icon name="add"></ion-icon>
-      </ion-fab-button>
-    </ion-fab>
-  </div>
+
   <ng-container class="modal">
-    <ion-modal  #modal trigger="produit"  [initialBreakpoint]="0.6" [breakpoints]="[0, 0.6, 0.95]" [presentingElement]="presentingElement">
+    <ion-modal mode="ios" #modal trigger="produit" >
       <ng-template>
-        
+        <ion-header>
+          <ion-toolbar color="primary">
+            <ion-title style="color: #fff">Liste des produits</ion-title>
+            <ion-buttons  slot="end" (click)="modal.dismiss()">
+              <ion-button>
+                <ion-icon name="close-circle-outline" slot="icon-only"></ion-icon>
+              </ion-button>
+            </ion-buttons>
+          </ion-toolbar>
+        </ion-header>
         <ion-content>
-          <ion-searchbar [(ngModel)]="search_key" placeholder="Search" (click)="modal.setCurrentBreakpoint(0.95)" (ngModelChange)="filtreProduit()"></ion-searchbar>
-          <ion-list>
-            <ion-item *ngFor="let prod of filtered_produits_ravitailles" (click)="addProduitToRavitaillement(prod)">
-              <ion-avatar slot="start">
-                <ion-img src="https://i.pravatar.cc/300?u=b"></ion-img>
-              </ion-avatar>
-              <ion-label>
-                <h2>{{prod.nom}}</h2>
-                <p>Sales Rep</p>
-              </ion-label>
-            </ion-item>
-          </ion-list>
+          <!-- <div style="display: flex; justify-content: flex-end; padding-top: 10px; padding-right: 10px;">
+            <small style="color: var(--ion-color-danger)" (click)="modal.dismiss()">Fermer</small>
+          </div>
+          <ion-searchbar mode="ios" [(ngModel)]="search_key" placeholder="Search" (click)="modal.setCurrentBreakpoint(0.95)" (ngModelChange)="filtreProduit()"></ion-searchbar>
+          <small style="text-align: center; display: block;">Liste des produits</small>
+          <ion-list class="produit" mode="ios" lines="none">
+            <ng-container *ngFor="let cat of categories">
+              <h2 class="categorie" *ngIf="hasElement(cat.nom!)">{{cat.nom}}</h2>
+              <ng-container *ngFor="let famille of familles">
+                <h5 *ngIf="hasElement(cat.nom!, famille.nom!)">{{famille.nom}}</h5>
+                  <ng-container *ngFor="let prod of filtered_produits_ravitailles">
+                    <ion-item button *ngIf="cat.nom == prod.categorie && famille.nom == prod.famille" (click)="addProduitToRavitaillement(prod)">
+                      <ion-avatar slot="start">
+                        <ion-img [src]="prod.imgLink! || 'assets/icon/person.png'"></ion-img>
+                      </ion-avatar>
+                      <ion-label>
+                        <h2>{{prod.nom}}</h2>
+                        <small class="badge red" *ngIf="prodIsRavitaille(prod)">Ravitaillé</small>
+                      </ion-label>
+                    </ion-item>
+                  </ng-container>
+              </ng-container>
+            </ng-container>
+          </ion-list> -->
+
+          <app-list-produit (emitProduitEvent)="addProduitToRavitaillement($event)" [modal]="modal" [produits_ravitailles]="produits_ravitailles" [produits]="produits"></app-list-produit>
         </ion-content>
       </ng-template>
     </ion-modal>
   </ng-container>
+  <ion-fab slot="fixed" vertical="bottom" horizontal="start">
+    <ion-fab-button (click)="prev()">
+      <ion-icon name="chevron-back-outline"></ion-icon>
+    </ion-fab-button>
+  </ion-fab>
+  <ion-fab slot="fixed" vertical="bottom" horizontal="end">
+    <ion-fab-button (click)="next()">
+      <ion-icon name="chevron-forward-outline"></ion-icon>
+    </ion-fab-button>
+  </ion-fab>
+  
 </ion-content>

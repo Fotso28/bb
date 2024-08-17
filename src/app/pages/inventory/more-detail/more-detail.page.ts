@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
+import { DBSQLiteValues } from '@capacitor-community/sqlite';
 import { showToast, toTimestamp } from 'src/app/_lib/lib';
 import { Employe } from 'src/app/models/Employes';
 import { BdService } from 'src/app/services/-bd.service';
@@ -22,7 +23,7 @@ export class MoreDetailPage implements OnInit {
   constructor(public router: Router, public pointVenteSvc: PointVenteService, public ravSvc: RavitaillementService, public formBuilder: FormBuilder, public bdSvc: BdService, public inventorySvc: InventoryService) { }
 
   async ngOnInit() {
-   
+    
     this.employes = await this.allEmploye() as Employe[];
 
     this.formGroup = this.formBuilder.group({
@@ -53,13 +54,23 @@ export class MoreDetailPage implements OnInit {
       this.inventorySvc.getInventoryInstance().ids_ravitaillement = JSON.stringify(this.inventorySvc.ids_ravitaillement);
 
       console.log(this.inventorySvc.getInventoryInstance())
-     
-
-      // Save the current rest
-      await this.inventorySvc.saveCurrentStock(this.inventorySvc.restes);
       
-                        // calcul and sum and save product sell in the database
-      let isSaved = await this.inventorySvc.saveProduitVendu(this.inventorySvc.getInventoryInstance());
+      this.inventorySvc.getInventoryInstance().id_lastStock = this.inventorySvc.lastStockProduct_id;
+
+
+      //Save the current rest
+      let _stockSave_id: false | DBSQLiteValues  = await this.inventorySvc.saveCurrentStock(this.inventorySvc.restes, true);
+      console.log(_stockSave_id)
+      if(!_stockSave_id){
+        throw new Error("Enregistrement échoué")
+        return
+      }
+      let val: any = _stockSave_id.values as any[];
+      this.inventorySvc.getInventoryInstance().id_reste = val[0].id;                 // calcul and sum and save product sell in the database
+      
+      let isSaved = await this.inventorySvc.saveProduitVendu(this.inventorySvc.getInventoryInstance(), true);
+      console.log(isSaved)
+      
       let isUpdate = await this.inventorySvc.markAllAsRavitaille();
       console.log("isUpdate est ", isUpdate);
       this.router.navigateByUrl('/list-inventory')

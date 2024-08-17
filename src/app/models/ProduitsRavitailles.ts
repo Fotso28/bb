@@ -9,7 +9,9 @@ export class ProduitsRavitailles{
       public ristourne?: number,
       public famille?: string,
       public categorie?: string,
-      public fournisseurs?: Array<string>
+      public fournisseurs?: Array<string>,
+      public hasCasier?: boolean,
+      public imgLink?: string     
       ){
         this.qte_btle = 0;
       }

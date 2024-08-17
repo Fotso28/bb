@@ -7,10 +7,11 @@ import { IonicModule } from '@ionic/angular';
 import { AddUpdateCasierPageRoutingModule } from './add-update-casier-routing.module';
 
 import { AddUpdateCasierPage } from './add-update-casier.page';
+import { DirectivesModule } from 'src/app/directive/directives.module';
 
 @NgModule({
   imports: [
-    CommonModule,
+    CommonModule,DirectivesModule,
     FormsModule, ReactiveFormsModule,
     IonicModule,
     AddUpdateCasierPageRoutingModule

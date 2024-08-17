@@ -1,23 +1,82 @@
-<ion-header [translucent]="true">
+<ion-header [translucent]="true" mode="md" class="no-shadow">
   <ion-toolbar>
     <ion-buttons slot="start">
       <ion-back-button></ion-back-button>
     </ion-buttons>
-    <ion-title>Avaris</ion-title>
+    <ion-title class="ion-text-center">{{action == "update" ? 'Modifier ' : 'Ajouter un '}} un Avaris</ion-title>
   </ion-toolbar>
 </ion-header>
 <ion-content [fullscreen]="true" class="ion-padding">
-  <form [formGroup]="avarisForm" (ngSubmit)="submit()">
-    <div>
-      <ion-select mode="ios" id="produit_id" fill="outline" formControlName="produit_id" label="Produit *" placeholder="Tapez le nom du produit" aria-label="Produit">
-        <ion-select-option *ngFor="let produit of produits" [value]="produit.id">{{produit.nom}}</ion-select-option>
-      </ion-select>
-      <ion-input id="qte" formControlName="qte" label="Quantité *"  inputmode="numeric" placeholder="Tapez la quantité initiale" mode="md" errorText="Nom invalide" label-placement="floating" fill="outline"  required></ion-input>
-      <ion-textarea id="description" formControlName="description" label="Description *"  inputmode="text" placeholder="Tapez le prix d'achat" mode="md" errorText="Nom invalide" label-placement="floating" fill="outline"  required></ion-textarea>
-      <ion-input id="date" formControlName="date" label="Date *"  placeholder="Tapez le prix de vente" mode="md" errorText="Nom invalide" label-placement="floating" fill="outline" required></ion-input>
-    </div>
-    <ion-button type="submit" class="btn btn-primary">Ajouter Produit</ion-button>
-  </form>
-  
-</ion-content>
+  <form *ngIf="produit" [formGroup]="avarisForm" (ngSubmit)="submit()">
+    
+    <ion-datetime-button datetime="datetime" style="margin-bottom: 15px;"></ion-datetime-button>
+    <ion-modal [keepContentsMounted]="true">
+      <ng-template>
+        <ion-datetime formControlName="date" mode="ios" id="datetime" presentation="date" 
+          [showDefaultButtons]="true" doneText="Ok" cancelText="Annuler">
+        </ion-datetime>
+      </ng-template>
+    </ion-modal>
+    <ion-card class="ion-activatable select d-block mb15" mode="ios" (click)="modal.present()">
+      <ion-card-header>Produit *</ion-card-header>
+      <ion-card-content >
+        <div>
+          <ion-label *ngIf="produit">{{produit.nom}}</ion-label>
+          <ion-icon name="chevron-down-outline" style="color: var(--ion-color-primary);"></ion-icon>
+        </div>
+      </ion-card-content>
+      <ion-ripple-effect style="color: var(--ion-color-primary);"></ion-ripple-effect>
+    </ion-card>
 
+    <div class="input">
+      <ion-label>Quantité *</ion-label>
+      <input type="tel" appInputMomeyFormat formControlName="qte" placeholder="Tapez la quantité initiale" />
+      <div *ngIf="avarisForm.controls['qte'].errors && avarisForm.controls['qte'].errors['required']" class="error-message">
+        <small>Valeur Requise.</small> 
+      </div>
+      <div *ngIf="(avarisForm.controls['qte'].errors && avarisForm.controls['qte'].errors['min'])" class="error-message">
+        <small>Minimum 1</small>
+      </div>
+      <div *ngIf="(avarisForm.controls['qte'].errors && avarisForm.controls['qte'].errors['pattern'])" class="error-message">
+        <small>Un nombre positif svp.</small>
+      </div>
+    </div>
+    <div class="input">
+      <ion-label>Description</ion-label>
+      <textarea type="text" rows="5" formControlName="description" placeholder="Tapez une description"></textarea>
+      <div *ngIf="avarisForm.controls['description'].errors && avarisForm.controls['description'].errors['required']" class="error-message">
+        <small>Valeur Requise.</small>
+      </div>
+    </div>
+
+    
+    <ion-button type="submit" mode="ios" expand="block mt20" class="btn">Ajouter Produit</ion-button>
+  </form>
+
+  <ng-container class="modal">
+    <ion-modal mode="ios" id="modal" #modal trigger="produit" initialBreakpoint="0.98" [presentingElement]="presentingElement">
+      <ng-template>
+        <ion-header>
+          <div style="position: sticky;top: 0;right: 0;left: 0;">
+            <div style="display: flex; justify-content: flex-end; padding-top: 10px; padding-right: 10px;">
+              <small style="color: var(--ion-color-danger)" (click)="modal.dismiss()">Fermer</small>
+            </div>
+            <small style="text-align: center; display: block;">Liste des Produits</small>
+          </div>
+        </ion-header>
+        <ion-content>
+          <ion-list style="margin-top: 10px;">
+            <ion-item-sliding *ngFor="let produit of produits">
+              <ion-item (click)="selectProd(produit)">
+                <ion-avatar slot="start">
+                  <ion-img [src]="produit.imgLink || 'assets/icon/person.png'"></ion-img>
+                </ion-avatar>
+                <ion-label>{{produit.nom}}</ion-label>
+              </ion-item>
+            </ion-item-sliding>
+          </ion-list>
+        </ion-content>
+      </ng-template>
+    </ion-modal>
+  </ng-container>
+</ion-content>

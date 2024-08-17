@@ -1,3 +1,6 @@
+import { ClassName } from "../_decorators/class-name.decorator";
+
+@ClassName('Produit')
 export class Produit{
   public fournisseurs: string = "";
     constructor(
@@ -11,6 +14,7 @@ export class Produit{
       public id_famille?: string,
       public id_casier?: string,
       public upload?: string,
+      public qte?: number,
       public imgLink?: string,
       public hasCasier?: boolean,
       public deletedAt?: number, // type timestamp
@@ -18,6 +22,7 @@ export class Produit{
       ){
         this.deletedAt = 0;
         this.prixA = 0;
+        this.qte = 0;
         this.ristourne = 0;
         this.nbreBtleParCasier = 0;
       }
@@ -50,10 +55,6 @@ export class Produit{
        */
       get _fournisseurs_ids(): number[]{
         return this.fournisseurs ? this._fournisseurs.map((four: {id: number, nom: string}) => four.id) : []
-      }
-
-      sayHello(){
-        console.log('helo');
       }
 }
 

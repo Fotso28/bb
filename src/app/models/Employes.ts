@@ -1,4 +1,7 @@
-export class    Employe{
+import { ClassName } from "../_decorators/class-name.decorator";
+
+@ClassName('Employe')
+export class Employe{
     constructor(
       public nom: string,
       public user_id?: number,
@@ -10,7 +13,6 @@ export class    Employe{
       public id?:number,
       ){
         this.deletedAt = 0;
-        this.user_id = 15;
       }
 }
 

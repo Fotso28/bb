@@ -1,20 +1,23 @@
-<ion-header [translucent]="true">
+<ion-header [translucent]="true" mode="md" class="no-shadow">
   <ion-toolbar>
-    <ion-title>add-inventory</ion-title>
+    <ion-buttons slot="start">
+      <ion-back-button></ion-back-button>
+    </ion-buttons>
+    <ion-title class="ion-text-center">Inventaire</ion-title>
   </ion-toolbar>
 </ion-header>
 
-<ion-content [fullscreen]="true">
+<ion-content [fullscreen]="true" class="ion-padding">
   <form *ngIf="produits.length" [formGroup]="productForm">
   <ion-grid>
       <div *ngFor="let product of produits; let i = index" class="product-item">
         <app-input [control]="getQuantityControl(i)" [product]="product"></app-input>
       </div>
     </ion-grid>
-    <ion-fab slot="fixed" (click)="onSubmit()" vertical="bottom" horizontal="end">
-      <ion-fab-button>
-        <ion-icon name="add"></ion-icon>
-      </ion-fab-button>
-    </ion-fab>
   </form>
+  <ion-fab slot="fixed" (click)="onSubmit()" vertical="bottom" horizontal="end">
+    <ion-fab-button>
+      <ion-icon name="add"></ion-icon>
+    </ion-fab-button>
+  </ion-fab>
 </ion-content>

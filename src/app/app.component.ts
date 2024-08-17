@@ -36,7 +36,11 @@ export class AppComponent implements OnInit {
     { title: 'Contacts', url: '/', icon: 'call-outline' , categorie: 'Aide'},
   ];
   
-  constructor(private router: Router,private platform: Platform, private dbSvc: BdService, private userSvc: UserService, private pvSvc: PointVenteService) 
+  constructor(private router: Router,
+    private platform: Platform, 
+    private dbSvc: BdService, 
+    private userSvc: UserService, 
+    private pvSvc: PointVenteService) 
   {
     register();
     this.platform.ready().then(() => {

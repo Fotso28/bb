@@ -361,7 +361,7 @@ const HISTORIQUE_TABLE = `CREATE TABLE IF NOT EXISTS Historique (
   data_id INTEGER,
   action_query TEXT NOT NULL,
   user_id INTEGER NOT NULL,
-  point_vente_id INTEGER NOT NULL,
+  id_point_vente INTEGER NOT NULL,
   date DATETIME NOT NULL
 )`;
 const AVARIS_TABLE = `CREATE TABLE IF NOT EXISTS Avaris (
@@ -372,7 +372,7 @@ const AVARIS_TABLE = `CREATE TABLE IF NOT EXISTS Avaris (
   produit_nom TEXT,
   date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   user_id INTEGER NOT NULL,
-  point_vente_id INTEGER NOT NULL,
+  id_point_vente INTEGER NOT NULL,
   all_ready_inventoried INTEGER DEFAULT 0,
   deletedAt TIMESTAMP DEFAULT 0,
   createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -466,7 +466,7 @@ const CASIER_TABLE = `CREATE TABLE IF NOT EXISTS Casier (
     motif TEXT,
     montant INTEGER NOT NULL, 
     user_id INTEGER NOT NULL,
-    point_vente_id INTEGER NOT NULL,
+    id_point_vente INTEGER NOT NULL,
     deletedAt TIMESTAMP DEFAULT 0
     )`;
 
@@ -526,7 +526,7 @@ const PRODUIT_RAVITAILLES = `CREATE TABLE IF NOT EXISTS produits_ravitailles (
   date INTEGER,
   updatedAt INTEGER,
   createdAt INTEGER,
-  point_vente_id INTEGER
+  id_point_vente INTEGER
 )`;
 
 const TABLE_RESTE = `CREATE TABLE IF NOT EXISTS Reste (

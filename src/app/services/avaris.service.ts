@@ -141,7 +141,7 @@ export class AvarisService {
     if(item.id) avaris.id = item.id;
     if(item.qte) avaris.qte = item.qte;
     if(item.produit_id) avaris.produit_id = item.produit_id;
-    if(item.point_vente_id) avaris.point_vente_id = item.point_vente_id;
+    if(item.id_point_vente) avaris.id_point_vente = item.id_point_vente;
     if(item.user_id) avaris.user_id = item.user_id;
     if(item.description) avaris.description = item.description;
     if(item.date) avaris.date = item.date;

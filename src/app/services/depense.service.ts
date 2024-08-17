@@ -17,7 +17,7 @@ export class DepenseService {
   async create(item: Depense): Promise<boolean | DBSQLiteValues> {
     try {
         if(this.pv.getActivePointeVente() && this.pv.getActivePointeVente()?.id){
-          item.point_vente_id = this.pv.getActivePointeVente()?.id
+          item.id_point_vente = this.pv.getActivePointeVente()?.id
         }else{
           console.warn("point de vente n'existe pas");
         }
@@ -98,7 +98,7 @@ export class DepenseService {
     if(item.type) depense.type = item.type;
     if(item.motif) depense.motif = item.motif;
     if(item.montant) depense.montant = item.montant;
-    if(item.point_vente_id) depense.point_vente_id = item.point_vente_id;
+    if(item.id_point_vente) depense.id_point_vente = item.id_point_vente;
     if(item.user_id) depense.user_id = item.user_id;
     if(item.deletedAt) depense.deletedAt = item.deletedAt;
 

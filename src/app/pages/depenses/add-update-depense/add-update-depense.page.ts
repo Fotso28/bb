@@ -101,7 +101,7 @@ export class AddUpdateDepensePage implements OnInit {
     if(this.action === "update"){
       console.log("update")
       newDepense.id = this.depense.id;
-      newDepense.point_vente_id = this.depense.point_vente_id
+      newDepense.id_point_vente = this.depense.id_point_vente
       this.depenseSvc.update(newDepense).then((val: any)=>{
         if(val){
           showToast("element mis à jour")

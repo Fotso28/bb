@@ -161,7 +161,7 @@ export class AddUpdateAvarisPage implements OnInit {
       
       newAvaris.produit_id = this.produit.id;
       newAvaris.produit_nom = this.produit.nom;
-      newAvaris.point_vente_id = _point_vente.id
+      newAvaris.id_point_vente = _point_vente.id
       
       console.log(newAvaris, "new Avaris");
       // return;

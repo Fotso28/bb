@@ -10,26 +10,30 @@ import { Employe } from '../models/Employes';
 import { HistoriqueImageUploadedService } from './historique-image-uploaded.service';
 import { Directory, Filesystem } from '@capacitor/filesystem';
 import { firstValueFrom } from 'rxjs';
-import { User, UserService } from './user.service';
+import { User } from './user.service';
+import { environment } from 'src/environments/environment';
 
 
 @Injectable({
   providedIn: 'root'
 })
 export class SyncDatabaseService {
-    private baseUrl = 'https://e038-129-0-80-155.ngrok-free.app/api';
+    private baseUrl = environment.apiUrl;
 
-    constructor(private http: HttpClient, private bdSvc: BdService, private userSvc: UserService,
+    constructor(private http: HttpClient, private bdSvc: BdService,
       private histoSvc: HistoriqueImageUploadedService){}
 
     uploadDatabase(): Observable<any> {
-      let user: User | null = this.userSvc.getActiveUser();
-      if(!user){
-        console.log("le user n'est pas valable");
-        return of(null);
-      }
+      
       return from(this.bdSvc.exportDatabase()).pipe(
-        switchMap((data: capSQLiteJson) => {
+        switchMap(async (data: capSQLiteJson) => {
+
+          let user: User | null = await this.bdSvc.getActiveUser();
+          if(!user){
+            console.log("le user n'est pas valable");
+            return of(null);
+          }
+
           const jsonData = JSON.stringify(data);
           console.log(jsonData);
           const maxChunkSize = 1024; // 5 Mo en octets
@@ -107,14 +111,16 @@ export class SyncDatabaseService {
     // }
 
     uploadImages(): Observable<any> {
-      let user: User | null = this.userSvc.getActiveUser();
-      if (!user) {
-        console.log("le user n'est pas valable");
-        return of(null);
-      }
-    
+      
       return from(this.getAllImages()).pipe(
-        switchMap((allImages) => {
+        switchMap(async (allImages) => {
+          
+          let user: User | null = await this.bdSvc.getActiveUser();
+          if (!user) {
+            console.log("le user n'est pas valable");
+            return of(null);
+          }
+
           if (!allImages.length) return of(null);
     
           let unsaved_images: string[] = []; // Toutes les images pas encore envoyées sur le serveur
@@ -127,11 +133,10 @@ export class SyncDatabaseService {
           }
           if (!unsaved_images.length) return of(null);
     
-          console.log("les images non enregistrées sont: ", user!.id.toString());
 
           let params = new HttpParams()
           .set('user_id', user!.id.toString());
-    
+          // console.log()
           // Création d'un observable de séquence pour envoyer les images une par une
           let observables = unsaved_images.map((imageName, index) => {
             return from(this.loadImageFromMemory(imageName)).pipe(
@@ -141,7 +146,7 @@ export class SyncDatabaseService {
                 formData.append('user_id', user!.id.toString());
                 return this.http.post(this.baseUrl + "/uploadImages", formData, { params });
               }),
-              // tap(() => this.histoSvc.setHistorique(imageName)),
+              tap(() => this.histoSvc.setHistorique(imageName)),
               catchError((err) => {
                 console.log(err);
                 return of(null); // Retourne un Observable qui émet null en cas d'erreur
@@ -213,7 +218,7 @@ export class SyncDatabaseService {
         
     
         if (result.values && Array.isArray(result.values)) {
-          return result.values.map((prod: { imageName: string }) => prod.imageName).filter((imageName: string) => imageName && !/^preconfig-/.test(imageName) && imageName != nullEmployeImageValue) as string[];
+          return result.values.map((prod: { imageName: string }) => prod.imageName).filter((imageName: string) => imageName && !/preconfig-/.test(imageName) && imageName != nullEmployeImageValue) as string[];
         } else {
           return [];
         }

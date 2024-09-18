@@ -65,7 +65,7 @@ export class AddUpdateProduitPage implements OnInit {
     const memo = history.state as Produit;
     console.log(memo);
 
-    this.produit = this.produitSvc.initProduitValues(memo);
+    this.produit = await this.produitSvc.initProduitValues(memo);
 
     
     this.action = this.route.snapshot.paramMap.get('action') as 'update' | 'add';
@@ -190,7 +190,7 @@ export class AddUpdateProduitPage implements OnInit {
 
     
 
-    let newProduit : Produit = this.produitSvc.initProduitValues(formData);
+    let newProduit : Produit = await this.produitSvc.initProduitValues(formData);
 
     console.log('le new produit est : ',newProduit)
     if(this.image){

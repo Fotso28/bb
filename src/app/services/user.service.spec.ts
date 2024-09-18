@@ -13,14 +13,21 @@ describe('UserService', () => {
     expect(service).toBeTruthy();
   });
 
-  it('should set and get active user', () => {
-    const testUser: User = { id: 1, name: 'Test User', age: 30 };
+  it('should set and get active user', async () => {
+    const testUser: User = { id: 1, username: 'Test User', 
+      abonnementActivationCode: "", token: '', abonnementPaymentDate: 0, 
+      appExpirationDate: 0, 
+      appVersion: 'v1', 
+      isAppObsolete: false, 
+      localite: '', 
+      phoneId: '', 
+      telephone: '' };
 
     // Test setting active user
     service.setActiveUser(testUser);
 
     // Test getting active user
-    const activeUser = service.getActiveUser();
+    const activeUser = await service.getActiveUser();
 
     expect(activeUser).toEqual(testUser);
   });

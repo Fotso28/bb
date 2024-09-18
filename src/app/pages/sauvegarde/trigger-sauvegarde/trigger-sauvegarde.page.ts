@@ -46,18 +46,23 @@ export class TriggerSauvegardePage implements OnInit {
       next: (val) => {
         if(val && val.index && val.total){
           let index: number = parseInt(val.index, 10) + 1;
-          this.databaseBuffer = index;
+          let total: number = parseInt(val.total, 10);
+          this.databaseBuffer = +(index/total).toFixed(1);
           console.log(this.databaseBuffer)
           this.info = val.fieldName;
         }
 
-        if(val.index == val.total){
+        if(val && val.index == val.total){
           setTimeout(()=>{
             this.info = "Validé";
           }, 1500);
         }
         
-        console.log(val);
+        // au cas ou il n'y a pas d'image
+        if(!val){
+          this.databaseBuffer = 1;
+          this.info = "Sauvegarde terminée";
+        }
         
       },
       error: (err) => console.log(err)

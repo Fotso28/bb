@@ -2,7 +2,6 @@ import { Injectable } from '@angular/core';
 import { Produit } from '../models/Produits';
 import { BehaviorSubject } from 'rxjs';
 import { BdService } from './-bd.service';
-import { UserService } from './user.service';
 import { ProduitsRavitailles } from '../models/ProduitsRavitailles';
 import { DBSQLiteValues } from '@capacitor-community/sqlite';
 
@@ -13,7 +12,7 @@ export class ProduitService {
 
   produitSubject: BehaviorSubject<Produit[]> = new BehaviorSubject<Produit[]>([]);
 
-  constructor(private bdSvc: BdService, private userSvc: UserService, ){}
+  constructor(private bdSvc: BdService){}
   
   async create(item: Produit): Promise<boolean | DBSQLiteValues> {
     try {
@@ -59,7 +58,7 @@ export class ProduitService {
   async update(item: Produit): Promise<boolean> {
     try {
 
-      item.user_id = this.userSvc.getActiveUser()?.id;
+      item.user_id = (await this.bdSvc.getActiveUser())?.id;
       if(!item.user_id) throw new Error("None of the users are defined");
 
       let itemIsUpdated: boolean = await this.bdSvc.update(item);
@@ -107,7 +106,7 @@ export class ProduitService {
   async getProduitRavitaillesList(nom_fournisseur: string = ""): Promise<ProduitsRavitailles[]>{
     try {
 
-      let user = this.userSvc.getActiveUser();
+      let user = await this.bdSvc.getActiveUser();
       
       if(!user){
         throw new Error("Aucun utilisateur n'est defini");
@@ -140,7 +139,7 @@ export class ProduitService {
   }
 
 
-  initProduitValues(memo:any): Produit{
+  async initProduitValues(memo:any): Promise<Produit>{
     // console.log(memo); return {} as Produit;
     let produit = new Produit(memo.nom);
     produit.id = memo.id;
@@ -157,7 +156,7 @@ export class ProduitService {
     produit.hasCasier = memo.hasCasier;
     produit.upload = memo.upload;
     produit._fournisseurs = Object.keys(memo).includes('fournisseurs') ? JSON.parse(memo.fournisseurs) : ( Object.keys(memo).includes('_fournisseurs_ids') ? memo._fournisseurs_ids : [] );
-    produit.user_id = this.userSvc.getActiveUser()?.id;
+    produit.user_id = (await this.bdSvc.getActiveUser())?.id;
     console.log(produit)
     return produit;
   }

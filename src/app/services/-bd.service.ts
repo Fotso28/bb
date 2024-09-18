@@ -1,6 +1,6 @@
 import { Injectable, signal } from '@angular/core';
 import { SQLiteConnection, CapacitorSQLite, SQLiteDBConnection, DBSQLiteValues, capSQLiteJson} from '@capacitor-community/sqlite';
-import { UserService } from './user.service';
+import { User, UserService } from './user.service';
 import { showToast } from '../_lib/lib';
 import { DEFAULT_DATA } from '../_lib/default-data';
 
@@ -15,7 +15,7 @@ export class BdService{
   private sqlite: SQLiteConnection = new SQLiteConnection(CapacitorSQLite);
   private db!: SQLiteDBConnection;
 
-  private database_tables : Array<string> = [PRODUIT_RAVITAILLES, FAMILLE_TABLE, CASIER_SUP_TABLE, HISTORIQUE_TABLE, AVARIS_TABLE, CASIER_TABLE, CATEGORIE_TABLE, EMPLOYE_TABLE, FOURNISSEUR_TABLE,
+  private database_tables : Array<string> = [USER_TABLE ,PRODUIT_RAVITAILLES, FAMILLE_TABLE, CASIER_SUP_TABLE, HISTORIQUE_TABLE, AVARIS_TABLE, CASIER_TABLE, CATEGORIE_TABLE, EMPLOYE_TABLE, FOURNISSEUR_TABLE,
      POINT_VENTE_TABLE, PRODUIT_TABLE, DEPENSE_TABLE, RAVITAILLEMENT_TABLE, VENTE_TABLE, TABLE_RESTE];
   
 
@@ -40,17 +40,19 @@ export class BdService{
   async initDatabase() : Promise<boolean>{
     try {
 
-      this.db = await this.initConnection();
-      await this.openConnection();
-      // await this.db.query('drop table Historique');
-      // let column = await this.db.query(`PRAGMA database_list`);
-      // console.log(column.values && column.values[0].file);
+      if(!this.db){
+        this.db = await this.initConnection();
+        await this.openConnection();
+        // await this.db.query('drop table User');
+        // let column = await this.db.query(`PRAGMA database_list`);
+        // console.log(column.values && column.values[0].file);
 
-      
-      // await this.DropTables();
-      
-      await this.loadOrCreateTable();
-      await this.insertItems(); 
+        
+        // await this.DropTables();
+        
+        await this.loadOrCreateTable();
+        // await this.loadData(); 
+      }
       
       // this.closeConnection();
       return Promise.resolve(true);
@@ -92,7 +94,7 @@ export class BdService{
     this.database_tables.forEach((table:string)=>{
       if(this.db){
         this.db.query(table).then((result: any) => {
-          // console.log(result);
+          console.warn("Je m'execute et le resultat est :",result);
         }).catch((err:any) => console.log(err));
       }else{
         console.log("db n'est pas initialisé")
@@ -186,7 +188,7 @@ export class BdService{
   public async create(data: any, returnSaveValue=false):Promise<false | DBSQLiteValues>{
     try {
 
-      data.user_id = this.userSvc.getActiveUser()?.id;
+      data.user_id = ( await this.getActiveUser())?.id;
       
       if(!data.user_id) throw new Error("None of the users are defined");
       
@@ -235,10 +237,12 @@ export class BdService{
    public async update(data: any): Promise<boolean>{
     try {
 
-      data.user_id = this.userSvc.getActiveUser()?.id;
+      data.user_id = (await this.getActiveUser())?.id;
       if(!data.user_id) throw new Error("None of the users are defined");
       if(Object.keys(data).includes('deletedAt')){
-        data.deletedAt = 0;
+        if(!data.deletedAt){
+          data.deletedAt = 0;
+        }
       }
       let table_fields = Object.keys(data);
       let table_values = Object.values(data);
@@ -299,7 +303,7 @@ export class BdService{
     }
   }
 
-  async insertItems() {
+  async loadData() {
     
     try {
       // console.log(await this.checkDatabaseExists(DB_NAME))
@@ -314,6 +318,13 @@ export class BdService{
       // await this.db.beginTransaction();
   
       // Insert new records
+      
+      let active_user_id = (await this.getActiveUser())?.id;
+      
+      if(!active_user_id) throw new Error("None of the users are defined");
+      // remplacer l'id de l'utilisateur actif
+      replaceUserId(active_user_id)
+      
       for (const tableData of DEFAULT_DATA) {
 
         const insertQuery = `INSERT INTO ${tableData.table} (${Object.keys(tableData.values[0]).join(', ')}) VALUES (${Object.keys(tableData.values[0]).map(() => '?').join(', ')})`;
@@ -349,6 +360,89 @@ export class BdService{
     const result = await this.db.exportToJson("full");
     return result;
   }
+
+    /***
+   * Set a User as active
+   * @param User
+   */
+    // async setActiveUser(user: User):Promise<void>{
+    //   await this.query('INSERT INTO User (username, telephone, localite, phoneId, appVersion, appExpirationDate, isAppObsolete, abonnementActivationCode, abonnementPaymentDate) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)'
+    //     , false,
+    //     [user.username, user.telephone, user.localite, user.phoneId, user.appVersion, user.appExpirationDate, user.isAppObsolete, user.abonnementActivationCode, user.abonnementPaymentDate]
+    //   )
+    // }
+
+    setActiveUser(user: User): Promise<void> {
+      return new Promise(async (resolve, reject) => {
+
+        let deleteActiveUser = await this.deleteActiveUser();
+        if(!deleteActiveUser){
+          reject("Failed to delete Active User");
+        }
+
+        this.query(
+          'INSERT INTO User (username, telephone, localite, phoneId, appVersion, appExpirationDate, isAppObsolete, abonnementActivationCode, abonnementPaymentDate) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)',
+          false,
+          [user.username, user.telephone, user.localite, 'user.phoneId', user.appVersion, user.appExpirationDate, user.isAppObsolete, user.abonnementActivationCode, user.abonnementPaymentDate]
+        )
+        .then(() => {
+          resolve(); // Résolution de la promesse si tout se passe bien
+        })
+        .catch((error) => {
+          reject(`Failed to set active user: ${error.message}`); // Rejet explicite en cas d'erreur
+        });
+      });
+    }
+    /**
+     * Get active User
+     * @return User | null
+     */
+    async getActiveUser(): Promise<User | null>{
+      try {
+        // return null
+        return new Promise((resolve, reject)=>{
+          setTimeout(async ()=>{
+            let users = await this.query('SELECT * FROM User');
+            let user = users.values;
+            console.log(user)
+            if(!user?.length){
+              reject(null);
+            }else{
+              resolve(user[0]);
+            }
+          }, 300)
+        })
+      } catch (error) {
+        console.log("une erreur :", error)
+        return null;
+      }
+    }
+
+    async deleteActiveUser(): Promise<boolean>{
+      try {
+        let isDelete = await this.query("DELETE FROM User");
+        return true;
+      } catch (error) {
+        console.log("An error when deleting ActiveUser: ", error)
+        return false
+      }
+    }
+}
+
+export function replaceUserId(newUserId: number) {
+  // Parcourt chaque objet dans le tableau DEFAULT_DATA
+  DEFAULT_DATA.forEach(data => {
+    // Vérifie si l'objet a une propriété 'values' qui est un tableau
+    if (Array.isArray(data.values)) {
+      // Parcourt chaque élément du tableau 'values'
+      data.values.forEach((item: any) => {
+        // Si l'élément a la propriété 'user_id', remplace sa valeur par newUserId
+        if (item.hasOwnProperty('user_id')) {
+          item.user_id = newUserId;
+        }
+      });
+    }
+  });
 }
 
 
@@ -387,14 +481,22 @@ const FAMILLE_TABLE = `CREATE TABLE IF NOT EXISTS Famille (
   user_id INTEGER NOT NULL,
   deletedAt TIMESTAMP DEFAULT 0
 )`;
-// const USER_TABLE  = `CREATE TABLE IF NOT EXISTS User (
-//   id INTEGER PRIMARY KEY AUTOINCREMENT,
-//   nom TEXT NOT NULL,
-//   prenom TEXT DEFAULT NULL,
-//   mail TEXT,
-//   adresse TEXT,
-//   cni TEXT
-// )`;
+const USER_TABLE  = `CREATE TABLE IF NOT EXISTS User (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        username VARCHAR(255) NOT NULL,
+        telephone VARCHAR(20) NOT NULL UNIQUE,
+        localite VARCHAR(255),
+        phoneId VARCHAR(255) NOT NULL, -- Identifiant unique du téléphone
+        appVersion VARCHAR(50), -- Version de l'application
+        appExpirationDate INTEGER , -- Date d'expiration de l'application (timestamp en millisecondes)
+        isAppObsolete BOOLEAN DEFAULT 0, -- Indicateur si l'application est obsolète
+        abonnementPaymentDate INTEGER, -- Date du dernier paiement de l'abonnement (timestamp en millisecondes)
+        abonnementActivationCode VARCHAR(255), -- Code d'activation de l'abonnement
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        is_admin BOOLEAN DEFAULT 0,
+        last_login TIMESTAMP
+    )`;
 const PRODUIT_TABLE = `CREATE TABLE IF NOT EXISTS Produit (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   nom TEXT NOT NULL,

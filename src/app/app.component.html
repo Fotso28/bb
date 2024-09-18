@@ -21,8 +21,16 @@
                   <ion-label>{{ p.title }}</ion-label>
                 </ion-item>
               </ion-menu-toggle>
+
+              <!-- Item static pour la déconnexion -->
             </ng-container>
           </ng-container>
+          <ion-menu-toggle auto-hide="false">
+            <ion-item routerDirection="root" (click)="logout()" lines="none" detail="false">
+              <ion-icon style="padding-right: 15px; color: var(--ion-color-secondary)" name="log-out-outline"></ion-icon>
+              <ion-label>Déconnexion</ion-label>
+            </ion-item>
+          </ion-menu-toggle>
           <div class="version">
             <small>Version 1.0.1</small>
           </div>

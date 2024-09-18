@@ -23,7 +23,7 @@ export class PointVenteComponent  implements OnInit {
 
     this.platform.ready().then(async () => {
 
-      let _pointVente = await this.pvSvc.all();
+      let _pointVente = (await this.pvSvc.all());
 
       if(!_pointVente || !_pointVente.length){
         console.log("Aucun point de vente");
@@ -33,13 +33,14 @@ export class PointVenteComponent  implements OnInit {
       console.log(_pointVente);
       let activePv = this.pvSvc.getActivePointeVente();
       let index = 0;
-  
-      if(!activePv && _pointVente && _pointVente.length){
-        // index = _pointVente?.findIndex((pv: PointVente) => pv.id == activePv?.id);
+      console.log(activePv)
+      if(activePv && _pointVente && _pointVente.length){
+        index = _pointVente?.findIndex((pv: PointVente) => pv.id == activePv?.id);
         activePv = _pointVente[index];
+        console.log('je m execute bien')
       }
-      this.pointVente = _pointVente;
       this.activePv = _pointVente[index];
+      this.pointVente = _pointVente.reverse();
       console.warn(this.activePv)
       this.pvForm = this.formBuilder.group({
         activePointVente: [ activePv || "" ]
@@ -49,12 +50,17 @@ export class PointVenteComponent  implements OnInit {
    
   }
 
-  async ionViewWillEnter(){}
+  async ionViewWillEnter(){
+    
+  }
 
   changePv(event: Event){
-    this.pvSvc.setActivePointVente((event as CustomEvent).detail.value as PointVente);
-    this.pointVenteEvent.emit((event as CustomEvent).detail.value as PointVente);
-    this.activePv = (event as CustomEvent).detail.value as PointVente;
+    let pv: PointVente = (event as CustomEvent).detail.value as PointVente
+    if(pv.id){
+      this.pvSvc.setActivePointVente(pv);
+      this.pointVenteEvent.emit(pv);
+      this.activePv = pv;
+    }
   }
 
   openModal(){

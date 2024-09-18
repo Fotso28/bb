@@ -61,8 +61,8 @@ export class DepenseService {
   async getAll(): Promise<boolean> {
     try {
       // const sql = `SELECT Depense.id, Depense.date, Depense.type, Depense.motif, Depense.montant, 
-      //   Depense.user_id, Depense.point_vente_id, PointVente.nom FROM 
-      //   Depense JOIN PointVente On Depense.point_vente_id = PointVente.id`;
+      //   Depense.user_id, Depense.id_point_vente, PointVente.nom FROM 
+      //   Depense JOIN PointVente On Depense.id_point_vente = PointVente.id`;
       const sql = `SELECT 
                       Depense.id, 
                       Depense.date, 
@@ -70,12 +70,12 @@ export class DepenseService {
                       Depense.motif, 
                       Depense.montant, 
                       Depense.user_id, 
-                      Depense.point_vente_id, 
+                      Depense.id_point_vente, 
                       PointVente.nom, 
                       Depense.deletedAt,
                       Categorie.nom AS categorie_nom
                     FROM Depense JOIN PointVente 
-                    ON Depense.point_vente_id = PointVente.id 
+                    ON Depense.id_point_vente = PointVente.id 
                     JOIN Categorie 
                     ON Depense.type = Categorie.id 
                     WHERE Depense.deletedAt = 0`;

@@ -5,7 +5,7 @@ import { Ravitaillement } from '../models/Ravitaillements';
 import { Reste } from '../models/RestesModel';
 import { Vente } from '../models/ProduitVendus';
 import { showError, showToast } from '../_lib/lib';
-import { User, UserService } from './user.service';
+import { User } from './user.service';
 import { PointVenteService } from './point-vente.service';
 import { PointVente } from '../models/PointVentes';
 import { DBSQLiteValues } from '@capacitor-community/sqlite';
@@ -28,8 +28,7 @@ export class InventoryService {
 
   ids_ravitaillement!:  Array<number | undefined>
   lastStockProduct_id!:  number;
-  constructor(private bdSvc: BdService, 
-    private userSvc: UserService, 
+  constructor(private bdSvc: BdService,
     private pointVenteSvc: PointVenteService, 
     private logger: LoggerService) {
       
@@ -156,7 +155,7 @@ export class InventoryService {
     async saveCurrentStock(restes: ProduitsRavitailles[], returnSaveValue: boolean = false): Promise<false | DBSQLiteValues>{
       
         try {
-          let currentUser: User | null = this.userSvc.getActiveUser();
+          let currentUser: User | null = await this.bdSvc.getActiveUser();
           let currentPointVente: PointVente | null = this.pointVenteSvc.getActivePointeVente();
           
           

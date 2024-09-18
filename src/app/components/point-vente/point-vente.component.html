@@ -3,7 +3,7 @@
       
       <ion-select #select label="Point de vente" 
         formControlName="activePointVente" 
-        mode="ios" (ionChange)="changePv($event)" 
+        mode="ios" (ionChange)="changePv($event)" [ngModel]="activePv"
         placeholder="Choisir">
           <ion-select-option *ngFor="let pv of pointVente" [value]="pv">{{pv.nom}}</ion-select-option>
       </ion-select>

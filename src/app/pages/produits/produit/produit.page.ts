@@ -92,7 +92,7 @@ export class ProduitPage implements OnInit {
 
   async delete(produit: Produit, slidingItem:any){
     slidingItem.close();
-    let item : Produit = this.produitSvc.initProduitValues(produit);
+    let item : Produit = await this.produitSvc.initProduitValues(produit);
     let role = await this.confirm();
     console.log(role);
     if(role == "confirm"){

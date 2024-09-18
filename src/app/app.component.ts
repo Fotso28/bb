@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core'; 
-import { IonRouterOutlet, Platform } from '@ionic/angular';
+import { ActionSheetButton, ActionSheetController, IonRouterOutlet, Platform } from '@ionic/angular';
 import { register } from 'swiper/element/bundle';
 import { BdService } from './services/-bd.service';
 import { UserService } from './services/user.service';
@@ -7,6 +7,9 @@ import { PointVente } from './models/PointVentes';
 import { PointVenteService } from './services/point-vente.service';
 import { Router } from '@angular/router';
 import { StatusBar } from '@capacitor/status-bar';
+import { AuthService } from './services/auth.service';
+import { DataInitializationService } from './services/data-initialization.service';
+import { showError, showToast } from './_lib/lib';
 
 
 @Component({
@@ -38,17 +41,21 @@ export class AppComponent implements OnInit {
   
   constructor(private router: Router,
     private platform: Platform, 
-    private dbSvc: BdService, 
-    private userSvc: UserService, 
-    private pvSvc: PointVenteService) 
+    private dbSvc: BdService,
+    private actionSheetCtrl: ActionSheetController,
+    private dataInit: DataInitializationService,
+    private authSvc: AuthService) 
   {
     register();
-    this.platform.ready().then(() => {
-
+    this.platform.ready().then(async() => {
+      // localStorage.clear();
       if (this.platform.is('capacitor')) {
         StatusBar.setOverlaysWebView({ overlay: false });
         StatusBar.setBackgroundColor({ color: "#50c8ff" });
-         this.initializeApp();
+        
+        // this.router.navigateByUrl("/loading-page")
+        
+        
         // this.fcmNotification.init_fcm_push_notification();
       }
     })
@@ -57,39 +64,48 @@ export class AppComponent implements OnInit {
   
   ngAfterContentInit(){
     // this.router.navigateByUrl('/loading-page');
+    
   }
   
   async ngOnInit(): Promise<any> {
-    
+    await this.dataInit.initializeApp();
+    if(await this.authSvc.isAuthenticated()){
+      this.dbSvc.loadData();
+    }
+    console.warn((await this.dbSvc.getActiveUser()));
   }
 
-  async initializeApp(){
-    if(this.platform.is('capacitor')){
-      await this.dbSvc.initDatabase()
+  async logout(){
+    let role = await this.confirm();
+    if(role == "confirm"){
+      await this.dataInit.clearParamsData();
+      this.router.navigateByUrl("/login");
+      showToast("Vous êtes deconnectés! A bientôt")
     }
-
-    if(!this.userSvc.getActiveUser()){
-      this.userSvc.setActiveUser({ id: 1, username: 'Test User', telephone: '699658838', localite: "", token: "jtkls" })
-    }
-    
-    await this.activePointVente();
   }
 
-  async activePointVente(){
+  async confirm(){
 
-    let activePv : PointVente | null = this.pvSvc.getActivePointeVente();
-    console.warn(activePv)
-    if(activePv){
-      return
-    }
+    const actionSheet = await this.actionSheetCtrl.create({
+      header: 'Deconnexion',
+      subHeader: "Etes vous sûr ?",
+      mode: 'ios',
+      buttons: [
+        {
+          text: 'Oui',
+          role: 'confirm',
+        },
+        {
+          text: 'Non',
+          role: 'cancel',
+        },
+      ],
+    });
 
-    // Aucun pv activer
-    let allPv : Array<PointVente> = await this.pvSvc.all();
-    if(allPv && allPv.length){
-      const FIRST_ELEMENT = 0
-      this.pvSvc.setActivePointVente(allPv[FIRST_ELEMENT])
-    }else{
-      // this.router.navigateByUrl('/add-update-point-vente/add');
-    }
+    actionSheet.present();
+
+    const { role } = await actionSheet.onWillDismiss();
+
+    return role;
   }
 }

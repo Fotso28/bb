@@ -7,30 +7,7 @@ export class UserService {
 
     constructor(){}
 
-    /***
-   * Set a User as active
-   * @param User
-   */
-  setActiveUser(user: User):void{
-    localStorage.setItem('user',JSON.stringify(user));
-    console.log('utilisateur créé');
-  }
-  /**
-   * Get active User
-   * @return User | null
-   */
-  getActiveUser(): User | null{
-    try {
-      let user = localStorage.getItem('user');
-      if(!user){
-        return null
-      }else{
-        return JSON.parse(user);
-      }
-    } catch (error) {
-      return null;
-    }
-  }
+  
 }
 
 export interface User {
@@ -38,5 +15,11 @@ export interface User {
   username: string;
   telephone: string;
   localite: string;
-  token: string
+  token: string;
+  phoneId: string; // Identifiant unique du téléphone de l'utilisateur
+  appVersion: string; // Version de l'application que l'utilisateur utilise
+  appExpirationDate: number; // Date d'expiration de l'application pour cet utilisateur
+  isAppObsolete: boolean; // Indicateur si l'application est obsolète pour cet utilisateur
+  abonnementPaymentDate: number; // Date du dernier paiement de l'abonnement
+  abonnementActivationCode: string; // Code d'activation de l'abonnement
 }

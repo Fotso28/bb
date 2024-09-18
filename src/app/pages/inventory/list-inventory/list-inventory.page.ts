@@ -22,7 +22,8 @@ export class ListInventoryPage implements OnInit {
 
   async ionViewWillEnter(){
     let pointVente: PointVente | null = this.pvSvc.getActivePointeVente();
-    if(!pointVente || ! pointVente.id){
+    // console.log(pointVente)
+    if(!pointVente || !pointVente.id){
       showError("Le point de vente n'est pas defini");
       return;
     }

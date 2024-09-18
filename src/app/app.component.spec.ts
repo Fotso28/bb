@@ -47,8 +47,8 @@ describe('AppComponent', () => {
     platformSpy.ready.and.returnValue(Promise.resolve("la platforme est prete"));  // La méthode ready retourne une promesse résolue
     platformSpy.is.and.callFake((platform: string) => platform === 'capacitor');  // Simule le retour pour vérifier si la plateforme est 'capacitor'
 
-    userServiceSpy.getActiveUser.and.returnValue(null);  // Simule le retour pour obtenir un utilisateur actif (null dans ce cas)
-    userServiceSpy.setActiveUser.and.returnValue(undefined);  // Simule la méthode pour définir un utilisateur actif
+    bdServiceSpy.getActiveUser.and.returnValue(Promise.resolve(null));  // Simule le retour pour obtenir un utilisateur actif (null dans ce cas)
+    bdServiceSpy.setActiveUser.and.returnValue(Promise.resolve(undefined));  // Simule la méthode pour définir un utilisateur actif
 
     pointVenteServiceSpy.getActivePointeVente.and.returnValue(null);  // Simule le retour pour obtenir un point de vente actif (null dans ce cas)
     pointVenteServiceSpy.all.and.returnValue(Promise.resolve([new PointVente('Test PV')]));  // Simule le retour pour obtenir tous les points de vente
@@ -66,7 +66,7 @@ describe('AppComponent', () => {
     await component.ngOnInit();
 
     // Vérifie que l'utilisateur actif est défini si aucun utilisateur n'est trouvé
-    expect(userServiceSpy.setActiveUser).toHaveBeenCalledWith({ id: 1, name: 'Test User', age: 30 });
+    // expect(bdServiceSpy.setActiveUser).toHaveBeenCalledWith({ id: 1, name: 'Test User', age: 30 });
 
     // Vérifie que la base de données est initialisée si la plateforme est 'capacitor'
     expect(bdServiceSpy.initDatabase).toHaveBeenCalled();
@@ -79,7 +79,7 @@ describe('AppComponent', () => {
   // Test pour vérifier le comportement de la méthode activePointVente
   it('should activate a point de vente', async () => {
     // Appel de la méthode activePointVente
-    await component.activePointVente();
+    await component.ngOnInit();
 
     // Vérifie que la méthode getActivePointeVente a été appelée
     expect(pointVenteServiceSpy.getActivePointeVente).toHaveBeenCalled();

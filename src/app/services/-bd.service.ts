@@ -1,10 +1,9 @@
 import { Injectable, signal } from '@angular/core';
-import { SQLiteConnection, CapacitorSQLite, SQLiteDBConnection, DBSQLiteValues, capSQLiteJson} from '@capacitor-community/sqlite';
+import { SQLiteConnection, CapacitorSQLite, SQLiteDBConnection, 
+         DBSQLiteValues, capSQLiteJson } from '@capacitor-community/sqlite';
 import { User, UserService } from './user.service';
 import { showToast } from '../_lib/lib';
 import { DEFAULT_DATA } from '../_lib/default-data';
-
-
 
 const DB_NAME = "Db_Gbar";
 export const NON_DELETE_VALUE = 0;
@@ -15,16 +14,17 @@ export class BdService{
   private sqlite: SQLiteConnection = new SQLiteConnection(CapacitorSQLite);
   private db!: SQLiteDBConnection;
 
-  private database_tables : Array<string> = [USER_TABLE ,PRODUIT_RAVITAILLES, FAMILLE_TABLE, CASIER_SUP_TABLE, HISTORIQUE_TABLE, AVARIS_TABLE, CASIER_TABLE, CATEGORIE_TABLE, EMPLOYE_TABLE, FOURNISSEUR_TABLE,
-     POINT_VENTE_TABLE, PRODUIT_TABLE, DEPENSE_TABLE, RAVITAILLEMENT_TABLE, VENTE_TABLE, TABLE_RESTE];
+  private database_tables : Array<string> = [
+    USER_TABLE ,PRODUIT_RAVITAILLES, 
+    FAMILLE_TABLE, CASIER_SUP_TABLE, HISTORIQUE_TABLE, AVARIS_TABLE, 
+    CASIER_TABLE, CATEGORIE_TABLE, EMPLOYE_TABLE, FOURNISSEUR_TABLE,
+    POINT_VENTE_TABLE, PRODUIT_TABLE, DEPENSE_TABLE,
+    RAVITAILLEMENT_TABLE, VENTE_TABLE, TABLE_RESTE
+  ];
   
-
   private user = signal<any>([]);
 
   constructor(private userSvc: UserService) {}
-
-  
-
 
   async checkDatabaseExists(databaseName: string): Promise<boolean> {
     const sqlite = new SQLiteConnection(CapacitorSQLite);
@@ -46,8 +46,6 @@ export class BdService{
         // await this.db.query('drop table User');
         // let column = await this.db.query(`PRAGMA database_list`);
         // console.log(column.values && column.values[0].file);
-
-        
         // await this.DropTables();
         
         await this.loadOrCreateTable();
@@ -140,13 +138,8 @@ export class BdService{
     
     try {
 
-      // let _pv: PointVente | null = this.pvSvc.getActivePointeVente();
-      // if(!_pv || !_pv.id){
-      //   return null;
-      // }
-
       const selectSQL = `SELECT * FROM ${tableName} 
-        WHERE id = ? AND deletedAt = ${NON_DELETE_VALUE}`;
+                          WHERE id = ? AND deletedAt = ${NON_DELETE_VALUE}`;
       let  _result =  (await this.db.query(selectSQL, [id])).values;
       if(_result?.length){
         return _result[0]
@@ -207,11 +200,7 @@ export class BdService{
         console.log("le type de donnée n'est pas conforme");
         return false
       }
-
       
-
-      
-
       let create_sql = `INSERT INTO ${table_name} (${table_fields.join(', ')}) VALUES (${Array(table_fields.length).fill('?').join(', ')})`;
       
       let _newval = await this.db.query(create_sql, table_values);

@@ -43,7 +43,7 @@ yarn-error.log
 .settings/
 *.sublime-project
 *.sublime-workspace
-
+*.docx
 # Visual Studio Code
 .vscode/*
 !.vscode/settings.json

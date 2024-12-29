@@ -3,7 +3,7 @@ import { PreloadAllModules, RouterModule, Routes } from '@angular/router';
 import { ComponentsModule } from './components/components.module';
 import { HttpClientModule } from '@angular/common/http';
 import { AuthGuard } from './guards/auth.guard.guard';
-
+import { LoginGuard } from './guards/login.guard';
 const routes: Routes = [
   {
     path: '',
@@ -13,7 +13,7 @@ const routes: Routes = [
   {
     path: 'accueil',
     loadChildren: () => import('./pages/accueil/accueil.module').then( m => m.AccueilPageModule),
-    // //canActivate: [AuthGuard]
+    canActivate: [AuthGuard],
   },
   {
     path: 'famille',

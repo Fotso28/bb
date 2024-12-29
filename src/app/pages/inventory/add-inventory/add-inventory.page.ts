@@ -246,6 +246,7 @@ export class AddInventoryPage implements OnInit {
       }
       this.router.navigateByUrl("/more-detail");
     } catch (error) {
+      console.log(error);
       this.logger.log(error);
     }
   }

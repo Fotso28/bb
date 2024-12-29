@@ -34,7 +34,7 @@ export class AddUpdateProduitPage implements OnInit {
   produitForm!: FormGroup;
   produit!: Produit;
   produit_img_data!: string;
-
+  formReady: boolean = false;
   familles : Famille[] = [];
   categories : Categorie[] = [];
   casiers : Casier[] = [];
@@ -56,12 +56,6 @@ export class AddUpdateProduitPage implements OnInit {
 
   async ngOnInit() {
 
-    this.getCasier();
-    this.getCategorie();
-    this.getFamille();
-    this.getFournisseur()
-
-
     const memo = history.state as Produit;
     console.log(memo);
 
@@ -69,7 +63,15 @@ export class AddUpdateProduitPage implements OnInit {
 
     
     this.action = this.route.snapshot.paramMap.get('action') as 'update' | 'add';
+    // this.getCasier();
+    // this.getCategorie();
+    // this.getFamille();
+    // this.getFournisseur()
+
+
+    
     this.initForm();
+    this.formReady = true;
     if(this.produit.imgLink){
       console.log(this.produit.imgLink);
       if(/\.jpeg$/.test(this.produit.imgLink) && !/assets\/product-img\//.test(this.produit.imgLink)){
@@ -133,7 +135,7 @@ export class AddUpdateProduitPage implements OnInit {
       imgLink: [this.produit.imgLink || ""],
       hasCasier: [this.produit.hasCasier == undefined ? true : this.produit.hasCasier, Validators.required]
     });
-    console.log(this.produit._fournisseurs_ids)
+    console.warn(this.produitForm);
   }
 
   // initProduitValues(memo:any): Produit{

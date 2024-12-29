@@ -31,7 +31,7 @@ export class InventoryService {
   constructor(private bdSvc: BdService,
     private pointVenteSvc: PointVenteService, 
     private logger: LoggerService) {
-      
+      // this.bdSvc.query("Delete from Reste"); 
   }
 
    /**

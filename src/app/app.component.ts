@@ -52,11 +52,16 @@ export class AppComponent implements OnInit {
         StatusBar.setOverlaysWebView({ overlay: false });
         StatusBar.setBackgroundColor({ color: "#50c8ff" });
 
-        await this.dataInit.initializeApp();
-        if(await this.authSvc.isAuthenticated()){
+        await this.dataInit.initializeDatabase();
+
+        let userIsAuthenticated = await this.authSvc.isAuthenticated();
+
+        if(userIsAuthenticated){
+          console.log('je suis ici')
           this.dbSvc.loadData();
+          const log = await this.dbSvc.query("SELECT * FROM Change_log");
+          console.log(log);
         }
-        console.warn((await this.dbSvc.getActiveUser()));
         
         // this.router.navigateByUrl("/loading-page")
         

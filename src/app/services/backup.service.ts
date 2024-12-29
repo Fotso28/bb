@@ -12,7 +12,8 @@ import { Directory, Filesystem } from '@capacitor/filesystem';
 import { firstValueFrom } from 'rxjs';
 import { User } from './user.service';
 import { environment } from 'src/environments/environment';
-
+import { retry } from 'rxjs/operators'; 
+import { HttpService } from './http.service';
 
 @Injectable({
   providedIn: 'root'
@@ -20,149 +21,126 @@ import { environment } from 'src/environments/environment';
 export class SyncDatabaseService {
     private baseUrl = environment.apiUrl;
 
-    constructor(private http: HttpClient, private bdSvc: BdService,
-      private histoSvc: HistoriqueImageUploadedService){}
+    constructor(private httpSvc: HttpService, private bdSvc: BdService, private http: HttpClient,
+      private histoSvc: HistoriqueImageUploadedService){
+        
+      }
 
-    uploadDatabase(): Observable<any> {
-      
-      return from(this.bdSvc.exportDatabase()).pipe(
-        switchMap(async (data: capSQLiteJson) => {
+      /**
+       * Recuperer les données dans la base de données en fonction de l'enregistrement 
+       * dans Change_log
+       * @param tableName :string
+       * @returns Promise<any[] | undefined>
+       */
+      async getChange_log_table(tableName: string): Promise<any[] | undefined>{
+        let sql = `SELECT c.action, c.table_name, c.record_id, t.*
+        FROM change_log c
+        JOIN ${tableName} t ON c.record_id = t.id
+        WHERE c.table_name = '${tableName}'`
+        let log_data = (await this.bdSvc.query(sql))?.values;
+        return log_data;
+      }
+      /**
+       * Retourne un JSON au format convenable pour le serveur
+       * @param datas: any[] 
+       * @returns return un JSON au format convenable pour le serveur
+       */
+      buildJSON_DATA(datas : any[] | undefined){
+        console.log("datas", datas)
+        if(!datas || !datas.length){
+          throw Error("Paramètre mal defini")
+        }
 
-          let user: User | null = await this.bdSvc.getActiveUser();
-          if(!user){
-            console.log("le user n'est pas valable");
-            return of(null);
-          }
+        return  {
+          tableName: datas[0].table_name,
+          changes: datas.map(row => {
+              const { action, record_id, table_name, ...data } = row; // Séparer `action` et `record_id` des autres champs
+              return {
+                  action,
+                  record_id,
+                  data
+              };
+          })
+        };
+      }
 
-          const jsonData = JSON.stringify(data);
-          console.log(jsonData);
-          const maxChunkSize = 1024; // 5 Mo en octets
-          const totalSize = new Blob([jsonData]).size;
-          const totalChunks = Math.ceil(totalSize / maxChunkSize);
-          
-          const headers = new HttpHeaders({
-            "Content-Type": "application/json"
-          });
+      activeUser: any;
+      async upload(data: Object){
+        if(!this.activeUser){
+          this.activeUser = await this.bdSvc.getActiveUser();
+        }
+        if(!this.activeUser || !this.activeUser.token){
+          throw Error("L'utilisateur n'est mal defini");
+        }
+        return await this.httpSvc.post("/saveData", data, this.activeUser);
+      }
 
-          console.log("Backup est ceci : ", data);
-          console.log("Taille totale de la data en octets : ", totalSize);
-          console.log("Nombre de paquets nécessaires : ", totalChunks);
 
-          let observables = [];
-         
-          for (let i = 0; i < totalChunks; i++) {
-            const start = i * maxChunkSize;
-            const end = Math.min(start + maxChunkSize, totalSize);
-            const chunk = jsonData.slice(start, end);
-            observables.push(this.http.post(`${this.baseUrl}/uploadDatabase`, 
-              { 
-                data: chunk,
-                user_id: user?.id,
-                chunkIndex: i+1,
-                totalChunks
-              }, 
-              { headers }));
-          }
 
-          return forkJoin(observables);
-        }),
-        catchError(error => {
-          console.error('Erreur lors de la lecture du fichier.', error);
-          return of(false); // Retourne un Observable qui émet false
-        })
-      );
-    }
 
-    // async uploadImages(){
-    //   let allImages = await this.getAllImages();
-    //   if(!allImages.length) return;
-    //   let unsaved_images: string[] = [] // Toutes les images pas encore envoyée sur le serveur
-      
-    //   let user: User | null = this.userSvc.getActiveUser();
-    //   if(!user){
-    //     console.log("le user n'est pas valable");
-    //     return;
-    //   }
 
-    //   for(let i = 0; i< allImages.length; i++){
-    //     if(!this.histoSvc.imageExist(allImages[i])){
-    //       unsaved_images.push(allImages[i]);
-    //     }
-    //   }
-    //   if(!unsaved_images.length) return;
 
-    //   // Définir l'en-tête Content-Type avec le boundary
-    //   const headers = new HttpHeaders({
-    //     'Content-Type': `multipart/form-data`
-    //   });
-    //   console.log("les images non enregistrée sont: ", unsaved_images);
-    //   unsaved_images.forEach(async (imageName, index) =>{
-    //     let formData: FormData = await this.loadImageFromMemory(imageName);
-    //     formData.append('index', index.toString());
-    //     formData.append('total', unsaved_images.length.toString());
-    //     formData.append('user_id', user.id.toString());
-    //     firstValueFrom(this.http.post(this.baseUrl + "/uploadImages", formData)).then((val)=>{
-    //       this.histoSvc.setHistorique(imageName);
-    //       console.log(val);
-    //     }).catch((err) => {
-    //       console.log(err)
-    //     })
-    //   })
-    // }
 
-    uploadImages(): Observable<any> {
-      
-      return from(this.getAllImages()).pipe(
-        switchMap(async (allImages) => {
-          
-          let user: User | null = await this.bdSvc.getActiveUser();
-          if (!user) {
-            console.log("le user n'est pas valable");
-            return of(null);
-          }
 
-          if (!allImages.length) return of(null);
-    
-          let unsaved_images: string[] = []; // Toutes les images pas encore envoyées sur le serveur
-    
-          console.log(allImages);
-          for (let i = 0; i < allImages.length; i++) {
-            if (!this.histoSvc.imageExist(allImages[i])) {
-              unsaved_images.push(allImages[i]);
-            }
-          }
-          if (!unsaved_images.length) return of(null);
+
+
+
+
+
+
+
+
+
+
+
     
 
-          let params = new HttpParams()
-          .set('user_id', user!.id.toString());
-          // console.log()
-          // Création d'un observable de séquence pour envoyer les images une par une
-          let observables = unsaved_images.map((imageName, index) => {
-            return from(this.loadImageFromMemory(imageName)).pipe(
-              switchMap((formData: FormData) => {
-                formData.append('index', index.toString());
-                formData.append('total', unsaved_images.length.toString());
-                formData.append('user_id', user!.id.toString());
-                return this.http.post(this.baseUrl + "/uploadImages", formData, { params });
-              }),
-              tap(() => this.histoSvc.setHistorique(imageName)),
-              catchError((err) => {
-                console.log(err);
-                return of(null); // Retourne un Observable qui émet null en cas d'erreur
+      uploadImages(): Observable<any> {
+        console.log("au moins");
+        return from(this.getAllImages()).pipe(
+          switchMap((allImages) => 
+            from(this.bdSvc.getActiveUser()).pipe(
+              switchMap((user) => {
+                if (!user) {
+                  console.log("le user n'est pas valable");
+                  return of(null);
+                }
+      
+                if (!allImages.length) return of(null);
+      
+                const unsaved_images = allImages.filter((image) => !this.histoSvc.imageExist(image));
+      
+                if (!unsaved_images.length) return of(null);
+      
+                const params = new HttpParams().set('user_id', user.id.toString());
+      
+                const observables = unsaved_images.map((imageName, index) => 
+                  from(this.loadImageFromMemory(imageName)).pipe(
+                    switchMap((formData: FormData) => {
+                      formData.append('index', index.toString());
+                      formData.append('total', unsaved_images.length.toString());
+                      formData.append('user_id', user.id.toString());
+                      return this.http.post(`${this.baseUrl}/uploadImages`, formData, { params });
+                    }),
+                    tap(() => this.histoSvc.setHistorique(imageName)),
+                    catchError((err) => {
+                      console.log(err);
+                      return of(null);
+                    })
+                  )
+                );
+      
+                return concat(...observables);
               })
-            );
-          });
-    
-          // Utilisation de concat pour garantir l'envoi séquentiel
-          return concat(...observables);
-        }),
-        catchError((error) => {
-          console.error('Erreur lors du téléchargement des images.', error);
-          return of(false); // Retourne un Observable qui émet false en cas d'erreur
-        })
-      );
-    }
+            )
+          ),
+          catchError((error) => {
+            console.error('Erreur lors du téléchargement des images.', error);
+            return of(false);
+          })
+        );
+      }
+      
  
 
     private async loadImageFromMemory(imageName: string): Promise<FormData>{
@@ -192,7 +170,9 @@ export class SyncDatabaseService {
     }
     // Get all Produits
     private async getImageProduit(): Promise<string[]> {
-      return (await this.getData<Produit>('Produit', 'imgLink'));
+      let image =  (await this.getData<Produit>('Produit', 'imgLink'));
+      console.log(image);
+      return image;
     }
     private async  getImageFournisseur(): Promise<string[]> {
       return await this.getData<Fournisseur>('Fournisseur');
@@ -207,8 +187,9 @@ export class SyncDatabaseService {
         let partenaire: string[] = await this.getImageFournisseur();
         let employe: string[] = await this.getImageEmploye();
         
-        let imageName = [...ravitaillemnt, ...produit, ...partenaire, ...employe];
+        let imageName = [...ravitaillemnt, ...produit, ...partenaire, ...employe].filter(Boolean);
         // 
+        console.log(imageName);
         return imageName;
     }
     private async getData<T>(tableName: string, imgLink = "photo"): Promise<string[]> {
@@ -216,8 +197,8 @@ export class SyncDatabaseService {
         let nullEmployeImageValue: string = '[]';
         let result = await this.bdSvc.query(`SELECT ${imgLink} as imageName FROM ${tableName}`);
         
-    
-        if (result.values && Array.isArray(result.values)) {
+        if ( Array.isArray(result.values) && result?.values.length) {
+          console.log(result.values);
           return result.values.map((prod: { imageName: string }) => prod.imageName).filter((imageName: string) => imageName && !/preconfig-/.test(imageName) && imageName != nullEmployeImageValue) as string[];
         } else {
           return [];
@@ -226,5 +207,9 @@ export class SyncDatabaseService {
         console.error(`Error fetching data from ${tableName}:`, error);
         return [];
       }
+    }
+
+    async delete_log_entry(id:number[]){
+      return await this.bdSvc.deleteLog(id);
     }
 }

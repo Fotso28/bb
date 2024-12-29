@@ -90,8 +90,8 @@ export class AvarisService {
       }
 
       // Construit la requête SQL pour récupérer la somme des quantités d'avaris non inventoriés
-      const sql = `SELECT id, produit_id, point_vente_id, SUM(qte) AS total_quantity 
-      FROM Avaris WHERE deletedAt = 0  AND point_vente_id = ${_pointVente.id}  
+      const sql = `SELECT id, produit_id, id_point_vente, SUM(qte) AS total_quantity 
+      FROM Avaris WHERE deletedAt = 0  AND id_point_vente = ${_pointVente.id}  
       AND all_ready_inventoried = 0 AND produit_id = ${produit_id}`;
       console.log(sql)
       // Exécute la requête SQL
@@ -122,7 +122,7 @@ export class AvarisService {
       }
 
       // Construit la requête SQL pour récupérer la somme des quantités d'avaris non inventoriés
-      const sql = `SELECT * FROM Avaris WHERE deletedAt = 0  AND point_vente_id = ${_pointVente.id}  
+      const sql = `SELECT * FROM Avaris WHERE deletedAt = 0  AND id_point_vente = ${_pointVente.id}  
           AND all_ready_inventoried = 0`;
 
       // Exécute la requête SQL

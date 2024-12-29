@@ -119,37 +119,37 @@ export const DEFAULT_DATA: any[] = [
            upload: '', imgLink: 'preconfig-top-pamplemousse.jpeg', hasCasier: true, user_id: 1, deletedAt: 0 
         },
         { nom: 'Kadji Beer', qte: 0, prixA: 7200, prixV: 7800, nbreBtleParCasier: 12, ristourne: 250,
-             id_categorie: 5, id_casier: 4, id_famille: 4, 
+             id_categorie: 5, id_casier: 4, id_famille: 2, 
              fournisseurs: '[{\"id\":4,\"nom\":\"Kadji\"},{\"id\":1,\"nom\":\"Rene Tkc\"}]',
               upload: '', imgLink: 'preconfig-kadji.jpeg', hasCasier: true, user_id: 1, deletedAt: 0 
         },
         { nom: 'K44', qte: 0, prixA: 6000, prixV: 6600, nbreBtleParCasier: 12, ristourne: 250,
-             id_categorie: 5, id_casier: 4, id_famille: 4, 
+             id_categorie: 5, id_casier: 4, id_famille: 2, 
              fournisseurs: '[{\"id\":4,\"nom\":\"Kadji\"},{\"id\":1,\"nom\":\"Rene Tkc\"}]',
               upload: '', imgLink: 'preconfig-k44.jpeg', hasCasier: true, user_id: 1, deletedAt: 0 
         },
         { nom: 'Spécial Pamplemousse', qte: 0, prixA: 5100, prixV: 6000, nbreBtleParCasier: 12, ristourne: 250,
-             id_categorie: 4, id_casier: 4, id_famille: 4, 
+             id_categorie: 4, id_casier: 4, id_famille: 2, 
              fournisseurs: '[{\"id\":4,\"nom\":\"Kadji\"},{\"id\":1,\"nom\":\"Rene Tkc\"}]',
               upload: '', imgLink: 'preconfig-top-pamplemousse.jpeg', hasCasier: true, user_id: 1, deletedAt: 0 
         },
         { nom: 'Petite Guinness', qte: 0, prixA: 14400, prixV: 15600, nbreBtleParCasier: 24, ristourne: 300,
-             id_categorie: 5, id_casier: 2, id_famille: 2, 
+             id_categorie: 5, id_casier: 2, id_famille: 4, 
              fournisseurs: '[{\"id\":2,\"nom\":\"Guinness Cameroun\"},{\"id\":1,\"nom\":\"Rene Tkc\"}]',
               upload: '', imgLink: 'preconfig-petite-guinness.jpeg', hasCasier: true, user_id: 1, deletedAt: 0 
         },
         { nom: 'Grande Guinness', qte: 0, prixA: 11400, prixV: 13200, nbreBtleParCasier: 12, ristourne: 300,
-             id_categorie: 5, id_casier: 4, id_famille: 2, 
+             id_categorie: 5, id_casier: 4, id_famille: 4, 
              fournisseurs: '[{\"id\":2,\"nom\":\"Guinness Cameroun\"},{\"id\":1,\"nom\":\"Rene Tkc\"}]',
               upload: '', imgLink: 'preconfig-grande-guinness.jpeg', hasCasier: true, user_id: 1, deletedAt: 0 
         },
         { nom: 'Guinness Smooth', qte: 0, prixA: 10500, prixV: 11250, nbreBtleParCasier: 15, ristourne: 300,
-             id_categorie: 5, id_casier: 3, id_famille: 2, 
+             id_categorie: 5, id_casier: 3, id_famille: 4, 
              fournisseurs: '[{\"id\":2,\"nom\":\"Guinness Cameroun\"},{\"id\":1,\"nom\":\"Rene Tkc\"}]',
               upload: '', imgLink: 'preconfig-guinness-smooth.jpeg', hasCasier: true, user_id: 1, deletedAt: 0 
         },
         { nom: 'Black & White', qte: 0, prixA: 48000, prixV: 60000, nbreBtleParCasier: 6, ristourne: 0,
-             id_categorie: 2, id_casier: 1, id_famille: 2, 
+             id_categorie: 2, id_casier: 1, id_famille: 4, 
              fournisseurs: '[{\"id\":2,\"nom\":\"Guinness Cameroun\"},{\"id\":1,\"nom\":\"Rene Tkc\"}]',
               upload: '', imgLink: 'preconfig-whisky-black.jpeg', hasCasier: false, user_id: 1, deletedAt: 0 
         }

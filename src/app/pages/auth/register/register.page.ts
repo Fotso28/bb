@@ -4,7 +4,7 @@ import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms'
 import { AnimationController, LoadingController, NavController } from '@ionic/angular';
 import { showError, showToast } from 'src/app/_lib/lib';
 import { AuthService } from 'src/app/services/auth.service';
-import { Device } from '@capacitor/device';
+
 @Component({
   selector: 'app-register',
   templateUrl: './register.page.html',
@@ -63,10 +63,6 @@ export class RegisterPage implements OnInit {
       password: ['', [Validators.required, Validators.minLength(6)]],
       confirmPassword: ['', [Validators.required]]
     }, { validator: this.passwordMatchValidator });
-
-    console.log(await Device.getInfo());
-    console.log(await Device.getLanguageCode());
-    console.log(await Device.getId());
   }
  
   onNext() {
@@ -113,19 +109,16 @@ export class RegisterPage implements OnInit {
       await loading.present();
 
       const { username, telephone, localite, password } = this.registerForm.value;
+      console.log(this.registerForm.value);
       
-      let phoneId = "15002545447885";
-      console.log('je suis ici')
-      this.authService.register(username, telephone, localite, password, phoneId).subscribe(
-        {
-          next: async (response) => {
+     
+      this.authService.register(username, telephone, localite, password).then( async (response) => {
             await loading.dismiss(); // Masquer le chargement après la réponse du serveur
               // Optionnel: Gérer la réponse de l'inscription, par exemple afficher un message de succès ou rediriger
               this.navCtrl.navigateRoot('/login'); // Redirection vers la page de connexion
               showToast("Compte crée!")
               console.log(response);
-            },
-            error: async (error) => {
+            }).catch( async (error) => {
               console.log(error)
               await loading.dismiss(); // Masquer le chargement en cas d'erreur
               if(error.status == 409){
@@ -139,7 +132,6 @@ export class RegisterPage implements OnInit {
               showError("Echec de connexion internet");
               this.errorMessage = 'Inscription échouée. Veuillez vérifier vos informations.';
             }
-        }
         );
       } else {
         this.errorMessage = 'Veuillez remplir correctement le formulaire.';

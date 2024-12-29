@@ -28,9 +28,9 @@ export class LoginPage implements OnInit {
       telephone: ['', [Validators.required, Validators.pattern(/^[0-9]{9}$/)]],
       password: ['', [Validators.required, Validators.minLength(6)]],  
     });
-    console.log("voici les users : ", await this.bdSvc.getActiveUser());
   }
 
+  phoneMsg: string = "";
   async onSubmit(){
     if (this.registerForm.valid) {
       const loading = await this.loadingCtrl.create({
@@ -41,48 +41,67 @@ export class LoginPage implements OnInit {
       await loading.present();
 
       const { telephone, password } = this.registerForm.value;
-      this.authService.login(telephone, password).subscribe(
-        {
-          next: async (response) => {
+      this.authService.login(telephone, password).then( async (response) => {
             let user: User = response as User;
+            console.log(response);
+            
             if(!user || !user.id){
               await loading.dismiss(); // Masquer le chargement après la réponse du serveur
               showError("Utilisateur incorrect");
               return;
             }
+
             loading.cssClass = "connected";
             console.log(response)
+
             loading.message = "Chargement des données"
             setTimeout(async ()=>{
               await this.bdSvc.setActiveUser(response);
               await this.bdSvc.loadData();
+              await this.dataInit.activePointVente();
               await loading.dismiss(); 
               this.navCtrl.navigateRoot('/accueil'); // Redirection vers la page principale
               showToast("Vous êtes connectés");
             }, 2000);
-          },
-          error: async (error) => {
+
+          }).catch ( async (error) => {
             await loading.dismiss(); // Masquer le chargement en cas d'erreur
             console.log(error);
+
+            if(error.status == 402){
+              // Masquer le chargement après la réponse du serveur
+              let message = `Connectez vous avec votre ${error.error.activePhone} SVP`;
+              this.phoneMsg = message;
+              showError(message);
+              return;
+            }
+
             if(error.status == 401 || error.status == 400){
               showError('Telephone ou mot de passe incorrect');
+              return;
             }
             if(error.status == 0){
               showError('Erreur reseau');
+              return;
             }
             this.errorMessage = 'Login failed. Please check your credentials.';
           }
-        }
       );
     } else {
-      this.errorMessage = 'Please fill out the form correctly.';
+      this.errorMessage = 'Remplir correctement les champs';
+    }
+
+    if(this.errorMessage){
+      showError(this.errorMessage);
     }
   }
 
   async dropTable(){
     this.bdSvc.DropTables().then(async ()=>{
-      await this.dataInit.initializeApp();
+      await this.dataInit.initializeDatabase();
       showToast('Table dropped');
     });
   }
+
+  
 }

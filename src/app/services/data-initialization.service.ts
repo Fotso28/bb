@@ -9,20 +9,33 @@ import { showError } from '../_lib/lib';
 })
 export class DataInitializationService {
 
-  constructor(private dbSvc: BdService
+  constructor(private bdSvc: BdService
     ,private pvSvc: PointVenteService
   ) { }
 
-  async initializeApp(){
+  async initializeDatabase(){
 
-    await this.dbSvc.initDatabase()
+    let bdIsInit: boolean = false;
 
-    if(!this.dbSvc.getActiveUser()){
-      showError("Aucun utilisateur defini")
-      // this.userSvc.setActiveUser({ id: 1, username: 'Test User', telephone: '699658838', localite: "", token: "jtkls" })
+    if(!this.bdSvc.dbIsready){
+      bdIsInit = await this.bdSvc.initDatabase()
     }
-    
-    await this.activePointVente();
+
+    if(!this.bdSvc.dbIsready){
+      throw Error("La base de donnée n'est initialisée !!")
+    }
+
+    if(bdIsInit){
+      let activeUser = await this.bdSvc.getActiveUser();
+
+      if(!activeUser){
+        console.log("Aucun utilisateur defini");
+        return;
+        // this.userSvc.setActiveUser({ id: 1, username: 'Test User', telephone: '699658838', localite: "", token: "jtkls" })
+      }
+      
+      await this.activePointVente();
+    }
   }
 
   async activePointVente(){
@@ -44,7 +57,7 @@ export class DataInitializationService {
   }
 
   async clearParamsData(){
-    await this.dbSvc.deleteActiveUser();
+    await this.bdSvc.deleteActiveUser();
     localStorage.removeItem('pointVente');
     localStorage.removeItem('endDate');
   }

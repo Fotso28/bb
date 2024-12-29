@@ -173,7 +173,7 @@ export class CameraService {
       const allowedMimeTypes = ['image/jpeg', 'image/png']; // Types MIME autorisés
   
       const galleryPhotos = await Camera.pickImages({
-        quality: 80,
+        quality: 100,
         height: 500,
         width: 500,
         limit: 3,
